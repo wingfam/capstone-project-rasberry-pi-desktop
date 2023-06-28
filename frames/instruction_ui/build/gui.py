@@ -11,7 +11,7 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Projects\Smart-Locker\instruction-ui\build\assets\frame0")
+ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Projects\Smart-Locker\frames\instruction_ui\build\assets\frame0")
 
 
 def relative_to_assets(path: str) -> Path:
@@ -46,23 +46,23 @@ button_1 = Button(
 )
 button_1.place(
     x=445.0,
-    y=333.0,
+    y=375.0,
     width=503.0,
     height=86.63333129882812
 )
 
 canvas.create_text(
     445.0,
-    186.0,
+    166.0,
     anchor="nw",
-    text="Tủ của bạn là số: 02\nSau khi mở tủ, vui lòng đóng kín cửa tủ lại. \nSau 30 giây nếu tủ chưa được mở, cửa tủ sẽ \ntự động khóa. Bạn cần nhập lại mã để mở tủ.",
+    text="Tủ của bạn là số: ",
     fill="#333333",
     font=("Roboto", 24 * -1)
 )
 
 canvas.create_text(
     445.0,
-    149.0,
+    118.0,
     anchor="nw",
     text="Hướng dẫn:",
     fill="#333333",
@@ -70,37 +70,47 @@ canvas.create_text(
 )
 
 canvas.create_rectangle(
-    213.0,
-    196.0,
+    55.0,
+    122.0,
     363.0,
-    346.0,
-    fill="#00FFFF",
+    462.0,
+    fill="#000000",
     outline="")
 
 canvas.create_text(
-    256.0,
-    207.0,
+    260.0,
+    141.0,
     anchor="nw",
     text="02",
     fill="#000000",
     font=("Roboto", 48 * -1)
 )
 
-canvas.create_rectangle(
-    55.0,
-    196.0,
-    205.0,
-    346.0,
-    fill="#FFFBF7",
-    outline="")
-
 canvas.create_text(
-    98.0,
-    207.0,
+    102.0,
+    141.0,
     anchor="nw",
     text="01",
     fill="#000000",
     font=("Roboto", 48 * -1)
+)
+
+canvas.create_text(
+    642.0,
+    166.0,
+    anchor="nw",
+    text="02",
+    fill="#000000",
+    font=("Roboto", 24 * -1)
+)
+
+canvas.create_text(
+    445.0,
+    205.0,
+    anchor="nw",
+    text="Sau khi mở tủ, vui lòng đóng kín cửa tủ lại. \nSau 30 giây nếu tủ chưa được mở, cửa tủ sẽ \ntự động khóa. Bạn cần nhập lại mã để mở tủ.",
+    fill="#333333",
+    font=("Roboto", 24 * -1)
 )
 window.resizable(False, False)
 window.mainloop()
