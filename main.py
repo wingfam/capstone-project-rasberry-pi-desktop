@@ -459,8 +459,6 @@ class CompletionScreen(ctk.CTkFrame):
         )
         
         
-
-
 if __name__ == "__main__":
     root = MainApp()
     root.mainloop()
