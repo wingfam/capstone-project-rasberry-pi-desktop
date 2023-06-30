@@ -1,5 +1,4 @@
 import tkinter as tk
-import customtkinter as ctk
 from tkinter import ttk
 
 class Keypad(tk.Frame):

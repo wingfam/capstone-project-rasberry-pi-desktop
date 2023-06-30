@@ -1,13 +1,14 @@
 import tkinter as tk
 import customtkinter as ctk
-from tkinter import ttk, Canvas, Image, Label
-from customtkinter import CTkButton, CTkImage, CTkEntry, CTkFont
+from tkinter import ttk, Canvas, Image
 from PIL import Image, ImageTk
+from controllers.delivery import verify_booking_code
+# from controllers.delivery import verify_booking_code
 from widgets.keypad import Keypad
 
-class MainApp(tk.Tk):
+class MainApp(ctk.CTk):
     def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
+        ctk.CTk.__init__(self, *args, **kwargs)
         self.geometry("1024x600")
         self.title("Smart Locker")
         
@@ -26,19 +27,15 @@ class MainApp(tk.Tk):
         self.show_frame(MainScreen)
         
     def show_frame(self, cont):
-        for frame in self.frames.values():
-            frame.grid_remove()
         frame = self.frames[cont]
-        frame.grid()
-        try:
-            frame.postupdate()
-        except AttributeError:
-            pass
+        frame.event_generate("<<ShowMainScreen>>")
+        frame.event_generate("<<ShowDeliveryScreen>>")
+        frame.tkraise()
 
 class MainScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        
+        self.bind("<<ShowMainScreen>>", self.on_show_frame(event="<<ShowMainScreen>>"))
         self.delivery_image = ctk.CTkImage(light_image=Image.open("assets/images/image_2.png"), size=[233, 233])
         self.pickup_image = ctk.CTkImage(light_image=Image.open("assets/images/image_1.png"), size=[233, 233])
         
@@ -86,18 +83,16 @@ class MainScreen(ctk.CTkFrame):
             x=542.5924682617188,
             y=150.0,
         )
-        
-    def postupdate(self):
-        pass
+    
+    def on_show_frame(self, event):
+        if event:
+            print("MainScreen is being shown...")
 
 class DeliveryScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
+        self.bind("<<ShowDeliveryScreen>>", self.on_show_frame(event="<<ShowDeliveryScreen>>"))
         
-        entry_code_string = ""
-        entry_code_font = ctk.CTkFont(size=48)
-        
-        home_image = ctk.CTkImage(light_image=Image.open("assets/images/button_home.png"), size=[44, 44])
         back_image = ctk.CTkImage(light_image=Image.open("assets/images/button_back.png"), size=[44, 44])
         
         canvas = Canvas(
@@ -137,18 +132,23 @@ class DeliveryScreen(ctk.CTkFrame):
             fill="#DDDDDD",
             outline="black")
         
-        entry_code = ctk.CTkEntry(
+        self.entry_code = ctk.CTkEntry(
             master=self,
             fg_color="#FFFFFF",
             width=467.0,
             height=82.0,
             text_color="black",
             font=ctk.CTkFont(size=48),
-            textvariable=entry_code_string,
         )
-        entry_code.place(
+        self.entry_code.place(
             x=42.0,
             y=166.0,
+        )
+        
+        self.label = ttk.Label(self, text="Display")
+        self.label.place(
+            x=42.0,
+            y=116.0
         )
         
         self.button_confirm = ctk.CTkButton(
@@ -160,26 +160,11 @@ class DeliveryScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=24),
-            command=lambda: controller.show_frame(InstructionScreen),
+            command=lambda: verify_booking_code(self=self, input_data=self.entry_code.get()),
         )
         self.button_confirm.place(
             x=48.0,
             y=432.0,
-        )
-        
-        self.button_home = ctk.CTkButton(
-            master=self,
-            width=44,
-            height=44,
-            bg_color="#FFFFFF",
-            fg_color="#FFFFFF",
-            text= "",
-            image=home_image,
-            command=lambda: controller.show_frame(MainScreen),
-        )
-        self.button_home.place(
-            x=951.0,
-            y=36.0,
         )
         
         self.button_back = ctk.CTkButton(
@@ -197,15 +182,30 @@ class DeliveryScreen(ctk.CTkFrame):
             y=528.0,
         )
         
+        button1 = tk.Button(self, text="Restart", command=lambda: self.restart(controller=controller))
+        button1.pack()
+        button2 = tk.Button(self, text="Refresh", command=self.refresh)
+        button2.pack()
+        
         self.keypad = Keypad(self)
-        self.keypad.target = entry_code
+        self.keypad.target = self.entry_code
         self.keypad.place(
             x=567,
             y=156,
         )
     
-    def postupdate(self):
-        self.entry.focus()
+    def on_show_frame(self, event):
+        if event:
+            print("DeliveryScreen is being shown...")
+    
+    def restart(self, controller):
+        self.refresh()
+        controller.show_frame(MainScreen)
+        
+    def refresh(self):
+        self.entry_code.delete(0, "end")
+        self.label.configure(text="Display", foreground="black")
+
         
 class PickupScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -458,7 +458,7 @@ class CompletionScreen(ctk.CTkFrame):
             image=completion_image,
         )
         
-        
+
 if __name__ == "__main__":
     root = MainApp()
     root.mainloop()
