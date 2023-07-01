@@ -2,8 +2,7 @@ import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk, Canvas, Image
 from PIL import Image, ImageTk
-from controllers.delivery import verify_booking_code
-# from controllers.delivery import verify_booking_code
+from controllers.delivery import check_booking_code, get_booked_locker
 from widgets.keypad import Keypad
 
 class MainApp(ctk.CTk):
@@ -28,14 +27,11 @@ class MainApp(ctk.CTk):
         
     def show_frame(self, cont):
         frame = self.frames[cont]
-        frame.event_generate("<<ShowMainScreen>>")
-        frame.event_generate("<<ShowDeliveryScreen>>")
         frame.tkraise()
 
 class MainScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        self.bind("<<ShowMainScreen>>", self.on_show_frame(event="<<ShowMainScreen>>"))
         self.delivery_image = ctk.CTkImage(light_image=Image.open("assets/images/image_2.png"), size=[233, 233])
         self.pickup_image = ctk.CTkImage(light_image=Image.open("assets/images/image_1.png"), size=[233, 233])
         
@@ -83,15 +79,10 @@ class MainScreen(ctk.CTkFrame):
             x=542.5924682617188,
             y=150.0,
         )
-    
-    def on_show_frame(self, event):
-        if event:
-            print("MainScreen is being shown...")
 
 class DeliveryScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        self.bind("<<ShowDeliveryScreen>>", self.on_show_frame(event="<<ShowDeliveryScreen>>"))
         
         back_image = ctk.CTkImage(light_image=Image.open("assets/images/button_back.png"), size=[44, 44])
         
@@ -145,10 +136,11 @@ class DeliveryScreen(ctk.CTkFrame):
             y=166.0,
         )
         
-        self.label = ttk.Label(self, text="Display")
-        self.label.place(
-            x=42.0,
-            y=116.0
+        self.label = ttk.Label(
+            self, 
+            background="white", 
+            font=ctk.CTkFont(size=16),
+            text="", 
         )
         
         self.button_confirm = ctk.CTkButton(
@@ -160,7 +152,7 @@ class DeliveryScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=24),
-            command=lambda: verify_booking_code(self=self, input_data=self.entry_code.get()),
+            command=lambda: self.validate(),
         )
         self.button_confirm.place(
             x=48.0,
@@ -175,17 +167,12 @@ class DeliveryScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=back_image,
-            command=lambda: controller.show_frame(MainScreen),
+            command=lambda: self.restart(controller=controller),
         )
         self.button_back.place(
             x=951.0,
             y=528.0,
         )
-        
-        button1 = tk.Button(self, text="Restart", command=lambda: self.restart(controller=controller))
-        button1.pack()
-        button2 = tk.Button(self, text="Refresh", command=self.refresh)
-        button2.pack()
         
         self.keypad = Keypad(self)
         self.keypad.target = self.entry_code
@@ -194,9 +181,12 @@ class DeliveryScreen(ctk.CTkFrame):
             y=156,
         )
     
-    def on_show_frame(self, event):
-        if event:
-            print("DeliveryScreen is being shown...")
+    def validate(self):
+        item_list = check_booking_code(self=self, input_data=self.entry_code)
+        if item_list:
+            get_booked_locker(fb_login=item_list[0], fb_item_list=item_list[1])
+        else:
+            pass
     
     def restart(self, controller):
         self.refresh()
@@ -204,7 +194,8 @@ class DeliveryScreen(ctk.CTkFrame):
         
     def refresh(self):
         self.entry_code.delete(0, "end")
-        self.label.configure(text="Display", foreground="black")
+        self.label.grid_remove()
+        # self.label.configure(text="Display", foreground="black")
 
         
 class PickupScreen(ctk.CTkFrame):
