@@ -1,13 +1,13 @@
 import customtkinter as ctk
 from tkinter import ttk, Canvas, Image
 from PIL import Image
-from controllers.delivery import check_booking_code, get_booked_locker
-from views.main_screen import MainScreen
 from widgets.keypad import Keypad
-# TODO: Chyển tất cả frame sang window
+from controllers.delivery import check_booking_code, get_booked_locker
+
 class DeliveryScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
+        self.parent = parent
         
         back_image = ctk.CTkImage(light_image=Image.open("assets/images/button_back.png"), size=[44, 44])
         
@@ -115,9 +115,8 @@ class DeliveryScreen(ctk.CTkFrame):
     
     def restart(self, controller):
         self.refresh()
-        controller.show_frame(MainScreen)
+        controller.show_frame("MainScreen")
         
     def refresh(self):
         self.entry_code.delete(0, "end")
         self.label.grid_remove()
-        # self.label.configure(text="Display", foreground="black")

@@ -1,14 +1,12 @@
 import customtkinter as ctk
-from tkinter import ttk, Canvas, Image
+from tkinter import Canvas, Image
 from PIL import Image
-from views.main_screen import MainScreen
 from widgets.keypad import Keypad
 
 class PickupScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        
-        entry_code_string = ""
+        self.parent = parent
         
         home_image = ctk.CTkImage(light_image=Image.open("assets/images/button_home.png"), size=[44, 44])
         back_image = ctk.CTkImage(light_image=Image.open("assets/images/button_back.png"), size=[44, 44])
@@ -57,7 +55,6 @@ class PickupScreen(ctk.CTkFrame):
             height=82.0,
             text_color="black",
             font=ctk.CTkFont(size=48),
-            textvariable=entry_code_string,
         )
         entry_code.place(
             x=42.0,
@@ -88,7 +85,7 @@ class PickupScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=home_image,
-            command=lambda: controller.show_frame(MainScreen),
+            command=lambda: controller.show_frame(self.MainScreen),
         )
         self.button_home.place(
             x=951.0,
@@ -103,7 +100,7 @@ class PickupScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=back_image,
-            command=lambda: controller.show_frame(MainScreen),
+            command=lambda: controller.show_frame(self.MainScreen),
         )
         self.button_back.place(
             x=951.0,

@@ -1,13 +1,12 @@
 import customtkinter as ctk
-from tkinter import ttk, Canvas, Image
+from tkinter import Canvas, Image
 from PIL import Image
-from views.delivery_screen import DeliveryScreen
-from views.pickup_screen import PickupScreen
-from widgets.keypad import Keypad
 
 class MainScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
+        self.parent = parent
+        
         self.delivery_image = ctk.CTkImage(light_image=Image.open("assets/images/image_2.png"), size=[233, 233])
         self.pickup_image = ctk.CTkImage(light_image=Image.open("assets/images/image_1.png"), size=[233, 233])
         
@@ -32,7 +31,7 @@ class MainScreen(ctk.CTkFrame):
             compound="top",
             text="Lấy Hàng",
             font=ctk.CTkFont(size=48),
-            command=lambda: controller.show_frame(PickupScreen),
+            command=lambda: controller.show_frame("PickupScreen"),
         )
         button_pickup.place(
             x=61.0,
@@ -49,7 +48,7 @@ class MainScreen(ctk.CTkFrame):
             compound="top",
             text="Gửi Hàng",
             font=ctk.CTkFont(size=48),
-            command=lambda: controller.show_frame(DeliveryScreen),
+            command=lambda: controller.show_frame("DeliveryScreen"),
         )
         button_delivery.place(
             x=542.5924682617188,

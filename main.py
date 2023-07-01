@@ -1,12 +1,10 @@
-import tkinter as tk
 import customtkinter as ctk
-from tkinter import ttk, Canvas, Image
+from tkinter import Canvas, Image
 from PIL import Image, ImageTk
+
 from views.main_screen import MainScreen
 from views.delivery_screen import DeliveryScreen
 from views.pickup_screen import PickupScreen
-from controllers.delivery import check_booking_code, get_booked_locker
-from widgets.keypad import Keypad
 
 class MainApp(ctk.CTk):
     def __init__(self, *args, **kwargs):
@@ -19,17 +17,23 @@ class MainApp(ctk.CTk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         
-        self.frames = {}
-        for F in (MainScreen, DeliveryScreen, PickupScreen, InstructionScreen, CompletionScreen):
+        self.frames = {
+            "MainScreen": MainScreen,
+            "DeliveryScreen": DeliveryScreen,
+            "PickupScreen": PickupScreen,
+            "InstructionScreen": InstructionScreen,
+            "CompletionScreen": CompletionScreen,
+        }
+        for key, F in self.frames.items():
             frame = F(container, self)
             # the windows class acts as the root window for the frames.
-            self.frames[F] = frame
+            self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
             
-        self.show_frame(MainScreen)
+        self.show_frame("MainScreen")
         
-    def show_frame(self, cont):
-        frame = self.frames[cont]
+    def show_frame(self, page_name):
+        frame = self.frames[page_name]
         frame.tkraise()
 
 class InstructionScreen(ctk.CTkFrame):
