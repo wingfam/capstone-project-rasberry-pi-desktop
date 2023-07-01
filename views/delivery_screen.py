@@ -1,27 +1,14 @@
 import customtkinter as ctk
 from tkinter import ttk, Canvas, Image
 from PIL import Image
-from controllers.delivery_controller import check_booking_code, get_booking_info
-from views.instruction_screen import InstructionScreen
+from controllers.delivery import check_booking_code, get_booked_locker
+from views.main_screen import MainScreen
 from widgets.keypad import Keypad
-
 # TODO: Chyển tất cả frame sang window
-class DeliveryScreen(ctk.CTkToplevel):
-    # Class attribute that indicates whether this child window
-    # is being used (alive) or not.
-    alive = False
-
-    def __init__(self, *args, **kwargs):
-        ctk.CTkToplevel.__init__(self,  *args, **kwargs)
-        self.geometry("1024x600")
-        # self.attributes('-fullscreen', True)
-        self.title("Smart Locker")
-        self.attributes("-topmost", True)
-        self.focus()
-        self.grab_set()
-        # Set the window as alive once created.
-        self.__class__.alive = True
-
+class DeliveryScreen(ctk.CTkFrame):
+    def __init__(self, parent, controller):
+        ctk.CTkFrame.__init__(self, parent)
+        
         back_image = ctk.CTkImage(light_image=Image.open("assets/images/button_back.png"), size=[44, 44])
         
         canvas = Canvas(
@@ -90,7 +77,7 @@ class DeliveryScreen(ctk.CTkToplevel):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=24),
-            command=lambda: self.validate(self.entry_code),
+            command=lambda: self.validate(),
         )
         self.button_confirm.place(
             x=48.0,
@@ -105,11 +92,11 @@ class DeliveryScreen(ctk.CTkToplevel):
             fg_color="#FFFFFF",
             text= "",
             image=back_image,
-            command=lambda: self.destroy(),
+            command=lambda: self.restart(controller=controller),
         )
         self.button_back.place(
             x=951.0,
-            y=38.0,
+            y=528.0,
         )
         
         self.keypad = Keypad(self)
@@ -119,22 +106,18 @@ class DeliveryScreen(ctk.CTkToplevel):
             y=156,
         )
     
-    def validate(self, entry_code):
-        item_list = check_booking_code(self=self, input_data=entry_code)
+    def validate(self):
+        item_list = check_booking_code(self=self, input_data=self.entry_code)
         if item_list:
-            booking_info = get_booking_info(fb_login=item_list[0], fb_item_list=item_list[1])
-            self.open_instruction_screen(info=booking_info)
-            self.destroy()
+            get_booked_locker(fb_login=item_list[0], fb_item_list=item_list[1])
         else:
             pass
     
-    def open_instruction_screen(self, info):
-        print("ERROR?")
-        #TODO: Fix AttributeError: 'dict' object has no attribute 'tk'
-        if not InstructionScreen.alive:
-            self.secondary_window = InstructionScreen(info=info)
-    
-    def destroy(self):
-        # Restore the attribute on close.
-        self.__class__.alive = False
-        return super().destroy()
+    def restart(self, controller):
+        self.refresh()
+        controller.show_frame(MainScreen)
+        
+    def refresh(self):
+        self.entry_code.delete(0, "end")
+        self.label.grid_remove()
+        # self.label.configure(text="Display", foreground="black")
