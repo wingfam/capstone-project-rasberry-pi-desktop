@@ -1,12 +1,11 @@
 import customtkinter as ctk
-from tkinter import ttk, Canvas, Image
+from tkinter import Canvas, Image
 from PIL import Image
 from views.delivery_screen import DeliveryScreen
 from views.pickup_screen import PickupScreen
-from widgets.keypad import Keypad
 
 class MainScreen(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, container):
         ctk.CTkFrame.__init__(self, parent)
         self.delivery_image = ctk.CTkImage(light_image=Image.open("assets/images/image_2.png"), size=[233, 233])
         self.pickup_image = ctk.CTkImage(light_image=Image.open("assets/images/image_1.png"), size=[233, 233])
@@ -20,7 +19,7 @@ class MainScreen(ctk.CTkFrame):
             highlightthickness = 0,
             relief = "ridge"
         )
-        canvas.pack(fill='both', expand=True)
+        canvas.place(x = 0, y = 0)
         
         button_pickup = ctk.CTkButton(
             master=self,
@@ -32,7 +31,7 @@ class MainScreen(ctk.CTkFrame):
             compound="top",
             text="Lấy Hàng",
             font=ctk.CTkFont(size=48),
-            command=lambda: controller.show_frame(PickupScreen),
+            command=lambda: print("Go to Pickup Screen"),
         )
         button_pickup.place(
             x=61.0,
@@ -49,9 +48,17 @@ class MainScreen(ctk.CTkFrame):
             compound="top",
             text="Gửi Hàng",
             font=ctk.CTkFont(size=48),
-            command=lambda: controller.show_frame(DeliveryScreen),
+            command=lambda: self.open_delivery_screen(),
         )
         button_delivery.place(
-            x=542.5924682617188,
+            x=542.0,
             y=150.0,
         )
+
+    def open_delivery_screen(self):
+        if not DeliveryScreen.alive:
+            self.secondary_window = DeliveryScreen()
+    
+    def open_pickup_screen(self):
+        if not PickupScreen.alive:
+            self.secondary_window = PickupScreen()

@@ -1,16 +1,24 @@
 import customtkinter as ctk
 from tkinter import ttk, Canvas, Image
 from PIL import Image
-from views.main_screen import MainScreen
 from widgets.keypad import Keypad
 
-class PickupScreen(ctk.CTkFrame):
-    def __init__(self, parent, controller):
-        ctk.CTkFrame.__init__(self, parent)
+class PickupScreen(ctk.CTkToplevel):
+    # Class attribute that indicates whether this child window
+    # is being used (alive) or not.
+    alive = False
+    
+    def __init__(self, *args, **kwargs):
+        ctk.CTkToplevel.__init__(self, *args, **kwargs)
+        self.geometry("1024x600")
+        # self.attributes('-fullscreen', True)
+        self.title("Smart Locker")
+        self.attributes("-topmost", True)
+        self.focus()
+        self.grab_set()
+        # Set the window as alive once created.
+        self.__class__.alive = True
         
-        entry_code_string = ""
-        
-        home_image = ctk.CTkImage(light_image=Image.open("assets/images/button_home.png"), size=[44, 44])
         back_image = ctk.CTkImage(light_image=Image.open("assets/images/button_back.png"), size=[44, 44])
         
         canvas = Canvas(
@@ -57,7 +65,6 @@ class PickupScreen(ctk.CTkFrame):
             height=82.0,
             text_color="black",
             font=ctk.CTkFont(size=48),
-            textvariable=entry_code_string,
         )
         entry_code.place(
             x=42.0,
@@ -73,26 +80,11 @@ class PickupScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=24),
-            command=lambda: print("Go to instruction screen"),
+            command=lambda: print("Validate unlock code"),
         )
         self.button_confirm.place(
             x=48.0,
             y=432.0,
-        )
-        
-        self.button_home = ctk.CTkButton(
-            master=self,
-            width=44,
-            height=44,
-            bg_color="#FFFFFF",
-            fg_color="#FFFFFF",
-            text= "",
-            image=home_image,
-            command=lambda: controller.show_frame(MainScreen),
-        )
-        self.button_home.place(
-            x=951.0,
-            y=36.0,
         )
         
         self.button_back = ctk.CTkButton(
@@ -103,11 +95,11 @@ class PickupScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=back_image,
-            command=lambda: controller.show_frame(MainScreen),
+            command=lambda: self.destroy(),
         )
         self.button_back.place(
             x=951.0,
-            y=528.0,
+            y=38.0,
         )
         
         self.keypad = Keypad(self)
@@ -117,5 +109,7 @@ class PickupScreen(ctk.CTkFrame):
             y=156,
         )
     
-    def postupdate(self):
-        self.entry.focus()
+    def destroy(self):
+        # Restore the attribute on close.
+        self.__class__.alive = False
+        return super().destroy()
