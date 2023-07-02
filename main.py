@@ -1,3 +1,7 @@
+'''
+Need to update .venv everytime switch to different enviroment
+'''
+
 import customtkinter as ctk
 from views.completion_screen import CompletionScreen
 from views.instruction_screen import InstructionScreen
