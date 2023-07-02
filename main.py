@@ -17,14 +17,7 @@ class MainApp(ctk.CTk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         
-        self.app_data = {
-            "UnlockCodeId": "",
-            "BookingCodeId": "",
-            "LockerId": "",
-            "LockerName": "",
-            "BookingId": "",
-            "Status": "",
-        }
+        self.app_data = {}
         
         self.frames = {
             "MainScreen": MainScreen,

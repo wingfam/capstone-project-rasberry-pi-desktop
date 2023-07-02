@@ -1,31 +1,29 @@
 import customtkinter as ctk
-from tkinter import ttk, Canvas
+from tkinter import StringVar, ttk, Canvas
 from controllers.instruction import confirm_task
 
 class InstructionScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
+        ctk.CTkFrame.configure(self, fg_color="white")
         self.controller = controller
+        self.task = StringVar()
         
-        canvas = Canvas(
-            self,
-            bg = "#FFFFFF",
-            height = 600,
-            width = 1024,
-            bd = 0,
-            highlightthickness = 0,
-            relief = "ridge"
-        )
-        canvas.place(x = 0, y = 0)
+        ctk.CTkLabel(
+            master=self,
+            font=ctk.CTkFont(size=24),
+            bg_color="white",
+            text_color="black",
+            text="Tủ của bạn là số: "
+        ).place(x=445, y=118)
         
-        canvas.create_text(
-            445.0,
-            118.0,
-            anchor="nw",
-            text="Tủ của bạn là số: ",
-            fill="#333333",
-            font=("Roboto", 24 * -1)
-        )
+        ctk.CTkLabel(
+            master=self,
+            font=ctk.CTkFont(size=24),
+            bg_color="white",
+            text_color="black",
+            text="Sau khi để hàng vào tủ, vui lòng đóng kín cửa tủ lại. \nSau đó nhấn nút Xác Nhận để hoàn tất thao tác."
+        ).place(x=445, y=205)
         
         self.locker_name_label = ttk.Label(
             master=self,
@@ -35,32 +33,6 @@ class InstructionScreen(ctk.CTkFrame):
             text=""
         )
         self.locker_name_label.place(x=635.0, y=114.5)
-        
-        canvas.create_text(
-            445.0,
-            118.0,
-            anchor="nw",
-            text="Tủ của bạn là số: ",
-            fill="#333333",
-            font=("Roboto", 24 * -1)
-        )
-        
-        canvas.create_text(
-            445.0,
-            205.0,
-            anchor="nw",
-            text="Sau khi để hàng vào tủ, vui lòng đóng kín cửa tủ lại. \nSau đó nhấn nút Xác Nhận để hoàn tất thao tác.",
-            fill="#333333",
-            font=("Roboto", 24 * -1)
-        )
-        
-        canvas.create_rectangle(
-            55.0,
-            122.0,
-            363.0,
-            462.0,
-            fill="#FFFFFF",
-            outline="black")
         
         self.button_confirm = ctk.CTkButton(
             master=self,
@@ -73,10 +45,7 @@ class InstructionScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=24),
             command=lambda: self.check_package(),
         )
-        self.button_confirm.place(
-            x=445.0,
-            y=375.0,
-        )
+        self.button_confirm.place(x=445.0, y=375.0)
         
         self.error_label = ttk.Label(
             self, 
@@ -90,11 +59,7 @@ class InstructionScreen(ctk.CTkFrame):
         )
         
     def check_package(self):
-        task = "delivery"
-        data = {
-            "BookingCodeId": self.controller.app_data["BookingCodeId"],
-            "Status": self.controller.app_data["Status"],
-        }
-        isComplete = confirm_task(self, data=data, task=task)
+        task = self.task.get()
+        isComplete = confirm_task(self, task=task)
         if isComplete:
             self.controller.show_frame("CompletionScreen")

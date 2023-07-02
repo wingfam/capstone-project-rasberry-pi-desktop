@@ -2,7 +2,7 @@ from datetime import datetime
 from services.auth import firebase_login
 from services.firebase_config import firebaseDB
 
-def confirm_task(self, data, task):
+def confirm_task(self, task):
     isError = False
     error_text= ""
     try:
@@ -11,17 +11,24 @@ def confirm_task(self, data, task):
         if task == "delivery":
             # Update booking code status to False
             isCompleted = True
-            id = data["BookingCodeId"]
             newStatus = False
-            firebaseDB.child("/booking_code/", id).update(
+            code_id = self.controller.app_data["BookingCodeId"]
+            
+            firebaseDB.child("/booking_code/", code_id).update(
                 {"Status": newStatus}, fb_login["idToken"])
+            
             return isCompleted
         elif task == "pickup":
-            booking_id = data["BookingId"]
-            new_booking_status = False
+             # Update booking order status to False
+            isCompleted = True
+            newStatus = False
+            booking_id = self.controller.app_data["BookingId"]
+            
             firebaseDB.child("/booking_order/", booking_id).update(
-                {"booking_status": new_booking_status}, fb_login["idToken"])
+                {"booking_status": newStatus}, fb_login["idToken"])
+            
             print("Pickup completed!")
+            return isCompleted
     except Exception as e:
         isError = True
         error_text= e

@@ -12,9 +12,7 @@ class Keypad(tk.Frame):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.target = None
-        self.memory = ''
         style = ttk.Style()
         style.configure('my.TButton', font=('Helvetica', 20))
 
@@ -54,26 +52,4 @@ class Keypad(tk.Frame):
             text = text[:-1]
             self.clear()
             self.append(text)
-
-    def copy(self):
-        #TODO: copy to clipboad
-        if self.target:
-            self.memory = self.get()
-            self.label['text'] = 'memory: ' + self.memory
-            print(self.memory)
-
-    def paste(self):
-        #TODO: copy from clipboad
-        if self.target:
-            self.append(self.memory)
-
-    def show(self, entry):
-        self.target = entry
-        self.place(
-            x=567,
-            y=166,
-        )
-
-    def hide(self):
-        self.target = None
-        self.place_forget()
+ 

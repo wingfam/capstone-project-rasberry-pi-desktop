@@ -1,26 +1,13 @@
-import time
 import customtkinter as ctk
-from tkinter import ttk, Canvas, Image
-from PIL import Image
+from ultilites.image_import import delivery_image, pickup_image
 
 class MainScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
+        ctk.CTkFrame.configure(self, fg_color="white")
         self.parent = parent
-        
-        self.delivery_image = ctk.CTkImage(light_image=Image.open("assets/images/image_2.png"), size=[233, 233])
-        self.pickup_image = ctk.CTkImage(light_image=Image.open("assets/images/image_1.png"), size=[233, 233])
-        
-        canvas = Canvas(
-            master=self,
-            bg = "#FFFFFF",
-            height = 600,
-            width = 1024,
-            bd = 0,
-            highlightthickness = 0,
-            relief = "ridge"
-        )
-        canvas.pack(fill='both', expand=True)
+        self.delivery_image = delivery_image
+        self.pickup_image = pickup_image
         
         button_pickup = ctk.CTkButton(
             master=self,
