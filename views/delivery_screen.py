@@ -1,15 +1,17 @@
 import customtkinter as ctk
-from tkinter import ttk, Canvas, Image
+from tkinter import StringVar, ttk, Canvas, Image
 from PIL import Image
 from widgets.keypad import Keypad
 from controllers.delivery import check_booking_code, get_booked_locker
 
+back_image = ctk.CTkImage(light_image=Image.open("assets/images/button_back.png"), size=[44, 44])
+        
 class DeliveryScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        self.parent = parent
         
-        back_image = ctk.CTkImage(light_image=Image.open("assets/images/button_back.png"), size=[44, 44])
+        self.parent = parent
+        self.controller = controller
         
         canvas = Canvas(
             master=self,
@@ -92,7 +94,7 @@ class DeliveryScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=back_image,
-            command=lambda: self.restart(controller=controller),
+            command=lambda: self.restart(),
         )
         self.button_back.place(
             x=951.0,
@@ -105,17 +107,22 @@ class DeliveryScreen(ctk.CTkFrame):
             x=567,
             y=156,
         )
+        
     
     def validate(self):
         item_list = check_booking_code(self=self, input_data=self.entry_code)
         if item_list:
-            get_booked_locker(fb_login=item_list[0], fb_item_list=item_list[1])
+            get_booked_locker(self, fb_login=item_list[0], fb_item_list=item_list[1])
+            locker_name = self.controller.app_data["LockerName"]
+            self.controller.frames["InstructionScreen"].locker_name_label.configure(text=locker_name)
+            self.controller.show_frame("InstructionScreen")
         else:
             pass
     
-    def restart(self, controller):
+    def restart(self):
         self.refresh()
-        controller.show_frame("MainScreen")
+        self.event_delete("<<DeliveryScreen>>")
+        self.controller.show_frame("MainScreen")
         
     def refresh(self):
         self.entry_code.delete(0, "end")

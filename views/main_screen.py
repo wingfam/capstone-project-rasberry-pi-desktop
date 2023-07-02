@@ -1,5 +1,6 @@
+import time
 import customtkinter as ctk
-from tkinter import Canvas, Image
+from tkinter import ttk, Canvas, Image
 from PIL import Image
 
 class MainScreen(ctk.CTkFrame):

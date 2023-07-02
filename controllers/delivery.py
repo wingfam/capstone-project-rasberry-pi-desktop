@@ -20,8 +20,9 @@ def check_booking_code(self, input_data):
             fb_item_list = list(fb_booking_code.val().items())
             valid_datetime = datetime.strptime(fb_item_list[0][1].get(
                 "bcode_valid_datetime"), "%Y-%m-%d %H:%M:%S")
+            status = fb_item_list[0][1].get("Status")
             
-            if current_datetime > valid_datetime:
+            if not status or current_datetime > valid_datetime:
                 isError = True
                 error_text = "Mã booking đã hết hạn, vui lòng tạo booking khác"
             else:
@@ -43,23 +44,19 @@ def check_booking_code(self, input_data):
             foreground="red",
         )
 
-def get_booked_locker(fb_item_list, fb_login):
+def get_booked_locker(self, fb_item_list, fb_login):
+    booking_code_id = fb_item_list[0][0]
     booking_id = fb_item_list[0][1].get("booking_id")
+    booking_code_status = fb_item_list[0][1].get("Status")
     locker_id = firebaseDB.child(
         "booking_order/", booking_id, "/locker_id").get(fb_login["idToken"]).val()
     locker_name = firebaseDB.child(
         "locker/", locker_id, "/locker_name").get(fb_login["idToken"]).val()
     
-    item_dict = {
+    self.controller.app_data.update({
+        "BookingCodeId": booking_code_id,
         "BookingId": booking_id,
         "LockerId": locker_id,
-        "LockerName": locker_name
-    }
-    
-    print("LockerName: " + item_dict["LockerName"] + "\nBookingId: " + item_dict["BookingId"] + "\nLockerId: " + item_dict["LockerId"])
-    
-    return item_dict
-         
-def show_instructions(self, item_dict):
-    booking_id = item_dict["BookingId"]
-    print(booking_id)
+        "LockerName": locker_name,
+        "Status": booking_code_status,
+    })
