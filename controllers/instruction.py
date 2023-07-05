@@ -14,9 +14,10 @@ def confirm_task(self, task):
             newStatus = False
             code_id = self.controller.app_data["BookingCodeId"]
             
-            firebaseDB.child("/booking_code/", code_id).update(
-                {"Status": newStatus}, fb_login["idToken"])
+            firebaseDB.child("BookingCode", code_id).update(
+                {"status": newStatus}, fb_login["idToken"])
             
+            print("Delivery completed!")
             return isCompleted
         elif task == "pickup":
              # Update booking order status to False
@@ -24,8 +25,8 @@ def confirm_task(self, task):
             newStatus = False
             booking_id = self.controller.app_data["BookingId"]
             
-            firebaseDB.child("/booking_order/", booking_id).update(
-                {"booking_status": newStatus}, fb_login["idToken"])
+            firebaseDB.child("BookingOrder", booking_id).update(
+                {"status": newStatus}, fb_login["idToken"])
             
             print("Pickup completed!")
             return isCompleted

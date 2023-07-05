@@ -12,25 +12,25 @@ def check_unlock_code(self, input_data):
         try:
             # Login vào firebase mỗi lần gửi yêu cầu để tránh bị timeout
             fb_login = firebase_login()
-            current_datetime = datetime.now()
+            currentDate = datetime.now()
             input_code = input_data.get()
             
-            fb_unlock_code = firebaseDB.child("unlock_code").order_by_child(
-                "ucode_name").equal_to(input_code).get(fb_login["idToken"])
+            fb_unlock_code = firebaseDB.child("UnlockCode").order_by_child(
+                "ucode").equal_to(input_code).get(fb_login["idToken"])
             
             fb_item_list = list(fb_unlock_code.val().items())
-            booking_id = fb_item_list[0][1].get("booking_id")
+            bookingId = fb_item_list[0][1].get("bookingId")
             
-            valid_datetime = firebaseDB.child(
-                "booking_order/", booking_id, "/booking_valid_datetime").get(fb_login["idToken"])
+            validDate = firebaseDB.child(
+                "BookingOrder/", bookingId, "/validDate").get(fb_login["idToken"])
             
-            valid_datetime = datetime.strptime(
-                valid_datetime.val(), "%Y-%m-%d %H:%M:%S")
+            validDate = datetime.strptime(
+                validDate.val(), "%Y-%m-%d %H:%M:%S")
             
-            booking_status = firebaseDB.child(
-                "booking_order/", booking_id, "/booking_status").get(fb_login["idToken"]).val()
+            status = firebaseDB.child(
+                "BookingOrder/", bookingId, "/status").get(fb_login["idToken"]).val()
             
-            if not booking_status or current_datetime > valid_datetime:
+            if not status or currentDate > validDate:
                 isError = True
                 error_text = "Booking Order đã hết hạn"
             else:
@@ -53,14 +53,14 @@ def check_unlock_code(self, input_data):
         )
         
 def update_app_data(self, fb_item_list, fb_login):
-    booking_id = fb_item_list[0][1].get("booking_id")
-    locker_id = firebaseDB.child(
-        "booking_order/", booking_id, "/locker_id").get(fb_login["idToken"]).val()
-    locker_name = firebaseDB.child(
-        "locker/", locker_id, "/locker_name").get(fb_login["idToken"]).val()
+    bookingId = fb_item_list[0][1].get("bookingId")
+    boxId = firebaseDB.child(
+        "BookingOrder/", bookingId, "/boxId").get(fb_login["idToken"]).val()
+    nameBox = firebaseDB.child(
+        "Box/", boxId, "/nameBox").get(fb_login["idToken"]).val()
     
     self.controller.app_data.update({
-        "BookingId": booking_id,
-        "LockerId": locker_id,
-        "LockerName": locker_name,
+        "bookingId": bookingId,
+        "boxId": boxId,
+        "nameBox": nameBox,
     })

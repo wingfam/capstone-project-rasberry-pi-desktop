@@ -25,14 +25,14 @@ class InstructionScreen(ctk.CTkFrame):
             text="Sau khi để hàng vào tủ, vui lòng đóng kín cửa tủ lại. \nSau đó nhấn nút Xác Nhận để hoàn tất thao tác."
         ).place(x=445, y=205)
         
-        self.locker_name_label = ttk.Label(
+        self.nameBox_label = ttk.Label(
             master=self,
             font=ctk.CTkFont(size=24),
             background="white",
             foreground="red",
             text=""
         )
-        self.locker_name_label.place(x=635.0, y=114.5)
+        self.nameBox_label.place(x=635.0, y=114.5)
         
         self.button_confirm = ctk.CTkButton(
             master=self,

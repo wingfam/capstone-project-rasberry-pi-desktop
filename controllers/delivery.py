@@ -15,15 +15,15 @@ def check_booking_code(self, input_data):
             current_datetime = datetime.now()
             input_code = input_data.get()
             
-            fb_booking_code = firebaseDB.child("booking_code").order_by_child(
-                "bcode_name").equal_to(input_code).get(fb_login["idToken"])
+            fb_booking_code = firebaseDB.child("BookingCode").order_by_child(
+                "code").equal_to(input_code).get(fb_login["idToken"])
             
             fb_item_list = list(fb_booking_code.val().items())
             
             valid_datetime = datetime.strptime(fb_item_list[0][1].get(
-                "bcode_valid_datetime"), "%Y-%m-%d %H:%M:%S")
+                "validDate"), "%Y-%m-%d %H:%M:%S")
             
-            status = fb_item_list[0][1].get("Status")
+            status = fb_item_list[0][1].get("status")
             
             if not status or current_datetime > valid_datetime:
                 isError = True
@@ -48,18 +48,18 @@ def check_booking_code(self, input_data):
         )
 
 def update_app_data(self, fb_item_list, fb_login):
-    booking_code_id = fb_item_list[0][0]
-    booking_id = fb_item_list[0][1].get("booking_id")
-    booking_code_status = fb_item_list[0][1].get("Status")
-    locker_id = firebaseDB.child(
-        "booking_order/", booking_id, "/locker_id").get(fb_login["idToken"]).val()
-    locker_name = firebaseDB.child(
-        "locker/", locker_id, "/locker_name").get(fb_login["idToken"]).val()
+    bookingCodeId = fb_item_list[0][0]
+    bookingId = fb_item_list[0][1].get("bookingId")
+    status = fb_item_list[0][1].get("status")
+    boxId = firebaseDB.child(
+        "BookingOrder/", bookingId, "/boxId").get(fb_login["idToken"]).val()
+    nameBox = firebaseDB.child(
+        "Box/", boxId, "/nameBox").get(fb_login["idToken"]).val()
     
     self.controller.app_data.update({
-        "BookingCodeId": booking_code_id,
-        "BookingId": booking_id,
-        "LockerId": locker_id,
-        "LockerName": locker_name,
-        "Status": booking_code_status,
+        "bookingCodeId": bookingCodeId,
+        "bookingId": bookingId,
+        "boxId": boxId,
+        "nameBox": nameBox,
+        "status": status,
     })

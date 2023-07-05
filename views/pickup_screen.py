@@ -1,7 +1,6 @@
-from tkinter import ttk
 import customtkinter as ctk
 from controllers.pickup import check_unlock_code, update_app_data
-from widgets.widgets import Keypad
+from widgets.keypad import Keypad
 from ultilites.image_import import back_image
 
 class PickupScreen(ctk.CTkFrame):
@@ -78,8 +77,8 @@ class PickupScreen(ctk.CTkFrame):
         item_list = check_unlock_code(self=self, input_data=self.entry_code)
         if item_list:
             update_app_data(self, fb_login=item_list[0], fb_item_list=item_list[1])
-            locker_name = self.controller.app_data["LockerName"]
-            self.controller.frames["InstructionScreen"].locker_name_label.configure(text=locker_name)
+            nameBox = self.controller.app_data["nameBox"]
+            self.controller.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
             self.controller.frames["InstructionScreen"].task.set("pickup")
             self.controller.show_frame("InstructionScreen")
     

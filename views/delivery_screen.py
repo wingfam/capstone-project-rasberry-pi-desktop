@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import ttk, Canvas
-from widgets.widgets import Keypad
+from widgets.keypad import Keypad
 from ultilites.image_import import back_image
 from controllers.delivery import check_booking_code, update_app_data
         
@@ -82,8 +82,8 @@ class DeliveryScreen(ctk.CTkFrame):
         item_list = check_booking_code(self=self, input_data=self.entry_code)
         if item_list:
             update_app_data(self, fb_login=item_list[0], fb_item_list=item_list[1])
-            locker_name = self.controller.app_data["LockerName"]
-            self.controller.frames["InstructionScreen"].locker_name_label.configure(text=locker_name)
+            nameBox = self.controller.app_data["nameBox"]
+            self.controller.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
             self.controller.frames["InstructionScreen"].task.set("delivery")
             self.controller.show_frame("InstructionScreen")
     
