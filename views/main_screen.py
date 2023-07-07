@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from ultilites.image_import import delivery_image, pickup_image
+from constants.image_constants import delivery_image, pickup_image
 
 class MainScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):

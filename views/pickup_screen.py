@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from controllers.pickup import check_unlock_code, update_app_data
 from widgets.keypad import Keypad
-from ultilites.image_import import back_image
+from constants.image_constants import back_image
 
 class PickupScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):

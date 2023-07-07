@@ -2,7 +2,7 @@ from datetime import datetime
 from services.auth import firebase_login
 from services.firebase_config import firebaseDB
 
-def check_booking_code(self, input_data):
+async def check_booking_code(self, input_data):
     isError = False
     error_text= ""
     if input_data.index("end") == 0:
@@ -15,7 +15,7 @@ def check_booking_code(self, input_data):
             current_datetime = datetime.now()
             input_code = input_data.get()
             
-            fb_booking_code = firebaseDB.child("BookingCode").order_by_child(
+            fb_booking_code = await firebaseDB.child("BookingCode").order_by_child(
                 "code").equal_to(input_code).get(fb_login["idToken"])
             
             fb_item_list = list(fb_booking_code.val().items())
@@ -47,13 +47,15 @@ def check_booking_code(self, input_data):
             foreground="red",
         )
 
-def update_app_data(self, fb_item_list, fb_login):
+async def update_app_data(self, fb_item_list, fb_login):
     bookingCodeId = fb_item_list[0][0]
     bookingId = fb_item_list[0][1].get("bookingId")
     status = fb_item_list[0][1].get("status")
-    boxId = firebaseDB.child(
+    
+    boxId = await firebaseDB.child(
         "BookingOrder/", bookingId, "/boxId").get(fb_login["idToken"]).val()
-    nameBox = firebaseDB.child(
+    
+    nameBox = await firebaseDB.child(
         "Box/", boxId, "/nameBox").get(fb_login["idToken"]).val()
     
     self.controller.app_data.update({

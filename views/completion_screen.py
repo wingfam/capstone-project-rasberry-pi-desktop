@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import CENTER
-from ultilites.image_import import completion_image
+from constants.image_constants import completion_image
 
 class CompletionScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):

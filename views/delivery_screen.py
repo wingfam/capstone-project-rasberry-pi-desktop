@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import ttk, Canvas
 from widgets.keypad import Keypad
-from ultilites.image_import import back_image
+from constants.image_constants import back_image
 from controllers.delivery import check_booking_code, update_app_data
         
 class DeliveryScreen(ctk.CTkFrame):
