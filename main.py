@@ -43,10 +43,9 @@ class MainApp(ctk.CTk):
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
-        match page_name:
-            case "CompletionScreen":
-                frame.event_generate("<<GoBackMainScreen>>")
-                frame.bind("<<GoBackMainScreen>>", frame.on_show_frame())
+        if page_name == "CompletionScreen":
+            frame.event_generate("<<GoBackMainScreen>>")
+            frame.bind("<<GoBackMainScreen>>", frame.on_show_frame())
                 
     # Clean up when the user exits with keyboard interrupt
     # def cleanupSignal(self, signal): 
