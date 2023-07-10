@@ -34,10 +34,11 @@ async def confirm_task(self, task):
             isStore = False
             newBCodeStatus = "Done"
             
-            booking_id = self.controller.app_data["BookingId"]
+            booking_id = self.controller.app_data["residentId"]
+            residentId = self.controller.app_data["bookingId"]
             
             await firebaseDB.child("BookingOrder", booking_id).update(
-                {"status": newBCodeStatus}, fb_login["idToken"])
+                {"status": newBCodeStatus, "residentId": residentId}, fb_login["idToken"])
             
             print("Pickup completed!")
             return isCompleted

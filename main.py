@@ -1,11 +1,7 @@
-import sys
-import time
-import signal 
-# import RPi.GPIO as GPIO
-# from gpiozero import LED, Button
 import customtkinter as ctk
+from controllers.control_gpio import ControlPinController
 
-from constants.gpio_constants import Pin
+from views.control_screen import ControlPinScreen
 from views.main_screen import MainScreen
 from views.delivery_screen import DeliveryScreen
 from views.pickup_screen import PickupScreen
@@ -31,6 +27,7 @@ class MainApp(ctk.CTk):
             "PickupScreen": PickupScreen,
             "InstructionScreen": InstructionScreen,
             "CompletionScreen": CompletionScreen,
+            "ControlPinScreen": ControlPinScreen,
         }
         for key, F in self.frames.items():
             frame = F(container, self)
@@ -46,26 +43,14 @@ class MainApp(ctk.CTk):
         if page_name == "CompletionScreen":
             frame.event_generate("<<GoBackMainScreen>>")
             frame.bind("<<GoBackMainScreen>>", frame.on_show_frame())
+        elif page_name == "ControlPinScreen":
+            controller = ControlPinController(view=ControlPinScreen)
+            frame.set_controller(controller)
                 
-    # Clean up when the user exits with keyboard interrupt
-    # def cleanupSignal(self, signal): 
-    #     GPIO.cleanup() 
-    #     sys.exit(0)
 
-    # Setup GPIO
-    # def gpioSetup(self):
-    #     # Use "GPIO" pin numbering
-    #     GPIO.setmode(GPIO.BCM)
-
-    #     # Set LED pin as output and turn it off by default
-    #     GPIO.setup(Pin.solenoid_pin, GPIO.OUT)
-    #     GPIO.output(Pin.solenoid_pin, GPIO.HIGH)
-
-    #     # Set Reed Switch pin as input and pull down resistor
-    #     GPIO.setup(Pin.mag_switch_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-    #     # Set the cleanup handler for when user hits Ctrl-C to exit
-    #     signal.signal(signal.SIGINT, self.cleanupSignal) 
+    '''Setup GPIO'''
+    def gpioSetup(self):
+        pass
 
 if __name__ == "__main__":
     root = MainApp()

@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from constants.image_constants import delivery_image, pickup_image
+from constants.image_constants import delivery_image, pickup_image, config_image
 
 class MainScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -8,6 +8,7 @@ class MainScreen(ctk.CTkFrame):
         self.parent = parent
         self.delivery_image = delivery_image
         self.pickup_image = pickup_image
+        self.config_image = config_image
         
         button_pickup = ctk.CTkButton(
             master=self,
@@ -42,3 +43,15 @@ class MainScreen(ctk.CTkFrame):
             x=542.5924682617188,
             y=150.0,
         )
+        
+        button_config = ctk.CTkButton(
+            master=self,
+            width=44,
+            height=44,
+            bg_color="#FFFFFF",
+            fg_color="#FFFFFF",
+            text= "",
+            image=self.config_image,
+            command=lambda: controller.show_frame("ControlPinScreen"),
+        )
+        button_config.place(x=951.0,y=38.0)

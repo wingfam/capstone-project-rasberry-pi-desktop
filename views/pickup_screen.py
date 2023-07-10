@@ -65,7 +65,7 @@ class PickupScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=self.back_image,
-            command=lambda: controller.show_frame(self.MainScreen),
+            command=lambda: controller.show_frame("MainScreen"),
         )
         self.button_back.place(x=951.0,y=528.0)
         

@@ -51,9 +51,13 @@ async def check_unlock_code(self, input_data):
             text=error_text,
             text_color="red",
         )
-        
+#TODO:
+'''Thêm lấy residentId để lưu vào BookingHistory'''
 async def update_app_data(self, fb_item_list, fb_login):
     bookingId = fb_item_list[0][1].get("bookingId")
+    
+    residentId = await firebaseDB.child(
+        "BookingOrder/", bookingId, "/residentId").get(fb_login["idToken"]).val()
     
     boxId = await firebaseDB.child(
         "BookingOrder/", bookingId, "/boxId").get(fb_login["idToken"]).val()
@@ -63,6 +67,7 @@ async def update_app_data(self, fb_item_list, fb_login):
     
     self.controller.app_data.update({
         "bookingId": bookingId,
+        "residentId": residentId,
         "boxId": boxId,
         "nameBox": nameBox,
     })
