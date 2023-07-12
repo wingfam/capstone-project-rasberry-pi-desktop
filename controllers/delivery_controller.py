@@ -2,7 +2,7 @@ from datetime import datetime
 from services.auth import firebase_login
 from services.firebase_config import firebaseDB
 
-async def check_unlock_code(self, input_data):
+def check_booking_code(self, input_data):
     isError = False
     error_text= ""
     if input_data.index("end") == 0:
@@ -12,27 +12,22 @@ async def check_unlock_code(self, input_data):
         try:
             # Login vào firebase mỗi lần gửi yêu cầu để tránh bị timeout
             fb_login = firebase_login()
-            currentDate = datetime.now()
+            current_datetime = datetime.now()
             input_code = input_data.get()
             
-            fb_unlock_code = await firebaseDB.child("UnlockCode").order_by_child(
-                "ucode").equal_to(input_code).get(fb_login["idToken"])
+            fb_booking_code = firebaseDB.child("BookingCode").order_by_child(
+                "bcode").equal_to(input_code).get(fb_login["idToken"])
             
-            fb_item_list = list(fb_unlock_code.val().items())
-            bookingId = fb_item_list[0][1].get("bookingId")
+            fb_item_list = list(fb_booking_code.val().items())
             
-            validDate = await firebaseDB.child(
-                "BookingOrder/", bookingId, "/validDate").get(fb_login["idToken"])
+            valid_datetime = datetime.strptime(fb_item_list[0][1].get(
+                "validDate"), "%Y-%m-%d %H:%M:%S")
             
-            validDate = datetime.strptime(
-                validDate.val(), "%Y-%m-%d %H:%M:%S")
+            status = fb_item_list[0][1].get("status")
             
-            status = await firebaseDB.child(
-                "BookingOrder/", bookingId, "/status").get(fb_login["idToken"]).val()
-            
-            if status == "Done" or currentDate > validDate:
+            if not status or current_datetime > valid_datetime:
                 isError = True
-                error_text = "Booking Order đã hết hạn"
+                error_text = "Mã booking đã hết hạn, vui lòng tạo booking khác"
             else:
                 item_list = []
                 item_list.append(fb_login)
@@ -40,7 +35,7 @@ async def check_unlock_code(self, input_data):
                 return item_list
         except IndexError:
             isError = True
-            error_text = "Mã unlock không đúng, vui lòng nhập lại"
+            error_text = "Mã booking không đúng, vui lòng nhập lại"
     
     if isError:
         self.label_error.grid(
@@ -49,25 +44,24 @@ async def check_unlock_code(self, input_data):
         )
         return self.label_error.configure(
             text=error_text,
-            text_color="red",
+            foreground="red",
         )
-#TODO:
-'''Thêm lấy residentId để lưu vào BookingHistory'''
-async def update_app_data(self, fb_item_list, fb_login):
+
+def update_app_data(self, fb_item_list, fb_login):
+    bookingCodeId = fb_item_list[0][0]
     bookingId = fb_item_list[0][1].get("bookingId")
+    status = fb_item_list[0][1].get("status")
     
-    residentId = await firebaseDB.child(
-        "BookingOrder/", bookingId, "/residentId").get(fb_login["idToken"]).val()
-    
-    boxId = await firebaseDB.child(
+    boxId = firebaseDB.child(
         "BookingOrder/", bookingId, "/boxId").get(fb_login["idToken"]).val()
     
-    nameBox = await firebaseDB.child(
+    nameBox = firebaseDB.child(
         "Box/", boxId, "/nameBox").get(fb_login["idToken"]).val()
     
     self.controller.app_data.update({
+        "bookingCodeId": bookingCodeId,
         "bookingId": bookingId,
-        "residentId": residentId,
         "boxId": boxId,
         "nameBox": nameBox,
+        "status": status,
     })

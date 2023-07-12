@@ -1,8 +1,8 @@
 import customtkinter as ctk
-from tkinter import ttk, Canvas
+from tkinter import ttk
 from widgets.keypad import Keypad
 from constants.image_constants import back_image
-from controllers.delivery import check_booking_code, update_app_data
+from controllers.delivery_controller import check_booking_code, update_app_data
         
 class DeliveryScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -79,13 +79,19 @@ class DeliveryScreen(ctk.CTkFrame):
         
     
     def validate(self):
-        item_list = check_booking_code(self=self, input_data=self.entry_code)
+        item_list = check_booking_code(self, input_data=self.entry_code)
         if item_list:
             update_app_data(self, fb_login=item_list[0], fb_item_list=item_list[1])
             nameBox = self.controller.app_data["nameBox"]
             self.controller.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
             self.controller.frames["InstructionScreen"].task.set("delivery")
             self.controller.show_frame("InstructionScreen")
+    
+    def set_controller(self, controller):
+        self.deliveryController = controller
+    
+    def set_model(self, model):
+        self.boxModel = model
     
     def restart(self):
         self.refresh()

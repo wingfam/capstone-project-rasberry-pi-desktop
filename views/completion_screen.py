@@ -14,6 +14,8 @@ class CompletionScreen(ctk.CTkFrame):
     
     def go_back(self):
         self.event_delete("<<GoBackMainScreen>>")
+        self.controller.frames["DeliveryScreen"].restart()
+        self.controller.frames["PickupScreen"].restart()
         self.controller.show_frame("MainScreen")
     
     def on_show_frame(self):

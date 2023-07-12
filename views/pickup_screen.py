@@ -1,5 +1,7 @@
 import customtkinter as ctk
-from controllers.pickup import check_unlock_code, update_app_data
+from constants.gpio_constants import MageneticSwitch, SolenoidLock
+from controllers.pickup_controller import PickupController
+from models.models import Box
 from widgets.keypad import Keypad
 from constants.image_constants import back_image
 
@@ -10,6 +12,9 @@ class PickupScreen(ctk.CTkFrame):
         self.parent = parent
         self.controller = controller
         self.back_image = back_image
+        
+        box1 = Box(SolenoidLock.solenoid_lock1, MageneticSwitch.mag_switch1)
+        self.pickupController = PickupController(view=self, model=box1)
         
         ctk.CTkLabel(
             master=self,
@@ -74,9 +79,9 @@ class PickupScreen(ctk.CTkFrame):
         self.keypad.place(x=567,y=156)
     
     def validate(self):
-        item_list = check_unlock_code(self=self, input_data=self.entry_code)
+        item_list = self.pickupController.check_unlock_code(input_data=self.entry_code)
         if item_list:
-            update_app_data(self, fb_login=item_list[0], fb_item_list=item_list[1])
+            self.pickupController.update_app_data(fb_login=item_list[0], fb_item_list=item_list[1])
             nameBox = self.controller.app_data["nameBox"]
             self.controller.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
             self.controller.frames["InstructionScreen"].task.set("pickup")
@@ -84,9 +89,8 @@ class PickupScreen(ctk.CTkFrame):
     
     def restart(self):
         self.refresh()
-        self.event_delete("<<DeliveryScreen>>")
         self.controller.show_frame("MainScreen")
         
     def refresh(self):
         self.entry_code.delete(0, "end")
-        self.label.grid_remove()
+        self.label_error.grid_remove()

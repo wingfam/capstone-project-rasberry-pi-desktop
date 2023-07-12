@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from controllers.control_gpio import ControlPinController
+from constants.gpio_constants import MageneticSwitch, SolenoidLock
 
 from views.control_screen import ControlPinScreen
 from views.main_screen import MainScreen
@@ -20,6 +20,19 @@ class MainApp(ctk.CTk):
         container.grid_columnconfigure(0, weight=1)
         
         self.app_data = {}
+        
+        self.box_model = {
+            "Box1": {
+                "nameBox": "01",
+                "solenoid_pin": 0,
+                "magSwitch_pin": 0,
+            },
+            "Box2": {
+                "nameBox": "02",
+                "solenoid_pin": SolenoidLock.solenoid_lock1,
+                "magSwitch_pin": MageneticSwitch.mag_switch1,
+            }
+        }
         
         self.frames = {
             "MainScreen": MainScreen,
@@ -43,9 +56,6 @@ class MainApp(ctk.CTk):
         if page_name == "CompletionScreen":
             frame.event_generate("<<GoBackMainScreen>>")
             frame.bind("<<GoBackMainScreen>>", frame.on_show_frame())
-        elif page_name == "ControlPinScreen":
-            controller = ControlPinController(view=ControlPinScreen)
-            frame.set_controller(controller)
                 
 
     '''Setup GPIO'''

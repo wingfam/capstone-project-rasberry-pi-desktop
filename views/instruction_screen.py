@@ -1,6 +1,6 @@
 import customtkinter as ctk
-from tkinter import StringVar, ttk, Canvas
-from controllers.instruction import confirm_task
+from tkinter import StringVar, ttk
+from controllers.instruction_controller import update_firebase, confirm_task
 
 class InstructionScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -60,6 +60,16 @@ class InstructionScreen(ctk.CTkFrame):
         
     def check_package(self):
         task = self.task.get()
-        isComplete = confirm_task(self, task=task)
-        if isComplete:
-            self.controller.show_frame("CompletionScreen")
+        nameBox = self.controller.app_data["nameBox"]
+        boxModel = self.controller.box_model.values()
+        isConfirm = False;
+        for item in boxModel:
+            if item['nameBox'] == nameBox:
+                isConfirm = confirm_task(item)
+                
+        if isConfirm:
+            update_firebase(self, task=task)
+            
+        self.controller.show_frame("CompletionScreen")
+                
+                    
