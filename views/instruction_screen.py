@@ -22,7 +22,7 @@ class InstructionScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=24),
             bg_color="white",
             text_color="black",
-            text="Sau khi để hàng vào tủ, vui lòng đóng kín cửa tủ lại. \nSau đó nhấn nút Xác Nhận để hoàn tất thao tác."
+            text="Hãy nhấn nút xác nhận để mở khóa tủ. \nSau khi bỏ hàng vào, vui lòng đóng kín cửa tủ lại."
         ).place(x=445, y=205)
         
         self.nameBox_label = ttk.Label(
@@ -69,7 +69,8 @@ class InstructionScreen(ctk.CTkFrame):
                 
         if isConfirm:
             update_firebase(self, task=task)
-            
-        self.controller.show_frame("CompletionScreen")
+            self.controller.show_frame("CompletionScreen")
+        else:
+            self.controller.show_frame("MainScreen")
                 
                     

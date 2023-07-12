@@ -13,8 +13,6 @@ class PickupScreen(ctk.CTkFrame):
         self.controller = controller
         self.back_image = back_image
         
-        box1 = Box(SolenoidLock.solenoid_lock1, MageneticSwitch.mag_switch1)
-        self.pickupController = PickupController(view=self, model=box1)
         
         ctk.CTkLabel(
             master=self,

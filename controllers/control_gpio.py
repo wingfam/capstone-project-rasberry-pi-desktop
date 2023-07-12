@@ -1,27 +1,12 @@
+import time
 import tkinter as tk
+
+check_weight_time = 3
 
 class CreateBoxController():
     def __init__(self, model, view):
         self.model = model
         self.view = view
-        
-    def save(self, email):
-        """
-        Save the email
-        :param email:
-        :return:
-        """
-        try:
-            # save the model
-            self.model.email = email
-            self.model.save()
-
-            # show a success message
-            self.view.show_success(f'The email {email} saved!')
-
-        except ValueError as error:
-            # show an error message
-            self.view.show_error(error) 
 
 class ControlPinController():
     def __init__(self, model, view):
@@ -48,6 +33,22 @@ class ControlPinController():
         self.view.button_off.config(state=tk.DISABLED, bg='gray64')
         self.model.solenoid.on()
         print(self.model.magSwitch.value)
+    
+    def check_weight(self):
+        count = 0
+        weight_value = 0
+        loadcell = self.model.loadcell
+        
+        # Loop check loadcell weight value every 3 seconds 
+        while count < check_weight_time:
+            weight_value = max(0, int(loadcell.get_weight(5)))
+            print(weight_value)
+            count += 1
+            time.sleep(1)
+            
+        newText = str(weight_value) + " grams"
+        self.view.weight_label.configure(text=newText)
+        print("Check weight done!")
 
     def confirm(self):
         # Unlock box's door. Add wait for release event to magnetic switch

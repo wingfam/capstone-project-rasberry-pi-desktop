@@ -1,6 +1,8 @@
+import sys
+import RPi.GPIO as GPIO
 import customtkinter as ctk
-from constants.gpio_constants import MageneticSwitch, SolenoidLock
 
+from constants.gpio_constants import LoadCell, MageneticSwitch, SolenoidLock
 from views.control_screen import ControlPinScreen
 from views.main_screen import MainScreen
 from views.delivery_screen import DeliveryScreen
@@ -19,6 +21,10 @@ class MainApp(ctk.CTk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         
+        self.loadcell = LoadCell()
+        self.loadcell.reset()
+        self.loadcell.tare()
+        
         self.app_data = {}
         
         self.box_model = {
@@ -31,6 +37,7 @@ class MainApp(ctk.CTk):
                 "nameBox": "02",
                 "solenoid_pin": SolenoidLock.solenoid_lock1,
                 "magSwitch_pin": MageneticSwitch.mag_switch1,
+                "loadcell_pin": LoadCell.hx_1,
             }
         }
         
@@ -42,6 +49,7 @@ class MainApp(ctk.CTk):
             "CompletionScreen": CompletionScreen,
             "ControlPinScreen": ControlPinScreen,
         }
+        
         for key, F in self.frames.items():
             frame = F(container, self)
             # the windows class acts as the root window for the frames.
@@ -56,12 +64,14 @@ class MainApp(ctk.CTk):
         if page_name == "CompletionScreen":
             frame.event_generate("<<GoBackMainScreen>>")
             frame.bind("<<GoBackMainScreen>>", frame.on_show_frame())
-                
 
-    '''Setup GPIO'''
-    def gpioSetup(self):
-        pass
 
 if __name__ == "__main__":
     root = MainApp()
     root.mainloop()
+
+LoadCell().powerDown()
+print("Cleaning...")
+GPIO.cleanup()        
+print("Bye!")
+sys.exit()

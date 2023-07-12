@@ -2,7 +2,8 @@ import time
 from services.auth import firebase_login
 from services.firebase_config import firebaseDB
 
-switch_hold_time = 3.0
+switch_hold_time = 1.0
+check_weight_time = 3.0
 
 def update_firebase(self, task):
     isError = False
@@ -67,16 +68,39 @@ def lock_door(model):
     model['solenoid_pin'].on()
     print('Magnetic switch value: ', model['magSwitch_pin'].value)
 
+def check_weight(model):
+    count = 0
+    weightValue = 0
+    hasWeight = False
+    loadcell = model['loadcell_pin']
+    
+    # Loop check loadcell weight value every 3 seconds 
+    while count < check_weight_time:
+        weightValue = max(0, int(loadcell.get_weight(5)))
+        print(weightValue)
+        count += 1
+        time.sleep(1)
+    
+    # Check if loadcell detect any weight more 3 grams
+    if weightValue > 3:
+        hasWeight = True
+    
+    print("Check weight is done")
+    return hasWeight
+    
+
 def confirm_task(model):
+    isConfirm = False
+    
     # Unlock box's door. Add wait for release event to magnetic switch
-    # and check its state after 3 seconds
+    # and check its state after 5 seconds
     unlock_door(model)
     isReleased = model['magSwitch_pin'].wait_for_release(5.0)
 
     if not isReleased:
         print('Magnetic switch is released: ', isReleased)
         lock_door(model)
-        return False
+        isConfirm = False
     else:
         # Add when held event to the switch. If the switch is held for
         # a hold_time seconds, activate lock_door function (check pin 
@@ -84,6 +108,8 @@ def confirm_task(model):
         print("Add event to magnetic switch")
         model['magSwitch_pin'].wait_for_press()
         if model['magSwitch_pin'].is_pressed:
-            lock_door(model)
             time.sleep(switch_hold_time)
-            return True
+            lock_door(model)
+            isConfirm = check_weight(model)
+    
+    return isConfirm
