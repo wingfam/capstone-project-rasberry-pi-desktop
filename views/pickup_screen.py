@@ -1,9 +1,7 @@
 import customtkinter as ctk
-from constants.gpio_constants import MageneticSwitch, SolenoidLock
-from controllers.pickup_controller import PickupController
-from models.models import Box
 from widgets.keypad import Keypad
 from constants.image_constants import back_image
+from controllers.pickup_controller import PickupController
 
 class PickupScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -12,7 +10,7 @@ class PickupScreen(ctk.CTkFrame):
         self.parent = parent
         self.controller = controller
         self.back_image = back_image
-        
+        self.pickupController = PickupController(self)
         
         ctk.CTkLabel(
             master=self,

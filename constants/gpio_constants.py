@@ -1,4 +1,3 @@
-import RPi.GPIO as GPIO
 from hx711 import HX711
 from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import LED, Button

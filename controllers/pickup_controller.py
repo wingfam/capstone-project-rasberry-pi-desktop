@@ -3,9 +3,8 @@ from services.auth import firebase_login
 from services.firebase_config import firebaseDB
 
 class PickupController():
-    def __init__(self, model, view):
+    def __init__(self, view):
         self.view = view
-        self.model = model
 
     def check_unlock_code(self, input_data):
         isError = False

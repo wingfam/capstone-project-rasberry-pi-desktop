@@ -2,8 +2,6 @@ import time
 from services.auth import firebase_login
 from services.firebase_config import firebaseDB
 
-switch_hold_time = 1.0
-check_weight_time = 3.0
 
 def update_firebase(self, task):
     isError = False
@@ -68,39 +66,26 @@ def lock_door(model):
     model['solenoid_pin'].on()
     print('Magnetic switch value: ', model['magSwitch_pin'].value)
 
-def check_weight(model):
-    count = 0
-    weightValue = 0
-    hasWeight = False
+def get_weight(model):
     loadcell = model['loadcell_pin']
-    
-    # Loop check loadcell weight value every 3 seconds 
-    while count < check_weight_time:
-        weightValue = max(0, int(loadcell.get_weight(5)))
-        print(weightValue)
-        count += 1
-        time.sleep(1)
-    
-    # Check if loadcell detect any weight more 3 grams
-    if weightValue > 3:
-        hasWeight = True
-    
+    weightValue = max(0, int(loadcell.get_weight(5)))
     print("Check weight is done")
-    return hasWeight
+    return weightValue
     
-
-def confirm_task(model):
+def confirm_task(model, task):
     isConfirm = False
+    waitTime = 5.0
+    switchHoldTime = 1.0
+    weightValue = 0
     
     # Unlock box's door. Add wait for release event to magnetic switch
     # and check its state after 5 seconds
     unlock_door(model)
-    isReleased = model['magSwitch_pin'].wait_for_release(5.0)
+    isReleased = model['magSwitch_pin'].wait_for_release(waitTime)
 
     if not isReleased:
         print('Magnetic switch is released: ', isReleased)
         lock_door(model)
-        isConfirm = False
     else:
         # Add when held event to the switch. If the switch is held for
         # a hold_time seconds, activate lock_door function (check pin 
@@ -108,8 +93,14 @@ def confirm_task(model):
         print("Add event to magnetic switch")
         model['magSwitch_pin'].wait_for_press()
         if model['magSwitch_pin'].is_pressed:
-            time.sleep(switch_hold_time)
+            time.sleep(switchHoldTime)
             lock_door(model)
-            isConfirm = check_weight(model)
+            weightValue = get_weight(model, task)
+        
+        # Check if loadcell detect any weight
+        if weightValue != 0 and task == "delivery":
+            isConfirm = True
+        elif weightValue == 0 and task == "pickup":
+            isConfirm = True
     
     return isConfirm
