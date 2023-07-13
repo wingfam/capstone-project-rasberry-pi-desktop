@@ -30,16 +30,20 @@ def update_firebase(self, task):
             
             print("Delivery completed!")
             return isCompleted
+        
         elif task == "pickup":
              # Update booking order status to False
             isStore = False
             newBCodeStatus = "Done"
             
-            booking_id = self.controller.app_data["residentId"]
-            residentId = self.controller.app_data["bookingId"]
+            booking_id = self.controller.app_data["bookingId"]
+            residentId = self.controller.app_data["residentId"]
             
             firebaseDB.child("BookingOrder", booking_id).update(
-                {"status": newBCodeStatus, "residentId": residentId}, fb_login["idToken"])
+                {"status": newBCodeStatus}, fb_login["idToken"])
+            
+            firebaseDB.child("BookingHistory").update(
+                {"bookingId": booking_id, "residentId": residentId}, fb_login["idToken"])
             
             print("Pickup completed!")
             return isCompleted
