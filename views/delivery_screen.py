@@ -43,7 +43,7 @@ class DeliveryScreen(ctk.CTkFrame):
         )
         
         self.label_error = ttk.Label(
-            self, 
+            master=self, 
             background="white", 
             font=ctk.CTkFont(size=16),
             text="", 

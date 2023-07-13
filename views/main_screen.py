@@ -5,7 +5,7 @@ class MainScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white")
-        self.parent = parent
+        
         self.delivery_image = delivery_image
         self.pickup_image = pickup_image
         self.config_image = config_image

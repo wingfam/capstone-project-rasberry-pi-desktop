@@ -2,21 +2,20 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import font
 
-from controllers.control_gpio import ControlPinController
-from constants.gpio_constants import LoadCell, MageneticSwitch, SolenoidLock
+# from controllers.control_gpio import ControlPinController
+# from constants.gpio_constants import LoadCell, MageneticSwitch, SolenoidLock
+# from models.models import Box
 
-from models.models import Box
-
-class ControlPinScreen(ctk.CTkFrame):
+class ControlScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         
-        box1 = Box(
-            SolenoidLock.solenoid_lock1, 
-            MageneticSwitch.mag_switch1,
-            LoadCell.hx_1,
-        )
-        self.controller = ControlPinController(view=self, model=box1)
+        # box1 = Box(
+        #     SolenoidLock.solenoid_lock1, 
+        #     MageneticSwitch.mag_switch1,
+        #     LoadCell.hx_1,
+        # )
+        # self.controller = ControlPinController(view=self, model=box1)
         
         # Create widgets
         button_font = font.Font(family='Helvetica', size=24, weight='bold')
@@ -26,7 +25,7 @@ class ControlPinScreen(ctk.CTkFrame):
             self, 
             text="CONFIRM", 
             width=10, 
-            command=self.controller.confirm, 
+            # command=self.controller.confirm, 
             state=tk.NORMAL, 
             font=button_font, 
             bg='gray99'
@@ -35,7 +34,7 @@ class ControlPinScreen(ctk.CTkFrame):
         self.button_on = tk.Button(
             self, text="ON", 
             width=10, 
-            command=self.controller.unlock_door, 
+            # command=self.controller.unlock_door, 
             state=tk.NORMAL,
             font=button_font, 
             bg='gray99'
@@ -44,7 +43,7 @@ class ControlPinScreen(ctk.CTkFrame):
         self.button_off = tk.Button(
             self, text="OFF", 
             width=10, 
-            command=self.controller.lock_door, 
+            # command=self.controller.lock_door,
             state=tk.DISABLED, 
             font=button_font, 
             bg='gray64'
@@ -53,7 +52,7 @@ class ControlPinScreen(ctk.CTkFrame):
         self.button_weight= tk.Button(
             self, text="CHECK WEIGHT", 
             width=15, 
-            command=self.controller.check_weight, 
+            # command=self.controller.check_weight, 
             state=tk.NORMAL,
             font=button_font, 
             bg='gray99'

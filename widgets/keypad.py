@@ -13,6 +13,7 @@ class Keypad(tk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.target = None
+        
         style = ttk.Style()
         style.configure('my.TButton', font=('Helvetica', 20))
 
