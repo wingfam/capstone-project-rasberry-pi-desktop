@@ -13,5 +13,27 @@ class ConfigScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Control Box"
-        ).place(relwidth=.35, relheight=.15, relx=.5, rely=.25, anchor=ctk.CENTER)
+            text="Cabinet Info",
+            command=lambda: self.controller.show_frame("CabinetInfo")
+        ).place(relwidth=.45, relheight=.15, relx=.25, rely=.35, anchor=ctk.CENTER)
+        
+        self.control_screen_btn = ctk.CTkButton(
+            master=self,
+            anchor=ctk.CENTER,
+            font=button_font,
+            text="GPIO state"
+        ).place(relwidth=.45, relheight=.15, relx=.75, rely=.35, anchor=ctk.CENTER)
+        
+        self.control_screen_btn = ctk.CTkButton(
+            master=self,
+            anchor=ctk.CENTER,
+            font=button_font,
+            text="Test Control"
+        ).place(relwidth=.45, relheight=.15, relx=.25, rely=.65, anchor=ctk.CENTER)
+        
+        self.control_screen_btn = ctk.CTkButton(
+            master=self,
+            anchor=ctk.CENTER,
+            font=button_font,
+            text="Modify Info"
+        ).place(relwidth=.45, relheight=.15, relx=.75, rely=.65, anchor=ctk.CENTER)

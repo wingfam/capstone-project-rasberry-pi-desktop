@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from views.cabinet_info_screen import CabinetInfo
 
 from views.config_screen import ConfigScreen
 from views.control_screen import ControlScreen
@@ -17,9 +18,10 @@ class Window(ctk.CTk):
         container.grid_columnconfigure(0, weight=1)
         
         self.frames = {
-            "PreConfigScreen": PreConfigScreen,
+            # "PreConfigScreen": PreConfigScreen,
             "ConfigScreen": ConfigScreen,
             "ControlScreen": ControlScreen,
+            "CabinetInfo": CabinetInfo,
         }
         
         for key, F in self.frames.items():
@@ -28,7 +30,7 @@ class Window(ctk.CTk):
             self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         
-        self.show_frame("PreConfigScreen")
+        self.show_frame("ConfigScreen")
     
     def show_frame(self, page_name):
         frame = self.frames[page_name]

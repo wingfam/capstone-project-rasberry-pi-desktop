@@ -12,7 +12,7 @@ class PreConfigScreen(ctk.CTkFrame):
         self.configController = ConfigController(self)
         self.input_master_code = ctk.StringVar()
         
-        text_font = ctk.CTkFont(size=32, weight="bold")
+        text_font = ctk.CTkFont(size=38, weight="bold")
         
         self.master_code_label = ttk.Label(
             master=self,
@@ -33,12 +33,12 @@ class PreConfigScreen(ctk.CTkFrame):
         self.check_code_button = ctk.CTkButton(
             master=self,
             width=10,
-            height=50,
+            height=80,
             corner_radius=15.0,
             font=text_font,
             text="Confirm",
             command=lambda: self.verify()
-        ).place(relwidth=0.5, relx=.5, rely=.55, anchor=ctk.CENTER)
+        ).place(relwidth=0.5, relx=.5, rely=.60, anchor=ctk.CENTER)
     
     def verify(self):
         isConfirm = self.configController.check_master_code(self.input_master_code)
