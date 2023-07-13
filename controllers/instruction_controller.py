@@ -95,7 +95,7 @@ def confirm_task(model, task):
         if model['magSwitch_pin'].is_pressed:
             time.sleep(switchHoldTime)
             lock_door(model)
-            weightValue = get_weight(model, task)
+            weightValue = get_weight(model)
         
         # Check if loadcell detect any weight
         if weightValue != 0 and task == "delivery":
