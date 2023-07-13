@@ -30,14 +30,15 @@ class MainApp(ctk.CTk):
         self.box_model = {
             "Box1": {
                 "nameBox": "01",
-                "solenoid_pin": 0,
-                "magSwitch_pin": 0,
+                "solenoid_lock": 0,
+                "magnetic_switch": 0,
+                "loadcell": 0,
             },
             "Box2": {
                 "nameBox": "02",
-                "solenoid_pin": SolenoidLock.solenoid_lock1,
-                "magSwitch_pin": MageneticSwitch.mag_switch1,
-                "loadcell_pin": LoadCell.hx_1,
+                "solenoid_lock": SolenoidLock.solenoid_lock1,
+                "magnetic_switch": MageneticSwitch.mag_switch1,
+                "loadcell": LoadCell.hx_1,
             }
         }
         

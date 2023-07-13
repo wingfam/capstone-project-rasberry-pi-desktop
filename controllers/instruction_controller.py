@@ -61,17 +61,17 @@ def update_firebase(self, task):
 # This gets called whenever the ON button is pressed
 def unlock_door(model):
     print("Box's door is unlocked")
-    model['solenoid_pin'].off()
-    print('Magnetic switch value: ', model["magSwitch_pin"].value)
+    model['solenoid_lock'].off()
+    print('Magnetic switch value: ', model["magnetic_switch"].value)
 
 # This gets called whenever the OFF button is pressed
 def lock_door(model):
     print("Box's door is locked")
-    model['solenoid_pin'].on()
-    print('Magnetic switch value: ', model['magSwitch_pin'].value)
+    model['solenoid_lock'].on()
+    print('Magnetic switch value: ', model['magnetic_switch'].value)
 
 def get_weight(model):
-    loadcell = model['loadcell_pin']
+    loadcell = model['loadcell']
     weightValue = max(0, int(loadcell.get_weight(5)))
     print("Check weight is done")
     return weightValue
@@ -85,7 +85,7 @@ def confirm_task(model, task):
     # Unlock box's door. Add wait for release event to magnetic switch
     # and check its state after 5 seconds
     unlock_door(model)
-    isReleased = model['magSwitch_pin'].wait_for_release(waitTime)
+    isReleased = model['magnetic_switch'].wait_for_release(waitTime)
 
     if not isReleased:
         print('Magnetic switch is released: ', isReleased)
@@ -95,8 +95,8 @@ def confirm_task(model, task):
         # a hold_time seconds, activate lock_door function (check pin 
         # declare for hold_time)
         print("Add event to magnetic switch")
-        model['magSwitch_pin'].wait_for_press()
-        if model['magSwitch_pin'].is_pressed:
+        model['magnetic_switch'].wait_for_press()
+        if model['magnetic_switch'].is_pressed:
             time.sleep(switchHoldTime)
             lock_door(model)
             weightValue = get_weight(model)
