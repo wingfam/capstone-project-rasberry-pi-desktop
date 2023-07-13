@@ -102,9 +102,9 @@ def confirm_task(model, task):
             weightValue = get_weight(model)
         
         # Check if loadcell detect any weight
-        if weightValue != 0 and task == "delivery":
+        if task == "delivery" and weightValue != 0:
             isConfirm = True
-        elif weightValue == 0 and task == "pickup":
+        elif task == "pickup"and weightValue == 0:
             isConfirm = True
     
     return isConfirm
