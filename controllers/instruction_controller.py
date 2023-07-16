@@ -35,7 +35,7 @@ def update_firebase(self, task):
             messageTitle = "Giao hàng thàng công!"
             messageBody = "Bạn có một món hàng ở tủ số: " + nameBox + "\nHãy vào trang Xem booking để lấy mã unlock"
             
-            send_delivery_notification(fb_login, residentId, messageTitle, messageBody)
+            send_notification(fb_login, residentId, messageTitle, messageBody)
             
             save_notification(fb_login, residentId, messageTitle, messageBody)
             
@@ -64,7 +64,7 @@ def update_firebase(self, task):
             messageTitle = "Đã lấy hàng"
             messageBody = "Đơn hàng của bạn đã được lấy ra vào ngày: "+ currentTime
             
-            send_delivery_notification(fb_login, residentId, messageTitle, messageBody)
+            send_notification(fb_login, residentId, messageTitle, messageBody)
             
             save_notification(fb_login, residentId, messageTitle, messageBody)
             
@@ -81,11 +81,15 @@ def update_firebase(self, task):
             foreground="red",
         )
 
-def send_delivery_notification(fb_login, residentId, messageTitle, messageBody):
+def send_notification(fb_login, residentId, messageTitle, messageBody):
     pushService = PushNotificationService()
     
-    fcm_token = firebaseDB.child("Notification").order_by_child(
-        "residentId").equal_to(residentId).get(fb_login["idToken"]).val()
+    fb_notification = firebaseDB.child("Notification").order_by_child(
+        "residentId").equal_to(residentId).get(fb_login["idToken"])
+    
+    fb_item_list = list(fb_notification.val().items())
+    
+    fcm_token = fb_item_list[0][1].get("token")
     
     result = pushService.push_notification(fcm_token, messageTitle, messageBody)
 
