@@ -59,22 +59,20 @@ class InstructionScreen(ctk.CTkFrame):
         )
         
     def check_package(self):
-        isConfirm = False;
+        isConfirm = False
         task = self.task.get()
         nameBox = self.controller.app_data["nameBox"]
         boxModel = self.controller.box_model.values()
         
         for item in boxModel:
             if item['nameBox'] == nameBox:
-                isConfirm = confirm_task(item, task=task)
+                isConfirm = confirm_task(item, task)
                 break
                 
         if isConfirm:
-            update_firebase(self, task=task)
+            update_firebase(self, task)
             self.controller.show_frame("CompletionScreen")
         else:
             self.controller.show_frame("MainScreen")
         
         self.controller.app_data.clear()
-                
-                    

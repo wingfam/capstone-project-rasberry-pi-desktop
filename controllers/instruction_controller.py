@@ -7,9 +7,13 @@ from services.push_notification import PushNotificationService
 def update_firebase(self, task):
     isError = False
     error_text= ""
+    currentDateTime = datetime.now()
+    currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M:%S")
+    
     try:
         fb_login = firebase_login()
-        isCompleted = True
+        isCompleted = False
+        
         if task == "delivery":
             # Update booking code status to False
             newBookingStatus = False
@@ -26,7 +30,7 @@ def update_firebase(self, task):
             firebaseDB.child("BookingOrder", booking_id).update(
                 {"status": newBookingStatus}, fb_login["idToken"])
 
-            firebaseDB.child("Box", box_id).update(
+            firebaseDB.child("Box/", box_id).update(
                 {"isStore": isStore}, fb_login["idToken"])
             
             residentId = self.controller.app_data["residentId"]
@@ -35,9 +39,12 @@ def update_firebase(self, task):
             messageTitle = "Giao hàng thàng công!"
             messageBody = "Bạn có một món hàng ở tủ số: " + nameBox + "\nHãy vào trang Xem booking để lấy mã unlock"
             
-            send_notification(fb_login, residentId, messageTitle, messageBody)
+            fb_notification = firebaseDB.child("Notification").order_by_child(
+                "residentId").equal_to(residentId).get(fb_login["idToken"])
             
-            save_notification(fb_login, residentId, messageTitle, messageBody)
+            send_notification(fb_notification, messageTitle, messageBody)
+            
+            save_notification(fb_login, fb_notification, messageTitle, messageBody)
             
             print("Delivery completed!")
             return isCompleted
@@ -47,8 +54,6 @@ def update_firebase(self, task):
             isStore = False
             isAvailable = True
             newBookingStatus = "Done"
-            currentDateTime = datetime.now()
-            currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M:%S")
             
             booking_id = self.controller.app_data["bookingId"]
             residentId = self.controller.app_data["residentId"]
@@ -57,21 +62,24 @@ def update_firebase(self, task):
             firebaseDB.child("BookingOrder", booking_id).update(
                 {"status": newBookingStatus}, fb_login["idToken"])
             
-            firebaseDB.child("BookingHistory").update(
-                {"bookingId": booking_id, "residentId": residentId}, fb_login["idToken"])
-            
-            firebaseDB.child("Box", box_id).update(
+            firebaseDB.child("Box/", box_id).update(
                 {"isAvailable": isAvailable, "isStore": isStore}, fb_login["idToken"])
+            
+            firebaseDB.child("BookingHistory").push(
+                {"bookingId": booking_id, "residentId": residentId}, fb_login["idToken"])
             
             residentId = self.controller.app_data["residentId"]
             nameBox = self.controller.app_data["nameBox"]
             
             messageTitle = "Đã lấy hàng"
-            messageBody = "Đơn hàng của bạn đã được lấy ra vào ngày: "+ currentTime
+            messageBody = "Đơn hàng của bạn đã được lấy ra vào ngày: " + currentTime
             
-            send_notification(fb_login, residentId, messageTitle, messageBody)
+            fb_notification = firebaseDB.child("Notification").order_by_child(
+                "residentId").equal_to(residentId).get(fb_login["idToken"])
             
-            save_notification(fb_login, residentId, messageTitle, messageBody)
+            send_notification(fb_notification, messageTitle, messageBody)
+            
+            save_notification(fb_login, fb_notification, messageTitle, messageBody)
             
             print("Pickup completed!")
             return isCompleted
@@ -86,11 +94,8 @@ def update_firebase(self, task):
             foreground="red",
         )
 
-def send_notification(fb_login, residentId, messageTitle, messageBody):
+def send_notification(fb_notification, messageTitle, messageBody):
     pushService = PushNotificationService()
-    
-    fb_notification = firebaseDB.child("Notification").order_by_child(
-        "residentId").equal_to(residentId).get(fb_login["idToken"])
     
     fb_item_list = list(fb_notification.val().items())
     
@@ -100,19 +105,26 @@ def send_notification(fb_login, residentId, messageTitle, messageBody):
 
     print(result)
 
-def save_notification(fb_login, residentId, messageTitle, messageBody):
+def save_notification(fb_login, fb_notification, messageTitle, messageBody):
     currentDateTime = datetime.now()
     currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M:%S")
+    newKey = firebaseDB.generate_key()
     
     data = {
         "sendDate": currentTime,
-        "message_title": messageTitle,
-        "message_body": messageBody,
+        "message/" + newKey: {
+            "message_title": messageTitle,
+            "message_body": messageBody,
+        }
     }
     
-    firebaseDB.child("Notification").order_by_child(
-        "residentId").equal_to(residentId).update(data, fb_login["idToken"])
-
+    fb_item_list = list(fb_notification.val().items())
+    noti_id = fb_item_list[0][0]
+    
+    firebaseDB.child("Notification/", noti_id).update(data, fb_login["idToken"])
+    
+    print("Save notification successful")
+    
 # This gets called whenever the ON button is pressed
 def unlock_door(model):
     print("Box's door is unlocked")
