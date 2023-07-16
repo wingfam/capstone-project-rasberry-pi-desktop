@@ -37,7 +37,7 @@ def update_firebase(self, task):
             nameBox = self.controller.app_data["nameBox"]
             
             messageTitle = "Giao hàng thàng công!"
-            messageBody = "Bạn có một món hàng ở tủ số: " + nameBox + "\nHãy vào trang Xem booking để lấy mã unlock"
+            messageBody = "Bạn có một món hàng ở tủ số: " + nameBox + "Hãy vào trang Xem booking để lấy mã unlock"
             
             fb_notification = firebaseDB.child("Notification").order_by_child(
                 "residentId").equal_to(residentId).get(fb_login["idToken"])
@@ -111,8 +111,8 @@ def save_notification(fb_login, fb_notification, messageTitle, messageBody):
     newKey = firebaseDB.generate_key()
     
     data = {
-        "sendDate": currentTime,
         "message/" + newKey: {
+            "sendDate": currentTime,
             "message_title": messageTitle,
             "message_body": messageBody,
         }
