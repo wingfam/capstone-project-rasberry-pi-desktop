@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from views.cabinet_info_screen import CabinetInfo
+from views.cabinet_info_screen import CabinetInfoScreen
 
 from views.config_screen import ConfigScreen
 from views.control_screen import ControlScreen
@@ -17,12 +17,8 @@ class Window(ctk.CTk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         
-        self.frames = {
-            # "PreConfigScreen": PreConfigScreen,
-            "ConfigScreen": ConfigScreen,
-            "ControlScreen": ControlScreen,
-            "CabinetInfo": CabinetInfo,
-        }
+        self.screen_views = ScreenView().frame_views
+        self.frames = self.screen_views
         
         for key, F in self.frames.items():
             frame = F(container, self)
@@ -30,12 +26,20 @@ class Window(ctk.CTk):
             self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         
+        # self.show_frame("PreConfigScreen")
         self.show_frame("ConfigScreen")
     
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
-    
+
+class ScreenView():
+    frame_views = {
+        # "PreConfigScreen": PreConfigScreen,
+        "ConfigScreen": ConfigScreen,
+        "CabinetInfoScreen": CabinetInfoScreen,
+        "ControlScreen": ControlScreen,
+    }    
   
 if __name__ == "__main__":
     root = Window()

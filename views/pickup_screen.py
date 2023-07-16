@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from widgets.keypad import Keypad
-from constants.image_constants import back_image
+from constants.image_imports import back_image
 from controllers.pickup_controller import PickupController
 
 class PickupScreen(ctk.CTkFrame):

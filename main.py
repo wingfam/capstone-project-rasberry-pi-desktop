@@ -2,7 +2,8 @@ import sys
 import RPi.GPIO as GPIO
 import customtkinter as ctk
 
-from constants.gpio_constants import LoadCell, MageneticSwitch, SolenoidLock
+from constants.gpio_pins import LoadCell, MageneticSwitch, SolenoidLock
+from constants.screen_views import ScreenView
 from views.config_screen import ConfigScreen
 from views.control_screen import ControlScreen
 from views.main_screen import MainScreen
@@ -44,16 +45,8 @@ class MainApp(ctk.CTk):
             }
         }
         
-        self.frames = {
-            "MainScreen": MainScreen,
-            "DeliveryScreen": DeliveryScreen,
-            "PickupScreen": PickupScreen,
-            "InstructionScreen": InstructionScreen,
-            "CompletionScreen": CompletionScreen,
-            "PreConfigScreen": PreConfigScreen,
-            "ConfigScreen": ConfigScreen,
-            "ControlPinScreen": ControlScreen,
-        }
+        self.screen_views = ScreenView().frame_views
+        self.frames = self.screen_views
         
         for key, F in self.frames.items():
             frame = F(container, self)
