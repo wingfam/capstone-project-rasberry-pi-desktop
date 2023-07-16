@@ -113,8 +113,8 @@ def save_notification(fb_login, fb_notification, messageTitle, messageBody):
     data = {
         "message/" + newKey: {
             "sendDate": currentTime,
-            "message_title": messageTitle,
-            "message_body": messageBody,
+            "messageTitle": messageTitle,
+            "messageBody": messageBody,
         }
     }
     
