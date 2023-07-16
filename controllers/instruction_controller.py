@@ -1,7 +1,8 @@
 import time
+from datetime import datetime
 from services.auth import firebase_login
 from services.firebase_config import firebaseDB
-
+from services.push_notification import PushNotificationService
 
 def update_firebase(self, task):
     isError = False
@@ -28,6 +29,16 @@ def update_firebase(self, task):
             firebaseDB.child("Box", box_id).update(
                 {"isStore": isStore}, fb_login["idToken"])
             
+            residentId = self.controller.app_data["residentId"]
+            nameBox = self.controller.app_data["nameBox"]
+            
+            messageTitle = "Giao hàng thàng công!"
+            messageBody = "Bạn có một món hàng ở tủ số: " + nameBox + "\nHãy vào trang Xem booking để lấy mã unlock"
+            
+            send_delivery_notification(fb_login, residentId, messageTitle, messageBody)
+            
+            save_notification(fb_login, residentId, messageTitle, messageBody)
+            
             print("Delivery completed!")
             return isCompleted
         
@@ -35,6 +46,8 @@ def update_firebase(self, task):
              # Update booking order status to False
             isStore = False
             newBCodeStatus = "Done"
+            currentDateTime = datetime.now()
+            currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M:%S")
             
             booking_id = self.controller.app_data["bookingId"]
             residentId = self.controller.app_data["residentId"]
@@ -44,6 +57,16 @@ def update_firebase(self, task):
             
             firebaseDB.child("BookingHistory").update(
                 {"bookingId": booking_id, "residentId": residentId}, fb_login["idToken"])
+            
+            residentId = self.controller.app_data["residentId"]
+            nameBox = self.controller.app_data["nameBox"]
+            
+            messageTitle = "Đã lấy hàng"
+            messageBody = "Đơn hàng của bạn đã được lấy ra vào ngày: "+ currentTime
+            
+            send_delivery_notification(fb_login, residentId, messageTitle, messageBody)
+            
+            save_notification(fb_login, residentId, messageTitle, messageBody)
             
             print("Pickup completed!")
             return isCompleted
@@ -58,6 +81,29 @@ def update_firebase(self, task):
             foreground="red",
         )
 
+def send_delivery_notification(fb_login, residentId, messageTitle, messageBody):
+    pushService = PushNotificationService()
+    
+    fcm_token = firebaseDB.child("Notification").order_by_child(
+        "residentId").equal_to(residentId).get(fb_login["idToken"]).val()
+    
+    result = pushService.push_notification(fcm_token, messageTitle, messageBody)
+
+    print(result)
+
+def save_notification(fb_login, residentId, messageTitle, messageBody):
+    currentDateTime = datetime.now()
+    currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M:%S")
+    
+    data = {
+        "sendDate": currentTime,
+        "message_title": messageTitle,
+        "message_body": messageBody,
+    }
+    
+    firebaseDB.child("Notification").order_by_child(
+        "residentId").equal_to(residentId).update(data, fb_login["idToken"])
+
 # This gets called whenever the ON button is pressed
 def unlock_door(model):
     print("Box's door is unlocked")
@@ -70,6 +116,7 @@ def lock_door(model):
     model['solenoid_lock'].on()
     print('Magnetic switch value: ', model['magnetic_switch'].value)
 
+# Get weight of the package and return its value
 def get_weight(model):
     loadcell = model['loadcell']
     weightValue = max(0, int(loadcell.get_weight(5)))
@@ -102,7 +149,7 @@ def confirm_task(model, task):
             weightValue = get_weight(model)
         
         # Check if loadcell detect any weight
-        if task == "delivery" and weightValue != 0:
+        if (weightValue != 0 and task == "delivery"):
             isConfirm = True
         elif task == "pickup"and weightValue == 0:
             isConfirm = True

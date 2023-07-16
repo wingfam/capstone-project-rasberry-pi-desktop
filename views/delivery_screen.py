@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import ttk
 from widgets.keypad import Keypad
-from constants.image_constants import back_image
+from constants.image_imports import back_image
 from controllers.delivery_controller import DeliveryController
         
 class DeliveryScreen(ctk.CTkFrame):
@@ -43,7 +43,7 @@ class DeliveryScreen(ctk.CTkFrame):
         )
         
         self.label_error = ttk.Label(
-            self, 
+            master=self, 
             background="white", 
             font=ctk.CTkFont(size=16),
             text="", 
