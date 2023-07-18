@@ -1,4 +1,4 @@
-from views.cabinet_info_screen import CabinetInfoScreen
+from views.add_cabinet_screen import AddCabinetScreen
 from views.config_screen import ConfigScreen
 from views.control_screen import ControlScreen
 from views.main_screen import MainScreen
@@ -17,6 +17,6 @@ class ScreenView():
         "CompletionScreen": CompletionScreen,
         "PreConfigScreen": PreConfigScreen,
         "ConfigScreen": ConfigScreen,
-        "CabinetInfoScreen": CabinetInfoScreen,
+        "CabinetInfoScreen": AddCabinetScreen,
         "ControlScreen": ControlScreen,
     }

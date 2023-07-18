@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from constants.image_imports import back_image
+from controllers.config_controller import AddCabinetController
 
 class ConfigScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -7,6 +8,8 @@ class ConfigScreen(ctk.CTkFrame):
         ctk.CTkFrame.configure(self, fg_color="white")
         
         self.controller = controller
+        self.configController = AddCabinetController(view=self)
+        
         button_font = ctk.CTkFont(size=38, weight="bold")
         
         ctk.CTkButton(
@@ -18,15 +21,15 @@ class ConfigScreen(ctk.CTkFrame):
             text= "",
             image=back_image,
             command=lambda: self.controller.show_frame("ChooseCabinetScreen"),
-        ).place(relx=.90, rely=.10, anchor=ctk.CENTER)
+        ).place(relx=.10, rely=.10, anchor=ctk.CENTER)
         
-        self.control_screen_btn = ctk.CTkButton(
-            master=self,
-            anchor=ctk.CENTER,
-            font=button_font,
-            text="Cabinet Info",
-            command=lambda: self.controller.show_frame("CabinetInfoScreen")
-        ).place(relwidth=.45, relheight=.15, relx=.5, rely=.30, anchor=ctk.CENTER)
+        # self.control_screen_btn = ctk.CTkButton(
+        #     master=self,
+        #     anchor=ctk.CENTER,
+        #     font=button_font,
+        #     text="Cabinet Info",
+        #     command=lambda: self.controller.show_frame("CabinetInfoScreen")
+        # ).place(relwidth=.45, relheight=.15, relx=.5, rely=.30, anchor=ctk.CENTER)
         
         self.control_screen_btn = ctk.CTkButton(
             master=self,
