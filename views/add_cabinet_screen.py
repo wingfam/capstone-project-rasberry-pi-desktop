@@ -4,7 +4,7 @@ from customtkinter import StringVar, CTkButton, CTkLabel, CTkEntry, CTkComboBox,
 from constants.image_imports import back_image
 from tkintertable import TableCanvas
 from controllers.config_controller import AddCabinetController
-from views.choose_cabinet_screen import CabinetButtonFrame
+from views.choose_cabinet_screen import CabinetListFrame
 
 class AddCabinetScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -14,7 +14,7 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.parent = parent
         self.controller = controller
         self.addCabinetController = AddCabinetController(view=self)
-        self.cabinetButtonFrame = CabinetButtonFrame
+        self.cabinetButtonFrame = CabinetListFrame
         
         self.statusComboboxValues = ["Yes", "No"]
         self.locationComboboxValues = []

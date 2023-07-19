@@ -15,7 +15,7 @@ class Window(ctk.CTk):
         self.geometry("1024x600")
         self.title("Pre config window")
         
-        self.cabinetId = None
+        self.cabinetName = None
         self.cabinetValues = None
         self.databaseController = DatabaseController(view=self)
         
