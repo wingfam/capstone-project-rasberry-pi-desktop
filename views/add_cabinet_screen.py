@@ -1,28 +1,34 @@
+from tkinter import IntVar, ttk
 import customtkinter as ctk
 from customtkinter import StringVar, CTkButton, CTkLabel, CTkEntry, CTkComboBox, CENTER
 from constants.image_imports import back_image
 from tkintertable import TableCanvas
 from controllers.config_controller import AddCabinetController
+from views.choose_cabinet_screen import CabinetButtonFrame
 
 class AddCabinetScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white", require_redraw=True)
         
+        self.parent = parent
         self.controller = controller
         self.addCabinetController = AddCabinetController(view=self)
+        self.cabinetButtonFrame = CabinetButtonFrame
         
-        label_font = ctk.CTkFont(size=24)
-        
-        self.statusValues = ["Yes", "No"]
-        self.locationNames = []
+        self.statusComboboxValues = ["Yes", "No"]
+        self.locationComboboxValues = []
         self.locationData = {}
         self.boxData = {}
         
+        self.statusComboboxVar = StringVar()
+        self.cabinetId = StringVar()
         self.cabinetName = StringVar()
-        self.cabinetIsAvailable = StringVar()
+        self.cabinetIsAvailable = IntVar()
         self.cabinetLocation = StringVar()
         self.locationId = StringVar()
+        
+        label_font = ctk.CTkFont(size=24)
         
         CTkButton(
             master=self,
@@ -71,6 +77,15 @@ class AddCabinetScreen(ctk.CTkFrame):
             text="Location: ",
         ).place(relx=.08, rely=.45, anchor=CENTER)
         
+        self.error_label = CTkLabel(
+            master=self,
+            width=200,
+            fg_color="white",
+            text_color="red",
+            text="",
+        )
+        self.error_label.place(relwidth=.23, relx=.31, rely=.15, anchor=CENTER)
+        
         self.name_entry = CTkEntry(
             master=self,
             width=200,
@@ -89,8 +104,8 @@ class AddCabinetScreen(ctk.CTkFrame):
             dropdown_fg_color="white",
             font=label_font,
             state="readonly",
-            values=self.statusValues,
-            variable=self.cabinetIsAvailable,
+            values=self.statusComboboxValues,
+            variable=self.statusComboboxVar,
             command=self.status_combobox_callback
         )
         self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=CENTER)
@@ -103,7 +118,7 @@ class AddCabinetScreen(ctk.CTkFrame):
             dropdown_fg_color="white",
             state="readonly",
             font=label_font,
-            values=self.locationNames,
+            values=self.locationComboboxValues,
             variable=self.cabinetLocation,
             command=self.location_combobox_callback
         )
@@ -129,27 +144,32 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=CENTER)
     
     def reset(self):
-        self.locationNames = []
+        self.locationComboboxValues = []
         self.boxData = {}
         
         self.cabinetName.set("")
-        self.cabinetIsAvailable.set("")
+        self.statusComboboxVar.set("")
         self.cabinetLocation.set("")
         
         self.controller.show_frame("ChooseCabinetScreen")
         
     def status_combobox_callback(self, choice):
-        self.cabinetIsAvailable.set(choice)
-        choice = self.cabinetIsAvailable.get()
+        if choice == 'Yes':
+            self.cabinetIsAvailable.set(1)
+        elif choice == 'No':
+            self.cabinetIsAvailable.set(0)
+        self.statusComboboxVar.set(choice)
+        choice = self.statusComboboxVar.get()
         print("status_combobox:", choice)
     
     def location_combobox_callback(self, choice):
         self.cabinetLocation.set(choice)
-        locationName = self.cabinetLocation.get()
+        locationChoice = self.cabinetLocation.get()
         for value in self.locationData.items():
-            if value['locationName'] == locationName:
-                self.locationId.set(value['locationId'])
-        print("location_combobox:", locationName)
+            if value[1]['locationName'] == locationChoice:
+                self.locationId.set(value[1]['locationId'])
+        
+        print("location_combobox:", locationChoice)
 
 
 class BoxList(ctk.CTkFrame):

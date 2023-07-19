@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from constants.image_imports import home_image, add_image
+from constants.image_imports import home_image, add_image, refresh_image
 from controllers.config_controller import ChooseCabinetController
 
 class ChooseCabinetScreen(ctk.CTkFrame):
@@ -32,8 +32,26 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             command=lambda: self.controller.show_frame("AddCabinetScreen"),
         ).place(relx=.90, rely=.10, anchor=ctk.CENTER)
         
-        cabinetButtonFrame = CabinetButtonFrame(self)
-        cabinetButtonFrame.place(relwidth=.5, relheight=.5, rely=.5, relx=.5, anchor=ctk.CENTER)
+        
+        ctk.CTkButton(
+            master=self,
+            width=44,
+            height=44,
+            bg_color="#FFFFFF",
+            fg_color="#FFFFFF",
+            text= "",
+            image=refresh_image,
+            command=lambda: self.reload(),
+        ).place(relx=.90, rely=.20, anchor=ctk.CENTER)
+        
+        self.cabinetButtonFrame = CabinetButtonFrame(self)
+        self.cabinetButtonFrame.place(relwidth=.5, relheight=.95, rely=.5, relx=.5, anchor=ctk.CENTER)
+    '''TODO: find a way to redraw frame'''
+    def reload(self):
+        self.cabinetButtonFrame.after(500, self.cabinetButtonFrame.__init__(self))
+    
+    def print(self):
+        print("Page reloaded")
 
 class CabinetButtonFrame(ctk.CTkFrame):
     def __init__(self, parent):

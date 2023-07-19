@@ -2,9 +2,10 @@ import time
 import tkinter as tk
 import sqlite3 as sqlite3
 
+from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
-from models.models import Cabinet
+from models.models import Cabinet, Box
 from services.auth import firebase_login
 from services.firebase_config import firebaseDB
 from services.sqlite3 import dict_factory
@@ -43,22 +44,31 @@ class AddCabinetController():
     def __init__(self, view):
         self.view = view
         
-    '''TODO: save cabinet info and box info to local database'''
+    '''TODO: save cabinet info, master code info and box info to local database'''
     def save_to_database(self):
+        currentDateTime = datetime.now()
+        currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M:%S")
+        databaseController = DatabaseController(view=self.view)
         tableModel = self.view.boxTable.table.getModel()
         records = tableModel.data
-        
+        '''TODO Need to handle duplicate cabinet name and box name
+            Also, handle empty cabinet entry and box table
+        '''
         cabinetModel = Cabinet
-        cabinetModel.id = firebaseDB.generate_key()
-        cabinetModel.name = self.view.cabinetName.get()
-        cabinetModel.isAvailable = self.view.cabinetIsAvailable.get()
-        cabinetModel.locationId = self.view.locationId.get()
         
-        print(cabinetModel.name)
-        for record in records.values():
-            print(record)
-
-        print("File has been save!")
+        record = databaseController.find_cabinet_name(self.view.cabinetName.get())
+        isFound = databaseController.check_exist_cabinet(record)
+        if not isFound:
+            self.view.error_label.configure(text="Cabinet name has already existed")
+            return self.view.error_label
+        else:
+            databaseController.save_cabinet_to_db(cabinetModel, currentTime)    
+            for record in records.values():
+                boxModel = Box
+                databaseController.save_box_to_db(boxModel, record)
+                
+            return self.view.error_label.configure(text_color="green", text="Create new cabinet successful")
+        
         
     def upload_to_firebase(self):
         print("File has been uploaded!")
@@ -73,12 +83,12 @@ class AddCabinetController():
                 locationId = location.val()['id']
                 newData = {newKey: {'locationId': locationId, 'locationName': locationName}}
                 self.view.locationData.update(newData)
-                self.view.locationNames.append(locationName)
+                self.view.locationComboboxValues.append(locationName)
                 
         except IndexError:
             print("Location doesn't exist")
            
-        self.view.location_combobox.configure(require_redraw=True, values=self.view.locationNames)
+        self.view.location_combobox.configure(require_redraw=True, values=self.view.locationComboboxValues)
     
     def get_box_by_cabinetId(self, cabinetId):
         databaseController = DatabaseController(view=self.view)
@@ -88,7 +98,7 @@ class AddCabinetController():
             conn.row_factory = dict_factory
             cur = conn.cursor()
             
-            results = cur.execute("SELECT * From Box WHERE cabinetId = ?", (cabinetId))
+            results = cur.execute("SELECT * FROM Box WHERE cabinetId = ?", (cabinetId,))
             
             count = 0
             for row in results:
@@ -147,6 +157,94 @@ class DatabaseController():
             conn.close()
             
         print("New database has been created.")
+    
+    def find_cabinet_name(self, cabinetName):
+        conn = self.opendb(db_file_name)
+        results = None
+        try:
+            conn = sqlite3.connect(db_file_name)
+            conn.row_factory = dict_factory
+            cur = conn.cursor()
+            
+            cur.execute("SELECT nameCabinet FROM Cabinet WHERE nameCabinet = ?", (cabinetName,))
+            
+            results = cur.fetchone()
+            conn.commit()
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+        return results
+    
+    def check_exist_cabinet(self, foundRecord):
+        if foundRecord:
+            return False
+        else:
+            return True
+            
+    def save_cabinet_to_db(self, model, currentTime):
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            
+            model.id = firebaseDB.generate_key()
+            model.name = self.view.cabinetName.get()
+            model.addDate = currentTime
+            model.isAvailable = self.view.cabinetIsAvailable.get()
+            model.locationId = self.view.locationId.get()
+            
+            cabinet = (model.id, model.name, model.addDate, model.isAvailable, model.locationId)
+            
+            sql = '''
+                INSERT INTO Cabinet (id, nameCabinet, addDate, isAvailable, locationId)
+                VALUES (?, ?, ?, ?, ?)
+            '''
+            
+            self.view.cabinetId = model.id
+            cur.execute(sql, cabinet)
+            conn.commit()
+                
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+        
+    def save_box_to_db(self, model, record):
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            
+            model.id = firebaseDB.generate_key()
+            model.nameBox = record['nameBox']
+            model.size = record['size']
+            model.width = record['width']
+            model.height = record['height']
+            model.isStore = 0
+            model.isAvailable = 1
+            model.solenoidGpio = record['solenoidGpio']
+            model.switchGpio = record['switchGpio']
+            model.loadcellDout = record['loadcellDout']
+            model.loadcellSck = record['loadcellSck']
+            model.cabinetId = self.view.cabinetId
+            
+            box = (model.id, model.nameBox, model.size, model.width, 
+                   model.height, model.isStore, model.isAvailable, model.solenoidGpio, 
+                   model.switchGpio, model.loadcellDout, model.loadcellSck, model.cabinetId)
+            
+            sql = '''
+                INSERT INTO Box (id, nameBox, size, width, height, isStore, isAvailable, 
+                    solenoidGpio, switchGpio, loadcellDout, loadcellSck, cabinetId)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            '''
+            
+            cur.execute(sql, box)
+            conn.commit()
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
 
 class ControlPinController():
     def __init__(self, model, view):

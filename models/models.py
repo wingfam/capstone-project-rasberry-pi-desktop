@@ -112,6 +112,7 @@ class Box():
         size,
         width,
         height,
+        isStore,
         isAvailable,
         solenoidGpio,
         switchGpio, 
@@ -124,6 +125,7 @@ class Box():
         self.size = size
         self.width = width
         self.height = height
+        self.isStore = isStore
         self.isAvailable = isAvailable
         self.solenoidGpio = solenoidGpio
         self.switchGpio = switchGpio
@@ -152,6 +154,10 @@ class Box():
         return self.height
 
     @property
+    def isStore(self):
+        return self.isStore
+
+    @property
     def isAvailable(self):
         return self.isAvailable
 
@@ -175,6 +181,14 @@ class Box():
     def cabinetId(self):
         return self.cabinetId
 
+    @isStore.setter
+    def isStore(self, value):
+        self.isStore = value
+
+    @isAvailable.setter
+    def isAvailable(self, value):
+        self.isAvailable = value
+
     @switchGpio.setter
     def switchGpio(self, value):
         self.switchGpio = value
@@ -190,10 +204,6 @@ class Box():
     @loadcellSck.setter
     def loadcellSck(self, value):
         self.loadcellSck = value
-    
-    @cabinetId.setter
-    def cabinetId(self, value):
-        self.cabinetId = value
     
     def __str__(self):
         return f"{self.nameBox}, {self.size}, {self.isAvailable}"
