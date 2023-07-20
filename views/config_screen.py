@@ -23,13 +23,12 @@ class ConfigScreen(ctk.CTkFrame):
             command=lambda: self.controller.show_frame("ChooseCabinetScreen"),
         ).place(relx=.10, rely=.10, anchor=ctk.CENTER)
         
-        # self.control_screen_btn = ctk.CTkButton(
-        #     master=self,
-        #     anchor=ctk.CENTER,
-        #     font=button_font,
-        #     text="Cabinet Info",
-        #     command=lambda: self.controller.show_frame("CabinetInfoScreen")
-        # ).place(relwidth=.45, relheight=.15, relx=.5, rely=.30, anchor=ctk.CENTER)
+        self.control_screen_btn = ctk.CTkButton(
+            master=self,
+            anchor=ctk.CENTER,
+            font=button_font,
+            text="Cabinet Info",
+        ).place(relwidth=.45, relheight=.15, relx=.5, rely=.30, anchor=ctk.CENTER)
         
         self.control_screen_btn = ctk.CTkButton(
             master=self,

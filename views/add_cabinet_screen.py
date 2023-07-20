@@ -4,7 +4,7 @@ from customtkinter import StringVar, CTkButton, CTkLabel, CTkEntry, CTkComboBox,
 from constants.image_imports import back_image
 from tkintertable import TableCanvas
 from controllers.config_controller import AddCabinetController
-from views.choose_cabinet_screen import CabinetListFrame
+from views.choose_cabinet_screen import CabinetListBox, ChooseCabinetScreen
 
 class AddCabinetScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -13,8 +13,9 @@ class AddCabinetScreen(ctk.CTkFrame):
         
         self.parent = parent
         self.controller = controller
+        self.prevScreen = ChooseCabinetScreen
         self.addCabinetController = AddCabinetController(view=self)
-        self.cabinetButtonFrame = CabinetListFrame
+        self.cabinetButtonFrame = CabinetListBox
         
         self.statusComboboxValues = ["Yes", "No"]
         self.locationComboboxValues = []
@@ -38,7 +39,7 @@ class AddCabinetScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=back_image,
-            command=lambda: self.reset(),
+            command=self.go_back_prev_screen,
         ).place(relx=.05, rely=.10, anchor=CENTER)
         
         CTkLabel(
@@ -129,7 +130,7 @@ class AddCabinetScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
             text="Upload to Firebase",
-            command=lambda: self.addCabinetController.upload_to_firebase()
+            command=self.addCabinetController.upload_to_firebase
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
         
         CTkButton(
@@ -137,20 +138,23 @@ class AddCabinetScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
             text="Save to Database",
-            command=lambda: self.addCabinetController.save_to_database()
+            command=self.addCabinetController.save_to_database
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
         
         self.boxTable = BoxList(self, controller=self.controller)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=CENTER)
     
-    def reset(self):
+    def refresh(self):
         self.locationComboboxValues = []
         self.boxData = {}
         
         self.cabinetName.set("")
         self.statusComboboxVar.set("")
         self.cabinetLocation.set("")
-        
+        self.error_label.configure(text="")
+    
+    def go_back_prev_screen(self):
+        self.refresh()
         self.controller.show_frame("ChooseCabinetScreen")
         
     def status_combobox_callback(self, choice):
@@ -168,7 +172,6 @@ class AddCabinetScreen(ctk.CTkFrame):
         for value in self.locationData.items():
             if value[1]['locationName'] == locationChoice:
                 self.locationId.set(value[1]['locationId'])
-        
         print("location_combobox:", locationChoice)
 
 
@@ -184,12 +187,12 @@ class BoxList(ctk.CTkFrame):
             'rec': {
                 'nameBox': "",
                 'size': "",
-                'width': "",
-                'height': "",
-                'solenoidGpio': "",
-                'switchGpio': "",
-                'loadcellDout': "",
-                'loadcellSck': "",
+                'width': 0,
+                'height': 0,
+                'solenoidGpio': 0,
+                'switchGpio': 0,
+                'loadcellDout': 0,
+                'loadcellSck': 0,
             }
         }
         

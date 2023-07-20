@@ -1,11 +1,13 @@
 import time
 import tkinter as tk
 import sqlite3 as sqlite3
+import random
+import math
 
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
-from models.models import Cabinet, Box
+from models.models import Cabinet, Box, MasterCode
 from services.auth import firebase_login
 from services.firebase_config import firebaseDB
 from services.sqlite3 import dict_factory
@@ -17,62 +19,126 @@ class ChooseCabinetController():
     def __init__(self, view):
         self.view = view
     
-    def get_all_cabinet(self):
-        databaseController = DatabaseController(view=self.view)
-        conn = databaseController.opendb(db_file_name)
-        cabinetDict = {}
-        try:
-            conn = sqlite3.connect(db_file_name)
-            conn.row_factory = dict_factory
-            cur = conn.cursor()
-            
-            results = cur.execute("SELECT * From Cabinet")
-            
-            count = 0
-            for row in results:
-                rowData = {
-                    str(count): row
-                }
-                count += 1
-                cabinetDict.update(rowData)
-        except Exception as e:
-            print(e)
-        
-        return cabinetDict
-
+    
 class AddCabinetController():
     def __init__(self, view):
         self.view = view
-        
-    '''TODO: save cabinet info, master code info and box info to local database'''
+        self.databaseController = DatabaseController(view=self.view)
+     
     def save_to_database(self):
         currentDateTime = datetime.now()
         currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M:%S")
-        databaseController = DatabaseController(view=self.view)
         tableModel = self.view.boxTable.table.getModel()
         records = tableModel.data
-        '''TODO Need to handle duplicate cabinet name and box name
-            Also, handle empty cabinet entry and box table
-        '''
-        cabinetModel = Cabinet
         
-        record = databaseController.find_cabinet_name(self.view.cabinetName.get())
-        isFound = databaseController.check_exist_cabinet(record)
+        record = self.databaseController.find_cabinet_name(self.view.cabinetName.get())
+        isFound = self.databaseController.check_exist_cabinet(record)
+        
         if not isFound:
             self.view.error_label.configure(text="Cabinet name has already existed")
             return self.view.error_label
         else:
-            databaseController.save_cabinet_to_db(cabinetModel, currentTime)    
-            for record in records.values():
+            cabinetModel = Cabinet
+            self.databaseController.save_cabinet_to_db(cabinetModel, currentTime) # Save cabinet entries
+            self.databaseController.save_master_code_to_db() # Save master code entries
+            
+            for record in records.values(): # Save box entries
                 boxModel = Box
-                databaseController.save_box_to_db(boxModel, record)
-                
+                self.databaseController.save_box_to_db(boxModel, record)
+            
             return self.view.error_label.configure(text_color="green", text="Create new cabinet successful")
         
-        
     def upload_to_firebase(self):
-        print("File has been uploaded!")
+        self.upload_cabinet()
+        self.upload_mastercode()
+        self.upload_box()
+    
+    def upload_cabinet(self):
+        try:
+            cabinetRef = firebaseDB.child("Cabinet")
+            cabinets = self.databaseController.get_all_cabinet()
+            for cabinet in cabinets.values():
+                fb_isAvailable = None
+                
+                if cabinet['isAvailable']:
+                    fb_isAvailable = True
+                elif not cabinet['isAvailable']:
+                    fb_isAvailable = False
+                    
+                newData = {
+                    cabinet['id']: {
+                        'id': cabinet['id'],
+                        'name': cabinet['nameCabinet'],
+                        'addDate': cabinet['addDate'],
+                        'isAvailable': fb_isAvailable,
+                        'locationId': cabinet['locationId']
+                    }
+                }
+                
+                cabinetRef.update(newData)
+        except Exception as e:
+            print("An error has occurred: ", e)
         
+    def upload_mastercode(self):    
+        try:
+            mastercodeRef = firebaseDB.child("MasterCode")
+            mastercodes = self.databaseController.get_all_master_code()
+            for mastercode in mastercodes.values():
+                fb_isAvailable = None
+                
+                if mastercode['isAvailable']:
+                    fb_isAvailable = True
+                elif not mastercode['isAvailable']:
+                    fb_isAvailable = False
+                    
+                newData = {
+                    mastercode['id']: {
+                        'id': mastercode['id'],
+                        'code': mastercode['code'],
+                        'isAvailable': fb_isAvailable,
+                        'cabinetId': mastercode['cabinetId']
+                    }
+                }
+                
+                mastercodeRef.update(newData)
+        except Exception as e:
+            print("An error has occurred: ", e)
+    
+    def upload_box(self):
+        try:
+            boxRef = firebaseDB.child("Box")
+            boxes = self.databaseController.get_all_box()
+            for box in boxes.values():
+                fb_isAvailable = None
+                fb_isStore = None
+                
+                if box['isAvailable']:
+                    fb_isAvailable = True
+                elif not box['isAvailable']:
+                    fb_isAvailable = False
+                
+                if box['isStore']:
+                    fb_isStore = True
+                elif not box['isStore']:
+                    fb_isStore = False
+                    
+                newData = {
+                    box['id']: {
+                        'id': box['id'],
+                        'nameBox': box['nameBox'],
+                        'size': box['size'],
+                        'width': box['width'],
+                        'height': box['height'],
+                        'isStore': fb_isStore,
+                        'isAvailable': fb_isAvailable,
+                        'cabinetId': box['cabinetId']
+                    }
+                }
+                
+                boxRef.update(newData)
+        except Exception as e:
+            print("An error has occurred: ", e)
+            
     def get_location_data(self):
         try:
             fb_login = firebase_login()
@@ -158,6 +224,78 @@ class DatabaseController():
             
         print("New database has been created.")
     
+    def get_all_cabinet(self):
+        conn = self.opendb(db_file_name)
+        cabinetDict = {}
+        try:
+            conn = sqlite3.connect(db_file_name)
+            conn.row_factory = dict_factory
+            cur = conn.cursor()
+            
+            results = cur.execute("SELECT * From Cabinet")
+            
+            count = 0
+            for row in results:
+                rowData = {
+                    str(count): row
+                }
+                count += 1
+                cabinetDict.update(rowData)
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+        
+        return cabinetDict
+
+    def get_all_master_code(self):
+        conn = self.opendb(db_file_name)
+        dicts = {}
+        try:
+            conn = sqlite3.connect(db_file_name)
+            conn.row_factory = dict_factory
+            cur = conn.cursor()
+            
+            results = cur.execute("SELECT * From MasterCode")
+            
+            count = 0
+            for row in results:
+                rowData = {
+                    str(count): row
+                }
+                count += 1
+                dicts.update(rowData)
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+        
+        return dicts
+
+    def get_all_box(self):
+        conn = self.opendb(db_file_name)
+        dicts = {}
+        try:
+            conn = sqlite3.connect(db_file_name)
+            conn.row_factory = dict_factory
+            cur = conn.cursor()
+            
+            results = cur.execute("SELECT * From Box")
+            
+            count = 0
+            for row in results:
+                rowData = {
+                    str(count): row
+                }
+                count += 1
+                dicts.update(rowData)
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+        
+        return dicts
+    
     def find_cabinet_name(self, cabinetName):
         conn = self.opendb(db_file_name)
         results = None
@@ -194,17 +332,19 @@ class DatabaseController():
             model.isAvailable = self.view.cabinetIsAvailable.get()
             model.locationId = self.view.locationId.get()
             
-            cabinet = (model.id, model.name, model.addDate, model.isAvailable, model.locationId)
+            if not model.name or not model.isAvailable or not model.locationId:
+                return self.view.error_label.configure(text="Cabinet entries can't be empty")
+            else:
+                self.view.cabinetId = model.id
+                cabinet = (model.id, model.name, model.addDate, model.isAvailable, model.locationId)
             
-            sql = '''
-                INSERT INTO Cabinet (id, nameCabinet, addDate, isAvailable, locationId)
-                VALUES (?, ?, ?, ?, ?)
-            '''
+                sql = '''
+                    INSERT INTO Cabinet (id, nameCabinet, addDate, isAvailable, locationId)
+                    VALUES (?, ?, ?, ?, ?)
+                '''
             
-            self.view.cabinetId = model.id
-            cur.execute(sql, cabinet)
-            conn.commit()
-                
+                cur.execute(sql, cabinet)
+                conn.commit()
         except conn.DatabaseError as e:
             print("An error has occurred: ", e)
         finally:
@@ -246,6 +386,39 @@ class DatabaseController():
         finally:
             conn.close()
 
+    def save_master_code_to_db(self):
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            
+            # generate random 6 digits
+            digits = [i for i in range(0, 10)]
+            randomDigits = ""
+            for i in range(6):
+                index = math.floor(random.random() * 10)
+                randomDigits += str(digits[index])
+            
+            model = MasterCode
+            model.id = firebaseDB.generate_key()
+            model.code = randomDigits
+            model.isAvailable = 1
+            model.cabinetId = self.view.cabinetId
+            
+            mastercode = (model.id, model.code, model.isAvailable, model.cabinetId)
+            
+            sql = '''
+                INSERT INTO MasterCode (id, code, isAvailable, cabinetId)
+                VALUES (?, ?, ?, ?)
+            '''
+            
+            cur.execute(sql, mastercode)
+            conn.commit()
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+        
 class ControlPinController():
     def __init__(self, model, view):
         self.view = view
