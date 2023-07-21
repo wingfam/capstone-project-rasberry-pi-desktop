@@ -127,21 +127,22 @@ class AddCabinetScreen(ctk.CTkFrame):
             command=self.location_combobox_callback
         )
         self.location_combobox.place(relwidth=.23, relx=.310, rely=.45, anchor=CENTER)
-        
-        CTkButton(
-            master=self,
-            corner_radius=15.0,
-            font=ctk.CTkFont(size=28, weight="bold"),
-            text="Upload to Firebase",
-            command=self.upload_data
-        ).place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
-        
+    
         CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
             text="Save data",
             command=self.save_data
+        ).place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
+        
+    
+        CTkButton(
+            master=self,
+            corner_radius=15.0,
+            font=ctk.CTkFont(size=28, weight="bold"),
+            text="Upload data",
+            command=self.addCabinetController.upload_to_firebase
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
         
         self.boxTable = BoxList(self, controller=self.controller)
@@ -149,11 +150,8 @@ class AddCabinetScreen(ctk.CTkFrame):
     
     def save_data(self):
         self.addCabinetController.save_to_database()
-    
-    def upload_data(self):
         self.addCabinetController.upload_to_firebase()
         self.streamController.set_cabinet_stream()
-        
     
     def refresh(self):
         self.locationComboboxValues = []

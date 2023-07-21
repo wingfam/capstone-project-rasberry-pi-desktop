@@ -109,7 +109,7 @@ class AddCabinetController():
     
     def upload_box(self):
         try:
-            boxes = self.view.databaseController.get_box_by_cabinetId(1)
+            boxes = self.view.databaseController.get_box_by_cabinetId(self.view.cabinetId)
             for box in boxes.values():
                 boxRef = firebaseDB.child("Box")
                 fb_isAvailable = None
@@ -495,6 +495,36 @@ class DatabaseController():
             print("An error has occurred: ", e)
         finally:
             conn.close()
+
+    def update_cabinet(self, data):
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            
+            model = (
+                data['name'], 
+                data['isAvailable'], 
+                data['locationId'], 
+                data['id']
+            )
+            
+            sql = ''' 
+                UPDATE Cabinet
+                SET name = ?,
+                    isAvailable = ?,
+                    locationId = ?
+                WHERE id = ?
+            '''
+            
+            cur.execute(sql, model)
+            conn.commit()
+        except Exception as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+        
+        print("Update cabinet successful")
         
 class ControlPinController():
     def __init__(self, model, view):

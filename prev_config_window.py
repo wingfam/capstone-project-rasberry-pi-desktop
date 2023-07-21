@@ -35,7 +35,7 @@ class Window(ctk.CTk):
             self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         
-        self.streamController.set_cabinet_stream()
+        self.streamController.set_all_stream()
         
         self.show_frame("ChooseCabinetScreen")
     
