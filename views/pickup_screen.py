@@ -54,7 +54,7 @@ class PickupScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=24),
-            command=lambda: self.validate(),
+            command=self.validate,
         )
         self.button_confirm.place(x=48.0,y=432.0)
         
@@ -66,7 +66,7 @@ class PickupScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=self.back_image,
-            command=lambda: controller.show_frame("MainScreen"),
+            command=self.go_to_main_screen,
         )
         self.button_back.place(x=951.0,y=528.0)
         
@@ -90,3 +90,7 @@ class PickupScreen(ctk.CTkFrame):
     def refresh(self):
         self.entry_code.delete(0, "end")
         self.label_error.grid_remove()
+        
+    def go_to_main_screen(self):
+        self.refresh()
+        self.controller.show_frame("MainScreen")

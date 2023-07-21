@@ -1,19 +1,10 @@
 db_file_name = r'smart_locker.db'
 
 class DbTable():
-    # locationTable = '''
-    #         CREATE TABLE IF NOT EXISTS Location (
-    #             [id] TEXT PRIMARY KEY NOT NULL,
-    #             [nameLocation] TEXT,
-    #             [address] TEXT,
-    #             [status] INTEGER
-    #         );
-    #     '''
-        
     cabinetTable = '''
         CREATE TABLE IF NOT EXISTS Cabinet (
             [id] TEXT PRIMARY KEY NOT NULL,
-            [nameCabinet] TEXT,
+            [name] TEXT,
             [addDate] TEXT,
             [isAvailable] INTEGER,
             [locationId] TEXT NOT NULL

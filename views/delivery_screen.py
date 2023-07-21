@@ -58,7 +58,7 @@ class DeliveryScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=24),
-            command=lambda: self.validate(),
+            command=self.validate,
         )
         self.button_confirm.place(x=48.0,y=432.0)
         
@@ -70,7 +70,7 @@ class DeliveryScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=back_image,
-            command=lambda: self.restart(),
+            command=self.restart,
         )
         self.button_back.place(x=951.0,y=528.0)
         

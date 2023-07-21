@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import sqlite3 as sqlite3
 from controllers.config_controller import DatabaseController
+from controllers.stream_controller import StreamController
 
 from views.add_cabinet_screen import AddCabinetScreen
 from views.choose_cabinet_screen import ChooseCabinetScreen
@@ -18,6 +19,7 @@ class Window(ctk.CTk):
         self.cabinetName = None
         self.cabinetValues = None
         self.databaseController = DatabaseController(view=self)
+        self.streamController = StreamController(view=self)
         
         container = ctk.CTkFrame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -33,7 +35,8 @@ class Window(ctk.CTk):
             self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         
-        # self.show_frame("PreConfigScreen")
+        self.streamController.set_cabinet_stream()
+        
         self.show_frame("ChooseCabinetScreen")
     
     def show_frame(self, page_name):
@@ -43,7 +46,7 @@ class Window(ctk.CTk):
             gotLocationNames = frame.addCabinetController.get_location_data()
             frame.locationNames = gotLocationNames
             frame.after(500, gotLocationNames)
-
+    
 class ScreenView():
     frame_views = {
         # "PreConfigScreen": PreConfigScreen,

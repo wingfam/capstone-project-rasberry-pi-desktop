@@ -2,7 +2,7 @@ import sys
 import RPi.GPIO as GPIO
 import customtkinter as ctk
 
-from constants.gpio_pins import LoadCell, MageneticSwitch, SolenoidLock
+from models.models import LoadCell, MageneticSwitch, SolenoidLock
 from constants.screen_views import ScreenView
 from views.config_screen import ConfigScreen
 from views.control_screen import ControlScreen
@@ -24,7 +24,7 @@ class MainApp(ctk.CTk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         
-        self.loadcell = LoadCell()
+        self.loadcell = LoadCell
         self.loadcell.reset()
         self.loadcell.tare()
         
@@ -41,7 +41,7 @@ class MainApp(ctk.CTk):
                 "nameBox": "02",
                 "solenoid_lock": SolenoidLock.solenoid_lock1,
                 "magnetic_switch": MageneticSwitch.mag_switch1,
-                "loadcell": LoadCell.hx_1,
+                "loadcell": LoadCell.hx711,
             }
         }
         

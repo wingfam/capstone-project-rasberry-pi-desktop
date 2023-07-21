@@ -3,7 +3,8 @@ import customtkinter as ctk
 from customtkinter import StringVar, CTkButton, CTkLabel, CTkEntry, CTkComboBox, CENTER
 from constants.image_imports import back_image
 from tkintertable import TableCanvas
-from controllers.config_controller import AddCabinetController
+from controllers.config_controller import AddCabinetController, DatabaseController
+from controllers.stream_controller import StreamController
 from views.choose_cabinet_screen import CabinetListBox, ChooseCabinetScreen
 
 class AddCabinetScreen(ctk.CTkFrame):
@@ -14,7 +15,9 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.parent = parent
         self.controller = controller
         self.prevScreen = ChooseCabinetScreen
+        self.databaseController = DatabaseController(view=self)
         self.addCabinetController = AddCabinetController(view=self)
+        self.streamController = StreamController(view=self)
         self.cabinetButtonFrame = CabinetListBox
         
         self.statusComboboxValues = ["Yes", "No"]
@@ -130,19 +133,27 @@ class AddCabinetScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
             text="Upload to Firebase",
-            command=self.addCabinetController.upload_to_firebase
+            command=self.upload_data
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
         
         CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="Save to Database",
-            command=self.addCabinetController.save_to_database
+            text="Save data",
+            command=self.save_data
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
         
         self.boxTable = BoxList(self, controller=self.controller)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=CENTER)
+    
+    def save_data(self):
+        self.addCabinetController.save_to_database()
+    
+    def upload_data(self):
+        self.addCabinetController.upload_to_firebase()
+        self.streamController.set_cabinet_stream()
+        
     
     def refresh(self):
         self.locationComboboxValues = []

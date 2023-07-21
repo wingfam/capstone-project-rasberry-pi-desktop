@@ -105,7 +105,7 @@ class CabinetListBox(ctk.CTkFrame):
         
     def insert_list_box(self, cabinets):
         for key, value in cabinets.items():
-            self.listBox.insert(key, value['nameCabinet'])
+            self.listBox.insert(key, value['name'])
     
     def set_cabinet_name(self, event):
         selection = event.widget.curselection()

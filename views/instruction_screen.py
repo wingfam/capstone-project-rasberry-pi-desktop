@@ -43,7 +43,7 @@ class InstructionScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=24),
-            command=lambda: self.check_package(),
+            command=self.check_package,
         )
         self.button_confirm.place(x=445.0, y=375.0)
         

@@ -50,7 +50,7 @@ class PreConfigScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=text_font,
             text="Confirm",
-            command=lambda: self.verify()
+            command=self.verify
         ).place(relwidth=.4, relx=.28, rely=.71, anchor=ctk.CENTER)
         
         self.keypad = Keypad(self)

@@ -1,3 +1,13 @@
+# from services.hx711 import HX711
+from gpiozero.pins.pigpio import PiGPIOFactory
+from gpiozero import LED, Button
+
+
+
+
+
+
+
 class Cabinet():
     def __init__(
         self, 
@@ -207,3 +217,54 @@ class Box():
     
     def __str__(self):
         return f"{self.nameBox}, {self.size}, {self.isAvailable}"
+
+class SolenoidLock():
+    def __init__(self, pin):
+        self.pin = pin
+        
+        '''Declare host for remote GPIO Only use to control gpio remotely'''
+        # factory = PiGPIOFactory(host='192.168.0.102')
+        
+        solenoid = LED(self.pin, initial_value=True)
+        # solenoid_factory = LED(self.pin, initial_value=True, pin_factory=factory)
+    
+class MageneticSwitch():
+    def __init__(self, pin):
+        self.pin = pin
+        
+        '''Declare host for remote GPIO Only use to control gpio remotely'''
+        # factory = PiGPIOFactory(host='192.168.0.102') 
+        
+        switch_hold_time = 3.0 # Magnetic switch hold time
+        
+        switch = Button(self.pin, pull_up=True, bounce_time=0.2, hold_time=switch_hold_time)
+        # switch_factory = Button(self.pin, pull_up=True, bounce_time=0.2, pin_factory=factory, hold_time=switch_hold_time)
+
+class LoadCell():
+    def __init__(self, dout, sck):
+        self.dout = dout
+        self.sck = sck
+        
+        # Loadcell reference unit
+        referenceUnit = 218
+
+        # self.hx711 = HX711(self.dout, self.sck)
+        self.hx711.set_reading_format("MSB", "MSB")
+        self.hx711.set_reference_unit(referenceUnit)
+    
+    def tare(self):
+        self.hx711.tare()
+        print("Loadcell tare done!")      
+    
+    def powerUp(self):
+        self.hx711.power_up()
+        print("Loadcell power up done!") 
+        
+    def powerDown(self):
+        self.hx711.power_down()
+        print("Loadcell power down done!") 
+        
+    def reset(self):
+        self.hx711.reset()
+        print("Loadcell reset done!") 
+        
