@@ -1,6 +1,6 @@
-from tkinter import IntVar, ttk
 import customtkinter as ctk
-from customtkinter import StringVar, CTkButton, CTkLabel, CTkEntry, CTkComboBox, CENTER
+
+from tkinter import IntVar
 from constants.image_imports import back_image
 from tkintertable import TableCanvas
 from controllers.config_controller import AddCabinetController, DatabaseController
@@ -25,16 +25,16 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.locationData = {}
         self.boxData = {}
         
-        self.statusComboboxVar = StringVar()
-        self.cabinetId = StringVar()
-        self.cabinetName = StringVar()
+        self.statusComboboxVar = ctk.StringVar()
+        self.cabinetId = ctk.StringVar()
+        self.cabinetName = ctk.StringVar()
         self.cabinetIsAvailable = IntVar()
-        self.cabinetLocation = StringVar()
-        self.locationId = StringVar()
+        self.cabinetLocation = ctk.StringVar()
+        self.locationId = ctk.StringVar()
         
         label_font = ctk.CTkFont(size=24)
         
-        CTkButton(
+        ctk.CTkButton(
             master=self,
             width=44,
             height=44,
@@ -43,54 +43,54 @@ class AddCabinetScreen(ctk.CTkFrame):
             text= "",
             image=back_image,
             command=self.go_back_prev_screen,
-        ).place(relx=.05, rely=.10, anchor=CENTER)
+        ).place(relx=.05, rely=.10, anchor=ctk.CENTER)
         
-        CTkLabel(
+        ctk.CTkLabel(
             master=self,
             width=200,
             anchor="w",
             text_color="black",
             font=label_font,
             text="Box list: ",
-        ).place(relx=.60, rely=.08, anchor=CENTER)
+        ).place(relx=.60, rely=.08, anchor=ctk.CENTER)
         
-        CTkLabel(
+        ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=label_font,
             text="Cabinet name: ",
-        ).place(relx=.08, rely=.25, anchor=CENTER)
+        ).place(relx=.08, rely=.25, anchor=ctk.CENTER)
         
-        CTkLabel(
+        ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=label_font,
             text="Is Available: ",
-        ).place(relx=.08, rely=.35, anchor=CENTER)
+        ).place(relx=.08, rely=.35, anchor=ctk.CENTER)
         
-        CTkLabel(
+        ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=label_font,
             text="Location: ",
-        ).place(relx=.08, rely=.45, anchor=CENTER)
+        ).place(relx=.08, rely=.45, anchor=ctk.CENTER)
         
-        self.error_label = CTkLabel(
+        self.error_label = ctk.CTkLabel(
             master=self,
             width=200,
             fg_color="white",
             text_color="red",
             text="",
         )
-        self.error_label.place(relwidth=.23, relx=.31, rely=.15, anchor=CENTER)
+        self.error_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         
-        self.name_entry = CTkEntry(
+        self.name_entry = ctk.CTkEntry(
             master=self,
             width=200,
             fg_color="white",
@@ -98,9 +98,9 @@ class AddCabinetScreen(ctk.CTkFrame):
             font=label_font,
             textvariable=self.cabinetName,
         )
-        self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=CENTER)
+        self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
         
-        self.status_combobox = CTkComboBox(
+        self.status_combobox = ctk.CTkComboBox(
             master=self,
             fg_color="white",
             text_color="black",
@@ -112,9 +112,9 @@ class AddCabinetScreen(ctk.CTkFrame):
             variable=self.statusComboboxVar,
             command=self.status_combobox_callback
         )
-        self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=CENTER)
+        self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
         
-        self.location_combobox = CTkComboBox(
+        self.location_combobox = ctk.CTkComboBox(
             master=self,
             fg_color="white",
             text_color="black",
@@ -126,32 +126,35 @@ class AddCabinetScreen(ctk.CTkFrame):
             variable=self.cabinetLocation,
             command=self.location_combobox_callback
         )
-        self.location_combobox.place(relwidth=.23, relx=.310, rely=.45, anchor=CENTER)
+        self.location_combobox.place(relwidth=.23, relx=.310, rely=.45, anchor=ctk.CENTER)
     
-        CTkButton(
+        ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="Save data",
+            text="1. Save data",
             command=self.save_data
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
         
-    
-        CTkButton(
+        ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="Upload data",
-            command=self.addCabinetController.upload_to_firebase
+            text="2. Upload data",
+            command=self.upload_data
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
         
         self.boxTable = BoxList(self, controller=self.controller)
-        self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=CENTER)
+        self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
     
     def save_data(self):
         self.addCabinetController.save_to_database()
-        self.addCabinetController.upload_to_firebase()
-        self.streamController.set_cabinet_stream()
+        # self.addCabinetController.upload_to_firebase()
+    
+    def upload_data(self):
+        self.addCabinetController.upload_cabinet()
+        self.addCabinetController.upload_mastercode(self.cabinetId)
+        self.addCabinetController.upload_box(self.cabinetId)
     
     def refresh(self):
         self.locationComboboxValues = []

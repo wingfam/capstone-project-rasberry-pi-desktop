@@ -1,39 +1,63 @@
 import sqlite3 as sqlite3
 
-from urllib.request import pathname2url
-from constants.db_table import DbTable, db_file_name
 from controllers.config_controller import DatabaseController
-from models.models import Cabinet, Box, MasterCode
 from services.firebase_config import firebaseDB
-from services.sqlite3 import dict_factory
-from constants.db_table import db_file_name
 
 class StreamController():
     def __init__(self, view):
         self.view = view
         self.databaseController = DatabaseController(self)
         
-    '''TODO: Hanlde data when put event happen'''
     def cabinet_stream_handler(self, stream):
         if stream['event'] == 'put':
-            print("Put event")
-            print(stream['path'])
-            print(stream['data'])
+            print("Listening to cabinet stream")
         elif stream['event'] == 'patch':
             print("Patch event")
             path = stream['path']
-            # data = stream['data']
-            Id = path[1: len(path)]
-            snapshot = firebaseDB.child("Cabinet").order_by_key().equal_to(Id).get().val()
+            cabinetId = path[1: len(path)]
+            snapshot = firebaseDB.child("Cabinet").order_by_key().equal_to(cabinetId).get().val()
             for key, value in snapshot.items():
                 self.databaseController.update_cabinet(value)
+        
+    def mastercode_stream_handler(self, stream):
+        if stream['event'] == 'put':
+            print("Listening to master code stream")
+        elif stream['event'] == 'patch':
+            print("Patch event")
+            path = stream['path']
+            mastercodeId = path[1: len(path)]
+            snapshot = firebaseDB.child("MasterCode").order_by_key().equal_to(mastercodeId).get().val()
+            for key, value in snapshot.items():
+                self.databaseController.update_master_code(value)
+        
+    def box_stream_handler(self, stream):
+        if stream['event'] == 'put':
+            print("Listening to box stream")
+        elif stream['event'] == 'patch':
+            print("Patch event")
+            path = stream['path']
+            boxId = path[1: len(path)]
+            snapshot = firebaseDB.child("Box").order_by_key().equal_to(boxId).get().val()
+            for key, value in snapshot.items():
+                self.databaseController.update_box(value)
+    
+    def set_cabinet_stream(self, cabinetId):
+        firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
+                self.cabinet_stream_handler, stream_id='cabinet_stream')
+        
+    def set_mastercode_stream(self, cabinetId):
+        firebaseDB.child('MasterCode').order_by_child('cabinetId').equal_to(cabinetId).stream(
+                self.mastercode_stream_handler, stream_id='master_code_stream')
+    
+    def set_box_stream(self, cabinetId):
+        firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
+                self.box_stream_handler, stream_id='box_stream')
     
     def set_all_stream(self):
-        cabinetId = None
+        print('set all stream')
         cabinets = self.view.databaseController.get_all_cabinet_id()
         for value in cabinets.values():
-            cabinetId = value['id']
-            # firebaseDB.child('Cabinet/', cabinetId).stream(
-            #     self.cabinet_stream_handler, stream_id='cabinet_stream')
-            firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
-                self.cabinet_stream_handler, stream_id='cabinet_stream')
+            if value['id']:
+                self.set_cabinet_stream(value['id'])
+                self.set_mastercode_stream(value['id'])
+                self.set_box_stream(value['id'])

@@ -33,13 +33,13 @@ class AddCabinetController():
         isFound = self.view.databaseController.check_exist_cabinet(record)
         
         if not isFound:
-            return self.view.error_label.configure(text="Cabinet name has already existed")
+            return self.view.error_label.configure(text_color="red", text="Cabinet name has already existed")
         else:
             cabinetModel = Cabinet
             cabinetSave = self.view.databaseController.save_cabinet_to_db(cabinetModel, currentTime) # Save cabinet entries
             
             if not cabinetSave:
-                return self.view.error_label.configure(text="Make sure all cabinet entries are filled in")
+                return self.view.error_label.configure(text_color="red", text="Make sure all cabinet entries are filled in")
              
             self.view.databaseController.save_master_code_to_db() # Save master code entries
             
@@ -47,19 +47,14 @@ class AddCabinetController():
                 boxModel = Box
                 boxSave = self.view.databaseController.save_box_to_db(boxModel, record)
                 if not boxSave:
-                    return self.view.error_label.configure(text="Make sure all box entries are filled in") 
+                    return self.view.error_label.configure(text_color="red", text="Make sure all box entries are filled in") 
             
             return self.view.error_label.configure(text_color="green", text="New cabinet saved successful")
-        
-    def upload_to_firebase(self):
-        self.upload_cabinet()
-        self.upload_mastercode()
-        self.upload_box()
     
     def upload_cabinet(self):
         try:
-            cabinets = self.view.databaseController.get_last_cabinet()
-            for cabinet in cabinets.values():
+            data = self.view.databaseController.get_last_cabinet()
+            for cabinet in data.values():
                 cabinetRef = firebaseDB.child("Cabinet")
                 fb_isAvailable = None
                 
@@ -79,13 +74,19 @@ class AddCabinetController():
                 }
                 
                 cabinetRef.update(newData)
+                
+                # Listen to one cabinet stream
+                self.view.streamController.set_cabinet_stream(cabinet['id'])
+                
+                # set view cabinetId
+                self.view.cabinetId = cabinet['id']
         except Exception as e:
             print("An error has occurred: ", e)
-        
-    def upload_mastercode(self):    
+    
+    def upload_mastercode(self, cabinetId):    
         try:
-            mastercodes = self.view.databaseController.get_last_master_code()
-            for mastercode in mastercodes.values():
+            data = self.view.databaseController.get_last_master_code()
+            for mastercode in data.values():
                 mastercodeRef = firebaseDB.child("MasterCode")
                 fb_isAvailable = None
                 
@@ -104,13 +105,16 @@ class AddCabinetController():
                 }
                 
                 mastercodeRef.update(newData)
+                
+                '''Listen to one master code stream'''
+                self.view.streamController.set_mastercode_stream(cabinetId)
         except Exception as e:
             print("An error has occurred: ", e)
     
-    def upload_box(self):
+    def upload_box(self, cabinetId):
         try:
-            boxes = self.view.databaseController.get_box_by_cabinetId(self.view.cabinetId)
-            for box in boxes.values():
+            data = self.view.databaseController.get_box_by_cabinetId(cabinetId)
+            for box in data.values():
                 boxRef = firebaseDB.child("Box")
                 fb_isAvailable = None
                 fb_isStore = None
@@ -139,6 +143,9 @@ class AddCabinetController():
                 }
                 
                 boxRef.update(newData)
+                
+                '''Listen to one box stream'''
+                self.view.streamController.set_box_stream(cabinetId)
         except Exception as e:
             print("An error has occurred: ", e)
             
@@ -294,54 +301,6 @@ class DatabaseController():
             conn.close()
         
         return cabinetDict
-    
-    def get_all_master_code(self):
-        conn = self.opendb(db_file_name)
-        dicts = {}
-        try:
-            conn = sqlite3.connect(db_file_name)
-            conn.row_factory = dict_factory
-            cur = conn.cursor()
-            
-            results = cur.execute("SELECT * FROM MasterCode")
-            
-            count = 0
-            for row in results:
-                rowData = {
-                    str(count): row
-                }
-                count += 1
-                dicts.update(rowData)
-        except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
-        finally:
-            conn.close()
-        
-        return dicts
-
-    def get_all_box(self):
-        conn = self.opendb(db_file_name)
-        dicts = {}
-        try:
-            conn = sqlite3.connect(db_file_name)
-            conn.row_factory = dict_factory
-            cur = conn.cursor()
-            
-            results = cur.execute("SELECT * FROM Box")
-            
-            count = 0
-            for row in results:
-                rowData = {
-                    str(count): row
-                }
-                count += 1
-                dicts.update(rowData)
-        except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
-        finally:
-            conn.close()
-        
-        return dicts
     
     def get_box_by_cabinetId(self, cabinetId):
         conn = self.opendb(db_file_name)
@@ -525,6 +484,70 @@ class DatabaseController():
             conn.close()
         
         print("Update cabinet successful")
+        
+    def update_master_code(self, data):
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            
+            model = (
+                data['code'], 
+                data['isAvailable'], 
+                data['id']
+            )
+            
+            sql = ''' 
+                UPDATE MasterCode
+                SET code = ?,
+                    isAvailable = ?
+                WHERE id = ?
+            '''
+            
+            cur.execute(sql, model)
+            conn.commit()
+        except Exception as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+        
+        print("Update master code successful")
+        
+    def update_box(self, data):
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            
+            model = (
+                data['nameBox'],
+                data['size'],
+                data['widht'],
+                data['height'],
+                data['isAvailable'], 
+                data['isStore'],
+                data['id']
+            )
+            
+            sql = ''' 
+                UPDATE Box
+                SET nameBox = ?,
+                    size = ?,
+                    widht = ?,
+                    height = ?,
+                    isAvailable = ?,
+                    isStore = ?
+                WHERE id = ?
+            '''
+            
+            cur.execute(sql, model)
+            conn.commit()
+        except Exception as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+        
+        print("Update box successful")
         
 class ControlPinController():
     def __init__(self, model, view):
