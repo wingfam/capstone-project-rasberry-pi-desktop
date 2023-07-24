@@ -1,4 +1,5 @@
 import sqlite3 as sqlite3
+import time
 
 from controllers.config_controller import DatabaseController
 from services.firebase_config import firebaseDB
@@ -56,8 +57,10 @@ class StreamController():
     def set_all_stream(self):
         print('set all stream')
         cabinets = self.view.databaseController.get_all_cabinet_id()
-        for value in cabinets.values():
+        for key, value in cabinets.items():
             if value['id']:
                 self.set_cabinet_stream(value['id'])
+                time.sleep(0.08)
                 self.set_mastercode_stream(value['id'])
+                time.sleep(0.08)
                 self.set_box_stream(value['id'])

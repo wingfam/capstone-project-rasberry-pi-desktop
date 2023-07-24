@@ -17,8 +17,7 @@ check_weight_time = 3
 class ChooseCabinetController():
     def __init__(self, view):
         self.view = view
-    
-    
+     
 class AddCabinetController():
     def __init__(self, view):
         self.view = view
@@ -29,10 +28,9 @@ class AddCabinetController():
         tableModel = self.view.boxTable.table.getModel()
         records = tableModel.data
         
-        record = self.view.databaseController.find_cabinet_name(self.view.cabinetName.get())
-        isFound = self.view.databaseController.check_exist_cabinet(record)
+        result = self.view.databaseController.get_cabinet_by_name(self.view.cabinetName.get())
         
-        if not isFound:
+        if result:
             return self.view.error_label.configure(text_color="red", text="Cabinet name has already existed")
         else:
             cabinetModel = Cabinet
@@ -40,16 +38,16 @@ class AddCabinetController():
             
             if not cabinetSave:
                 return self.view.error_label.configure(text_color="red", text="Make sure all cabinet entries are filled in")
-             
-            self.view.databaseController.save_master_code_to_db() # Save master code entries
+            else: 
+                self.view.databaseController.save_master_code_to_db() # Save master code entries
+                
+                for record in records.values(): # Save box entries
+                    boxModel = Box
+                    boxSave = self.view.databaseController.save_box_to_db(boxModel, record)
+                    if not boxSave:
+                        return self.view.error_label.configure(text_color="red", text="Make sure all box entries are filled in") 
             
-            for record in records.values(): # Save box entries
-                boxModel = Box
-                boxSave = self.view.databaseController.save_box_to_db(boxModel, record)
-                if not boxSave:
-                    return self.view.error_label.configure(text_color="red", text="Make sure all box entries are filled in") 
-            
-            return self.view.error_label.configure(text_color="green", text="New cabinet saved successful")
+        return self.view.error_label.configure(text_color="green", text="New cabinet saved successful")
     
     def upload_cabinet(self):
         try:
@@ -148,27 +146,15 @@ class AddCabinetController():
                 self.view.streamController.set_box_stream(cabinetId)
         except Exception as e:
             print("An error has occurred: ", e)
-            
-    def get_location_data(self):
-        try:
-            fb_locations = firebaseDB.child("Location").get()
-            for location in fb_locations.each():
-                newKey = firebaseDB.generate_key()
-                locationName = location.val()['name']
-                locationId = location.val()['id']
-                newData = {newKey: {'locationId': locationId, 'locationName': locationName}}
-                self.view.locationData.update(newData)
-                self.view.locationComboboxValues.append(locationName)
-                
-        except IndexError:
-            print("Location doesn't exist")
-           
-        self.view.location_combobox.configure(require_redraw=True, values=self.view.locationComboboxValues)
+
+class EditCabinetController():
+    def __init__(self, view):
+        self.view = view
+
     
 class DatabaseController():
     def __init__(self, view):
         self.view = view
-        self.my_stream = None
         
         self.conn = self.opendb(db_file_name)
         
@@ -205,6 +191,21 @@ class DatabaseController():
             conn.close()
             
         print("New database has been created.")
+    
+    def get_location_data(self):
+        newData = {}
+        try:
+            fb_locations = firebaseDB.child("Location").get()
+            
+            for location in fb_locations.each():
+                newKey = firebaseDB.generate_key()
+                locationName = location.val()['name']
+                locationId = location.val()['id']
+                newData.update({newKey: {'locationId': locationId, 'locationName': locationName}})
+        except IndexError:
+            print("Location doesn't exist")
+           
+        return newData
     
     def get_last_cabinet(self):
         conn = self.opendb(db_file_name)
@@ -310,7 +311,14 @@ class DatabaseController():
             conn.row_factory = dict_factory
             cur = conn.cursor()
             
-            results = cur.execute("SELECT * FROM Box WHERE cabinetId = ?", (cabinetId,))
+            sql = '''
+                SELECT id, nameBox, size, width, height, isStore, isAvailable, 
+                        solenoidGpio, switchGpio, loadcellDout, loadcellSck 
+                FROM Box 
+                WHERE cabinetId = ?
+            '''
+            
+            results = cur.execute(sql, (cabinetId,))
             
             count = 0
             for row in results:
@@ -326,7 +334,7 @@ class DatabaseController():
             
         return dicts
     
-    def find_cabinet_name(self, cabinetName):
+    def get_cabinet_by_name(self, cabinetName):
         conn = self.opendb(db_file_name)
         results = None
         try:
@@ -334,21 +342,17 @@ class DatabaseController():
             conn.row_factory = dict_factory
             cur = conn.cursor()
             
-            cur.execute("SELECT name FROM Cabinet WHERE name = ?", (cabinetName,))
+            cur.execute("SELECT * FROM Cabinet WHERE name = ?", (cabinetName,))
             
             results = cur.fetchone()
+            
             conn.commit()
         except conn.DatabaseError as e:
             print("An error has occurred: ", e)
         finally:
             conn.close()
+        
         return results
-    
-    def check_exist_cabinet(self, foundRecord):
-        if foundRecord:
-            return False
-        else:
-            return True
             
     def save_cabinet_to_db(self, model, currentTime):
         conn = self.opendb(db_file_name)
@@ -522,7 +526,7 @@ class DatabaseController():
             model = (
                 data['nameBox'],
                 data['size'],
-                data['widht'],
+                data['width'],
                 data['height'],
                 data['isAvailable'], 
                 data['isStore'],
@@ -533,7 +537,7 @@ class DatabaseController():
                 UPDATE Box
                 SET nameBox = ?,
                     size = ?,
-                    widht = ?,
+                    width = ?,
                     height = ?,
                     isAvailable = ?,
                     isStore = ?

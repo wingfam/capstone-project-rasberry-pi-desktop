@@ -3,10 +3,10 @@ import customtkinter as ctk
 
 from tkinter import StringVar
 from constants.image_imports import home_image
-from controllers.config_controller import ChooseCabinetController, DatabaseController
-from CTkListbox import *
+from controllers.config_controller import DatabaseController
+from views.add_cabinet_screen import AddCabinetScreen
 
-'''TODO: Thêm stream cho mỗi cabinet để khi cập nhật trên firebase, update lại local database'''
+
 class ChooseCabinetScreen(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -14,6 +14,9 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         
         self.controller = controller
         self.databaseController = DatabaseController(view=self)
+        
+        self.addCabinetScreen = AddCabinetScreen(parent=self, controller=self.controller)
+        
         self.chooseCabinet = StringVar()
         
         button_font = ctk.CTkFont(size=30, weight="bold")
@@ -61,11 +64,11 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         )
         self.error_label.place(rely=.15, relx=.82, anchor="e")
         
-        self.cabinetListBox = CabinetListBox(self)
+        self.cabinetListBox = CabinetListBox(parent=self)
         self.cabinetListBox.place(rely=.45, relx=.75, anchor=ctk.CENTER)
     
     def go_to_check_cabinet(self):
-        if not self.controller.cabinetName:
+        if not self.controller.cabinetName.get():
             self.error_label.configure(text="Please choose a cabinet")
         else:
             self.refresh()
@@ -112,8 +115,8 @@ class CabinetListBox(ctk.CTkFrame):
         if selection:
             index = selection[0]
             data = event.widget.get(index)
-            self.parent.controller.cabinetName = data
-        print(self.parent.controller.cabinetName)
+            self.parent.controller.cabinetName.set(data)
+        print(self.parent.controller.cabinetName.get())
     
     def repopulate(self):
         self.listBox.delete(0, tk.END)
