@@ -40,12 +40,12 @@ class ConfigScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Manual Control",
+            text="Add Box",
         ).place(relwidth=.45, relheight=.15, relx=.5, rely=.50, anchor=ctk.CENTER)
         
-        # self.control_screen_btn = ctk.CTkButton(
-        #     master=self,
-        #     anchor=ctk.CENTER,
-        #     font=button_font,
-        #     text="GPIO State",
-        # ).place(relwidth=.45, relheight=.15, relx=.5, rely=.70, anchor=ctk.CENTER)
+        self.control_screen_btn = ctk.CTkButton(
+            master=self,
+            anchor=ctk.CENTER,
+            font=button_font,
+            text="Manual Control",
+        ).place(relwidth=.45, relheight=.15, relx=.5, rely=.70, anchor=ctk.CENTER)

@@ -47,7 +47,7 @@ class Window(ctk.CTk):
         if page_name == "AddCabinetScreen":
             frame.set_location_data()
         elif page_name == "EditCabinetScreen":
-            frame.get_infos()
+            frame.editController.get_infos()
     
 class ScreenView():
     frame_views = {

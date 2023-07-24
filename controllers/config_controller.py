@@ -52,32 +52,32 @@ class AddCabinetController():
     def upload_cabinet(self):
         try:
             data = self.view.databaseController.get_last_cabinet()
-            for cabinet in data.values():
+            for value in data.values():
                 cabinetRef = firebaseDB.child("Cabinet")
                 fb_isAvailable = None
                 
-                if cabinet['isAvailable']:
+                if value['isAvailable']:
                     fb_isAvailable = True
-                elif not cabinet['isAvailable']:
+                elif not value['isAvailable']:
                     fb_isAvailable = False
                     
                 newData = {
-                    cabinet['id']: {
-                        'id': cabinet['id'],
-                        'name': cabinet['name'],
-                        'addDate': cabinet['addDate'],
+                    value['id']: {
+                        'id': value['id'],
+                        'name': value['name'],
+                        'addDate': value['addDate'],
                         'isAvailable': fb_isAvailable,
-                        'locationId': cabinet['locationId']
+                        'locationId': value['locationId']
                     }
                 }
                 
                 cabinetRef.update(newData)
                 
                 # Listen to one cabinet stream
-                self.view.streamController.set_cabinet_stream(cabinet['id'])
+                self.view.streamController.set_cabinet_stream(value['id'])
                 
                 # set view cabinetId
-                self.view.cabinetId = cabinet['id']
+                self.view.cabinetId = value['id']
         except Exception as e:
             print("An error has occurred: ", e)
     
@@ -151,6 +151,155 @@ class EditCabinetController():
     def __init__(self, view):
         self.view = view
 
+    def set_location_id(self, location):
+        for value in self.view.locationData.items():
+            if value[1]['locationName'] == location:
+                self.view.locationId.set(value[1]['locationId'])
+
+    def set_location_data(self):
+        results = self.view.databaseController.get_location_data()
+        self.view.locationData.update(results)
+        
+        for key, value in self.view.locationData.items():
+            self.view.locationComboboxValues.append(value['locationName'])
+        
+        self.view.location_combobox.configure(values=self.view.locationComboboxValues)
+    
+    def get_infos(self):
+        self.view.cabinetData = self.view.databaseController.get_cabinet_by_name(
+            self.view.controller.cabinetName.get())
+        
+        self.view.cabinetId.set(self.view.cabinetData['id'])
+        self.view.cabinetName.set(self.view.cabinetData['name'])
+        self.view.isAvailable.set(self.view.cabinetData['isAvailable'])
+        self.view.locationId.set(self.view.cabinetData['locationId'])
+        
+        if self.view.cabinetData['isAvailable'] == 0:
+            self.view.statusComboboxVar.set('No')
+        elif self.view.cabinetData['isAvailable'] == 1:
+            self.view.statusComboboxVar.set('Yes')
+        
+        self.set_location_data()
+        
+        for key, value in self.view.locationData.items():
+            if value['locationId'] == self.view.cabinetData['locationId']:
+                self.view.cabinetLocation.set(value['locationName'])
+        
+        boxResults = self.view.databaseController.get_box_by_cabinetId(
+            self.view.cabinetId.get())
+        
+        self.set_box_data(boxResults)
+        self.view.boxTable.data.update(boxResults)
+        self.view.boxTable.table.redraw()
+        
+    def set_box_data(self, boxResults):
+        boxData = {}
+        for key, value in boxResults.items():
+            boxData.update({
+                key: {
+                    'nameBox': value['nameBox'],
+                    'size': value['size'],
+                    'width': value['width'],
+                    'height': value['height'],
+                    'isStore': value['isStore'],
+                    'isAvailable': value['isAvailable'],
+                    'solenoidGpio': value['solenoidGpio'],
+                    'switchGpio': value['switchGpio'],
+                    'loadcellDout': value['loadcellDout'],
+                    'loadcellSck': value['loadcellSck'],
+                }
+            })
+            
+        model = self.view.boxTable.table.model
+        model.importDict(boxData)
+    
+    def add_more_box(self):
+        tableData = self.view.boxTable.table.getModel().data
+        
+        for key, value in tableData.items():
+            foundBox = self.view.databaseController.get_box_by_name(value['nameBox']) 
+            if foundBox:
+                pass
+            else:
+                boxModel = Box
+                self.view.databaseController.save_box_to_db(boxModel, value)
+                print("Box added: ", value['nameBox'])
+                
+        boxResults = self.view.databaseController.get_box_by_cabinetId(
+            self.view.cabinetId.get())
+        
+        self.set_box_data(boxResults)
+    
+    def update_data(self):
+        cabinetValue = {
+           'name': self.view.cabinetName.get(),
+           'isAvailable': self.view.isAvailable.get(),
+           'locationId': self.view.locationId.get(),
+           'id': self.view.cabinetId.get()
+        }
+        
+        self.view.controller.cabinetName.set(cabinetValue['name'])
+        self.view.databaseController.update_cabinet(cabinetValue)
+        
+        boxTableData = self.view.boxTable.data
+        for key, value in boxTableData.items():
+            self.view.databaseController.update_box(value)
+    
+    def upload_cabinet(self):
+        try:
+            cabinetId = self.view.cabinetData['id']
+            cabinetRef = firebaseDB.child("Cabinet/", cabinetId)
+            fb_isAvailable = None
+            
+            if self.view.cabinetData['isAvailable']:
+                fb_isAvailable = True
+            elif not self.view.cabinetData['isAvailable']:
+                fb_isAvailable = False
+            
+            newData = {
+                'id': self.view.cabinetData['id'],
+                'name': self.view.cabinetData['name'],
+                'addDate': self.view.cabinetData['addDate'],
+                'isAvailable': fb_isAvailable,
+                'locationId': self.view.cabinetData['locationId']
+            }
+            
+            cabinetRef.update(newData)
+        except Exception as e:
+            print("An error has occurred: ", e)
+    
+    def upload_box(self):
+        try:
+            boxData = self.view.boxTable.data
+            for box in boxData.values():
+                boxId = box['id']
+                boxRef = firebaseDB.child("Box/", boxId)
+                fb_isAvailable = None
+                fb_isStore = None
+                
+                if box['isAvailable']:
+                    fb_isAvailable = True
+                elif not box['isAvailable']:
+                    fb_isAvailable = False
+                
+                if box['isStore']:
+                    fb_isStore = True
+                elif not box['isStore']:
+                    fb_isStore = False
+                    
+                newData = {
+                    'id': box['id'],
+                    'nameBox': box['nameBox'],
+                    'size': box['size'],
+                    'width': box['width'],
+                    'height': box['height'],
+                    'isStore': fb_isStore,
+                    'isAvailable': fb_isAvailable
+                }
+                
+                boxRef.update(newData)
+        except Exception as e:
+            print("An error has occurred: ", e)
     
 class DatabaseController():
     def __init__(self, view):
@@ -312,8 +461,7 @@ class DatabaseController():
             cur = conn.cursor()
             
             sql = '''
-                SELECT id, nameBox, size, width, height, isStore, isAvailable, 
-                        solenoidGpio, switchGpio, loadcellDout, loadcellSck 
+                SELECT *
                 FROM Box 
                 WHERE cabinetId = ?
             '''
@@ -333,6 +481,29 @@ class DatabaseController():
             conn.close()
             
         return dicts
+    
+    def get_box_by_name(self, nameBox):
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            conn.row_factory = dict_factory
+            cur = conn.cursor()
+            
+            sql = '''
+                SELECT *
+                FROM Box 
+                WHERE nameBox = ?
+            '''
+            
+            cur.execute(sql, (nameBox,))
+            results = cur.fetchone()
+            conn.commit()
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+            
+        return results
     
     def get_cabinet_by_name(self, cabinetName):
         conn = self.opendb(db_file_name)
@@ -398,13 +569,13 @@ class DatabaseController():
             model.size = record['size']
             model.width = record['width']
             model.height = record['height']
-            model.isStore = 0
-            model.isAvailable = 1
+            model.isStore = record['isStore']
+            model.isAvailable = record['isAvailable']
             model.solenoidGpio = record['solenoidGpio']
             model.switchGpio = record['switchGpio']
             model.loadcellDout = record['loadcellDout']
             model.loadcellSck = record['loadcellSck']
-            model.cabinetId = self.view.cabinetId
+            model.cabinetId = self.view.cabinetId.get()
             
             box = (model.id, model.nameBox, model.size, model.width, 
                    model.height, model.isStore, model.isAvailable, model.solenoidGpio, 
