@@ -21,7 +21,6 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.statusComboboxValues = ["Yes", "No"]
         self.locationComboboxValues = []
         self.locationData = {}
-        self.boxData = {}
         
         self.statusComboboxVar = ctk.StringVar()
         self.cabinetId = ctk.StringVar()
@@ -79,14 +78,14 @@ class AddCabinetScreen(ctk.CTkFrame):
             text="Location: ",
         ).place(relx=.08, rely=.45, anchor=ctk.CENTER)
         
-        self.error_label = ctk.CTkLabel(
+        self.display_label = ctk.CTkLabel(
             master=self,
             width=200,
             fg_color="white",
             text_color="red",
             text="",
         )
-        self.error_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
+        self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         
         self.name_entry = ctk.CTkEntry(
             master=self,
@@ -146,12 +145,16 @@ class AddCabinetScreen(ctk.CTkFrame):
     
     def save_data(self):
         self.addCabinetController.save_to_database()
-        # self.addCabinetController.upload_to_firebase()
     
     def upload_data(self):
-        self.addCabinetController.upload_cabinet()
-        self.addCabinetController.upload_mastercode(self.cabinetId)
-        self.addCabinetController.upload_box(self.cabinetId)
+        isCabinetUpload = self.addCabinetController.upload_cabinet()
+        isCodeUpload = self.addCabinetController.upload_mastercode(self.cabinetId)
+        isBoxUpload = self.addCabinetController.upload_box(self.cabinetId)
+        if isCabinetUpload and isCodeUpload and isBoxUpload:
+            self.streamController.set_cabinet_stream(self.cabinetId.get())
+            self.streamController.set_box_stream(self.cabinetId.get())
+            self.streamController.set_mastercode_stream(self.cabinetId.get())
+            self.display_label.configure(text_color="green", text="New cabinet uploaded")
     
     def set_location_data(self):
         results = self.databaseController.get_location_data()
@@ -164,12 +167,11 @@ class AddCabinetScreen(ctk.CTkFrame):
 
     def refresh(self):
         self.locationComboboxValues = []
-        self.boxData = {}
         
         self.cabinetName.set("")
         self.statusComboboxVar.set("")
         self.cabinetLocation.set("")
-        self.error_label.configure(text="")
+        self.display_label.configure(text="")
     
     def go_back_prev_screen(self):
         self.refresh()

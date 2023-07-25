@@ -43,15 +43,15 @@ class StreamController():
                 self.databaseController.update_box(value)
     
     def set_cabinet_stream(self, cabinetId):
-        firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
+        self.view.cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
                 self.cabinet_stream_handler, stream_id='cabinet_stream')
         
     def set_mastercode_stream(self, cabinetId):
-        firebaseDB.child('MasterCode').order_by_child('cabinetId').equal_to(cabinetId).stream(
-                self.mastercode_stream_handler, stream_id='master_code_stream')
+        self.view.mastercodeStream = firebaseDB.child('MasterCode').order_by_child(
+            'cabinetId').equal_to(cabinetId).stream(self.mastercode_stream_handler, stream_id='master_code_stream')
     
     def set_box_stream(self, cabinetId):
-        firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
+        self.view.boxStream = firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
                 self.box_stream_handler, stream_id='box_stream')
     
     def set_all_stream(self):

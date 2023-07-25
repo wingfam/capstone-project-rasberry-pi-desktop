@@ -17,11 +17,11 @@ class EditCabinetScreen(ctk.CTkFrame):
         
         self.editController = EditCabinetController(view=self)
         self.databaseController = DatabaseController(view=self)
+        self.streamController = StreamController(view=self.controller)
         
         self.statusComboboxValues = ["Yes", "No"]
         self.locationComboboxValues = []
         self.locationData = {}
-        self.boxData = {}
         self.cabinetData = {}
         
         self.statusComboboxVar = ctk.StringVar()
@@ -139,7 +139,7 @@ class EditCabinetScreen(ctk.CTkFrame):
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="Update",
+            text="Save data",
             command=self.update
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
         
@@ -147,8 +147,8 @@ class EditCabinetScreen(ctk.CTkFrame):
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="Add box",
-            command=self.add_box
+            text="Reupload",
+            command=self.reupload
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
         
         self.boxTable = BoxList(self, controller=self.controller)
@@ -169,16 +169,16 @@ class EditCabinetScreen(ctk.CTkFrame):
     
     def update(self):
         self.editController.update_data()
-        self.upload()
         self.reload()
         self.display_label.configure(text_color='green', text='Update successful')
         
-    def upload(self):
-        self.editController.upload_cabinet()
-        self.editController.upload_box()
-    
-    def add_box(self):
-        self.editController.add_more_box()
+    def reupload(self):
+        isCabinetUpload = self.editController.reupload_cabinet()
+        isBoxUpload = self.editController.reupload_box()
+        if isBoxUpload and isCabinetUpload:
+            self.display_label.configure(text_color='green', text='Upload successful')
+        else:
+            self.display_label.configure(text_color='red', text='Upload unsuccessful')
     
     def reload(self):
         self.locationData.clear()
@@ -186,7 +186,14 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.editController.get_infos()
         
     def go_back(self):
-        self.display_label.configure(text='') # Clear display label
+        # Clear display label
+        self.display_label.configure(text='') 
+        self.boxTable.data.clear()
+        
+        # Clear data inside table
+        tableData = self.boxTable.table.getModel().data
+        tableData.clear()
+        
         self.controller.show_frame("ConfigScreen")
    
 class BoxList(ctk.CTkFrame):
