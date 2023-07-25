@@ -3,10 +3,10 @@ from tkinter import StringVar, ttk
 from controllers.instruction_controller import confirm_task, update_firebase
 
 class InstructionScreen(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white")
-        self.controller = controller
+        self.root = root
         self.task = StringVar()
         
         ctk.CTkLabel(
@@ -61,8 +61,8 @@ class InstructionScreen(ctk.CTkFrame):
     def check_package(self):
         isConfirm = False
         task = self.task.get()
-        nameBox = self.controller.app_data["nameBox"]
-        boxModel = self.controller.box_model.values()
+        nameBox = self.root.app_data["nameBox"]
+        boxModel = self.root.box_model.values()
         
         for item in boxModel:
             if item['nameBox'] == nameBox:
@@ -71,8 +71,8 @@ class InstructionScreen(ctk.CTkFrame):
                 
         if isConfirm:
             update_firebase(self, task)
-            self.controller.show_frame("CompletionScreen")
+            self.root.show_frame("CompletionScreen")
         else:
-            self.controller.show_frame("MainScreen")
+            self.root.show_frame("MainScreen")
         
-        self.controller.app_data.clear()
+        self.root.app_data.clear()

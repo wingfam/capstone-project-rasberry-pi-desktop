@@ -4,11 +4,11 @@ from constants.image_imports import back_image
 from controllers.pickup_controller import PickupController
 
 class PickupScreen(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white")
         self.parent = parent
-        self.controller = controller
+        self.root = root
         self.back_image = back_image
         self.pickupController = PickupController(self)
         
@@ -78,14 +78,14 @@ class PickupScreen(ctk.CTkFrame):
         item_list = self.pickupController.check_unlock_code(input_data=self.entry_code)
         if item_list:
             self.pickupController.update_app_data(fb_login=item_list[0], fb_item_list=item_list[1])
-            nameBox = self.controller.app_data["nameBox"]
-            self.controller.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
-            self.controller.frames["InstructionScreen"].task.set("pickup")
-            self.controller.show_frame("InstructionScreen")
+            nameBox = self.root.app_data["nameBox"]
+            self.root.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
+            self.root.frames["InstructionScreen"].task.set("pickup")
+            self.root.show_frame("InstructionScreen")
     
     def restart(self):
         self.refresh()
-        self.controller.show_frame("MainScreen")
+        self.root.show_frame("MainScreen")
         
     def refresh(self):
         self.entry_code.delete(0, "end")
@@ -93,4 +93,4 @@ class PickupScreen(ctk.CTkFrame):
         
     def go_to_main_screen(self):
         self.refresh()
-        self.controller.show_frame("MainScreen")
+        self.root.show_frame("MainScreen")

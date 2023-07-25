@@ -8,16 +8,16 @@ from controllers.config_controller import DatabaseController, EditCabinetControl
 from controllers.stream_controller import StreamController
 
 class EditCabinetScreen(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white", require_redraw=True)
         
         self.parent = parent
-        self.controller = controller
+        self.root = root
         
         self.editController = EditCabinetController(view=self)
         self.databaseController = DatabaseController(view=self)
-        self.streamController = StreamController(view=self.controller)
+        self.streamController = StreamController(view=self.root)
         
         self.statusComboboxValues = ["Yes", "No"]
         self.locationComboboxValues = []
@@ -151,7 +151,7 @@ class EditCabinetScreen(ctk.CTkFrame):
             command=self.reupload
         ).place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
         
-        self.boxTable = BoxList(self, controller=self.controller)
+        self.boxTable = BoxList(self, root=self.root)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
          
     def status_combobox_callback(self, choice):
@@ -194,14 +194,14 @@ class EditCabinetScreen(ctk.CTkFrame):
         tableData = self.boxTable.table.getModel().data
         tableData.clear()
         
-        self.controller.show_frame("ConfigScreen")
+        self.root.show_frame("ConfigScreen")
    
 class BoxList(ctk.CTkFrame):
-    def __init__ (self, parent, controller):
+    def __init__ (self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white", require_redraw=True)
         
-        self.controller = controller
+        self.root = root
         self.parent = parent
         
         self.data = {}

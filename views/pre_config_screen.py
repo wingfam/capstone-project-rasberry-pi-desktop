@@ -6,11 +6,11 @@ from constants.image_imports import back_image
 from widgets.keypad import Keypad
 
 class PreConfigScreen(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white")
         
-        self.controller = controller
+        self.root = root
         self.configController = ConfigController(self)
         self.input_master_code = ctk.StringVar()
         
@@ -24,7 +24,7 @@ class PreConfigScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=back_image,
-            command=lambda: self.controller.show_frame("MainScreen"),
+            command=lambda: self.root.show_frame("MainScreen"),
         ).place(relx=.95, rely=.10, anchor=ctk.CENTER)
         
         self.master_code_label = ttk.Label(
@@ -60,7 +60,7 @@ class PreConfigScreen(ctk.CTkFrame):
     def verify(self):
         isConfirm = self.configController.check_master_code(self.input_master_code)
         if isConfirm:
-            self.controller.show_frame("ConfigScreen")
+            self.root.show_frame("ConfigScreen")
     
 class ConfigController():
     def __init__(self, view):

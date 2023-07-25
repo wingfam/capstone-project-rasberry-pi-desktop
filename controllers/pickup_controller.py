@@ -68,7 +68,7 @@ class PickupController():
         nameBox = firebaseDB.child(
             "Box/", boxId, "/nameBox").get(fb_login["idToken"]).val()
         
-        self.view.controller.app_data.update({
+        self.view.root.app_data.update({
             "bookingId": bookingId,
             "residentId": residentId,
             "boxId": boxId,

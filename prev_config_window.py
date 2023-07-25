@@ -23,7 +23,8 @@ class Window(ctk.CTk):
         self.databaseController = DatabaseController(view=self)
         self.streamController = StreamController(view=self)
 
-        self.cabinetName = StringVar()
+        self.cabinetId = ctk.StringVar()
+        self.cabinetName = ctk.StringVar()
         self.cabinetStream = None
         self.mastercodeStream = None
         self.boxStream = None
@@ -55,6 +56,8 @@ class Window(ctk.CTk):
             frame.editController.get_infos()
         elif page_name == "AddBoxScreen":
             frame.addBoxController.set_cabinetId()
+        elif page_name == "ControlScreen":
+            frame.cabinetListBox.set_list_box()
 
 
 class ScreenView():

@@ -20,9 +20,9 @@ def update_firebase(self, task):
             isStore = True
             newBookingStatus = "Storing"
             
-            code_id = self.controller.app_data["bookingCodeId"]
-            booking_id = self.controller.app_data["bookingId"]
-            box_id = self.controller.app_data["boxId"]
+            code_id = self.root.app_data["bookingCodeId"]
+            booking_id = self.root.app_data["bookingId"]
+            box_id = self.root.app_data["boxId"]
             
             firebaseDB.child("BookingCode", code_id).update(
                 {"status": newBookingStatus}, fb_login["idToken"])
@@ -33,8 +33,8 @@ def update_firebase(self, task):
             firebaseDB.child("Box/", box_id).update(
                 {"isStore": isStore}, fb_login["idToken"])
             
-            residentId = self.controller.app_data["residentId"]
-            nameBox = self.controller.app_data["nameBox"]
+            residentId = self.root.app_data["residentId"]
+            nameBox = self.root.app_data["nameBox"]
             
             messageTitle = "Giao hàng thàng công!"
             messageBody = "Bạn có một món hàng ở tủ số: " + nameBox + "Hãy vào trang Xem booking để lấy mã unlock"
@@ -55,9 +55,9 @@ def update_firebase(self, task):
             isAvailable = True
             newBookingStatus = "Done"
             
-            booking_id = self.controller.app_data["bookingId"]
-            residentId = self.controller.app_data["residentId"]
-            box_id = self.controller.app_data["boxId"]
+            booking_id = self.root.app_data["bookingId"]
+            residentId = self.root.app_data["residentId"]
+            box_id = self.root.app_data["boxId"]
             
             firebaseDB.child("BookingOrder", booking_id).update(
                 {"status": newBookingStatus}, fb_login["idToken"])
@@ -68,8 +68,8 @@ def update_firebase(self, task):
             firebaseDB.child("BookingHistory").push(
                 {"bookingId": booking_id, "residentId": residentId}, fb_login["idToken"])
             
-            residentId = self.controller.app_data["residentId"]
-            nameBox = self.controller.app_data["nameBox"]
+            residentId = self.root.app_data["residentId"]
+            nameBox = self.root.app_data["nameBox"]
             
             messageTitle = "Đã lấy hàng"
             messageBody = "Đơn hàng của bạn đã được lấy ra vào ngày: " + currentTime

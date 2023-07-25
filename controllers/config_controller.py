@@ -179,7 +179,7 @@ class EditCabinetController():
 
     def get_infos(self):
         self.view.cabinetData = self.view.databaseController.get_cabinet_by_name(
-            self.view.controller.cabinetName.get())
+            self.view.root.cabinetName.get())
 
         self.view.cabinetId.set(self.view.cabinetData['id'])
         self.view.cabinetName.set(self.view.cabinetData['name'])
@@ -233,7 +233,7 @@ class EditCabinetController():
             'id': self.view.cabinetId.get()
         }
 
-        self.view.controller.cabinetName.set(cabinetValue['name'])
+        self.view.root.cabinetName.set(cabinetValue['name'])
         self.view.databaseController.update_cabinet(cabinetValue)
 
         boxTableData = self.view.boxTable.data
@@ -312,7 +312,7 @@ class AddBoxController():
 
     def set_cabinetId(self):
         self.view.cabinetData = self.view.databaseController.get_cabinet_by_name(
-            self.view.controller.cabinetName.get())
+            self.view.root.cabinetName.get())
 
         self.view.cabinetId.set(self.view.cabinetData['id'])
 
@@ -633,10 +633,14 @@ class DatabaseController():
             conn.row_factory = dict_factory
             cur = conn.cursor()
 
-            cur.execute("SELECT * FROM Cabinet WHERE name = ?", (cabinetName,))
-
+            sql = '''
+                SELECT * 
+                FROM Cabinet 
+                WHERE name = ?
+            '''
+            
+            cur.execute(sql, (cabinetName,))
             results = cur.fetchone()
-
             conn.commit()
         except conn.DatabaseError as e:
             print("An error has occurred: ", e)

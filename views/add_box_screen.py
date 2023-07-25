@@ -9,16 +9,16 @@ from controllers.stream_controller import StreamController
 
 
 class AddBoxScreen(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white", require_redraw=True)
 
         self.parent = parent
-        self.controller = controller
+        self.root = root
 
         self.addBoxController = AddBoxController(view=self)
         self.databaseController = DatabaseController(view=self)
-        self.streamController = StreamController(view=self.controller)
+        self.streamController = StreamController(view=self.root)
 
         self.cabinetId = ctk.StringVar()
 
@@ -64,7 +64,7 @@ class AddBoxScreen(ctk.CTkFrame):
         self.add_button.place(relwidth=.35, relheight=.10,
                               relx=.75, rely=.85, anchor=ctk.CENTER)
 
-        self.boxTable = BoxList(self, controller=self.controller)
+        self.boxTable = BoxList(self, root=self.root)
         self.boxTable.place(relwidth=.90, relheight=.65,
                             relx=.48, rely=.45, anchor=ctk.CENTER)
 
@@ -77,7 +77,7 @@ class AddBoxScreen(ctk.CTkFrame):
     def upload_box(self):
         tableData = self.boxTable.table.getModel().data
         # print("Data Length: ", len(tableData))
-        self.controller.boxStream.close()
+        self.root.boxStream.close()
 
         isBoxUpload = self.addBoxController.upload_more_box(
             self.cabinetId.get(), len(tableData))
@@ -102,15 +102,15 @@ class AddBoxScreen(ctk.CTkFrame):
 
     def go_back(self):
         self.display_label.configure(text='')  # Clear display label
-        self.controller.show_frame("ConfigScreen")
+        self.root.show_frame("ConfigScreen")
 
 
 class BoxList(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white", require_redraw=True)
 
-        self.controller = controller
+        self.root = root
         self.parent = parent
 
         self.data = {

@@ -65,7 +65,7 @@ class DeliveryController():
         nameBox = firebaseDB.child(
             "Box/", boxId, "/nameBox").get(fb_login["idToken"]).val()
         
-        self.view.controller.app_data.update({
+        self.view.root.app_data.update({
             "residentId": residentId,
             "bookingCodeId": bookingCodeId,
             "bookingId": bookingId,

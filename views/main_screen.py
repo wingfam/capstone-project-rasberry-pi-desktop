@@ -2,7 +2,7 @@ import customtkinter as ctk
 from constants.image_imports import delivery_image, pickup_image, config_image
 
 class MainScreen(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white")
         
@@ -20,7 +20,7 @@ class MainScreen(ctk.CTkFrame):
             compound="top",
             text="Lấy Hàng",
             font=ctk.CTkFont(size=48),
-            command=lambda: controller.show_frame("PickupScreen"),
+            command=lambda: root.show_frame("PickupScreen"),
         )
         button_pickup.place(
             x=61.0,
@@ -37,7 +37,7 @@ class MainScreen(ctk.CTkFrame):
             compound="top",
             text="Gửi Hàng",
             font=ctk.CTkFont(size=48),
-            command=lambda: controller.show_frame("DeliveryScreen"),
+            command=lambda: root.show_frame("DeliveryScreen"),
         )
         button_delivery.place(
             x=542.5924682617188,
@@ -52,6 +52,6 @@ class MainScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=self.config_image,
-            command=lambda: controller.show_frame("ControlPinScreen"),
+            command=lambda: root.show_frame("ControlPinScreen"),
         )
         button_config.place(x=951.0,y=38.0)
