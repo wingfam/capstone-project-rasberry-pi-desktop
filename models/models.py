@@ -1,4 +1,3 @@
-# from services.hx711 import HX711
 from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import LED, Button
 
@@ -220,11 +219,18 @@ class SolenoidLock():
     def __init__(self, pin):
         self.pin = pin
 
-        '''Declare host for remote GPIO Only use to control gpio remotely'''
-        # factory = PiGPIOFactory(host='192.168.0.102')
+        # self.solenoid = LED(self.pin, initial_value=True)
+        
+        # self.solenoid_factory = LED(
+        #     self.pin, initial_value=True, pin_factory=self.factory)
 
-        solenoid = LED(self.pin, initial_value=True)
-        # solenoid_factory = LED(self.pin, initial_value=True, pin_factory=factory)
+    @property
+    def pin(self):
+        return self.pin
+    
+    @pin.setter
+    def pin(self, value):
+        self.pin = value
 
 
 class MageneticSwitch():
@@ -232,13 +238,24 @@ class MageneticSwitch():
         self.pin = pin
 
         '''Declare host for remote GPIO Only use to control gpio remotely'''
-        # factory = PiGPIOFactory(host='192.168.0.102')
+        self.factory = PiGPIOFactory(host='192.168.0.101')
 
-        switch_hold_time = 3.0  # Magnetic switch hold time
+        '''Magnetic switch hold time'''
+        self.switch_hold_time = 3.0
+        
+        # switch = Button(self.pin, pull_up=True, bounce_time=0.2,
+        #                 hold_time=switch_hold_time)
+        
+        # switch_factory = Button(self.pin, pull_up=True, bounce_time=0.2,
+        #                         pin_factory=factory, hold_time=switch_hold_time)
 
-        switch = Button(self.pin, pull_up=True, bounce_time=0.2,
-                        hold_time=switch_hold_time)
-        # switch_factory = Button(self.pin, pull_up=True, bounce_time=0.2, pin_factory=factory, hold_time=switch_hold_time)
+    @property
+    def pin(self):
+        return self.pin
+    
+    @pin.setter
+    def pin(self, value):
+        self.pin = value
 
 
 class LoadCell():

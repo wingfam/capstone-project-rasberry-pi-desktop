@@ -11,6 +11,8 @@ from models.models import Cabinet, Box, MasterCode
 from services.firebase_config import firebaseDB
 from services.sqlite3 import dict_factory
 from constants.db_table import db_file_name
+from gpiozero.pins.pigpio import PiGPIOFactory
+from gpiozero import LED, Button
 
 check_weight_time = 3
 
@@ -910,31 +912,32 @@ class DatabaseController():
         return isUpdate
 
 
-class ControlPinController():
-    def __init__(self, model, view):
+class ManualControlController():
+    def __init__(self, view):
         self.view = view
-        self.model = model
-
+        
+        '''Declare host for remote GPIO Only use to control gpio remotely'''
+        self.gpio_factory = PiGPIOFactory(host='192.168.0.101')
+    
+    def set_LED(self, pin):
+        func = None
+        try:
+            func = LED(pin, initial_value=True, pin_factory=self.gpio_factory)
+        except Exception as e:
+            print("An error has occurred: ", e)
+        return func
+        
     # This gets called whenever the ON button is pressed
-    def unlock_door(self):
-        print("Box's door is unlocked")
-
-        # Disable ON button, enable OFF button, and turn on LED
-        self.view.button_on.config(state=tk.DISABLED, bg='gray64')
-        self.view.button_off.config(state=tk.NORMAL, bg='gray99')
-
-        self.model.solenoid.off()
-        print(self.model.magSwitch.value)
+    def unlock_door(self, solenoid):
+        # self.solenoid = LED(self.pin, initial_value=True)
+        # print("Box's door is unlocked")
+        solenoid.off()
 
     # This gets called whenever the OFF button is pressed
-    def lock_door(self):
-        print("Box's door is locked")
-
-        # Disable OFF button, enable ON button, and turn off LED
-        self.view.button_on.config(state=tk.NORMAL, bg='gray99')
-        self.view.button_off.config(state=tk.DISABLED, bg='gray64')
-        self.model.solenoid.on()
-        print(self.model.magSwitch.value)
+    def lock_door(self, solenoid):
+        # self.solenoid = LED(self.pin, initial_value=True)
+        # print("Box's door is locked")
+        solenoid.on()
 
     def check_weight(self):
         count = 0
@@ -949,7 +952,7 @@ class ControlPinController():
             time.sleep(1)
 
         newText = str(weight_value) + " grams"
-        self.view.weight_label.configure(text=newText)
+        # self.view.weight_label.configure(text=newText)
         print("Check weight done!")
 
     def confirm(self):

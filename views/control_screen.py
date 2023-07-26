@@ -3,12 +3,8 @@ import tkinter as tk
 
 from tkinter import ttk
 from constants.image_imports import back_image
-from controllers.config_controller import DatabaseController
-from models.models import Box
-
-# from controllers.control_gpio import ControlPinController
-# from constants.gpio_constants import LoadCell, MageneticSwitch, SolenoidLock
-# from models.models import Box
+from controllers.config_controller import DatabaseController, ManualControlController
+from models.models import Box, SolenoidLock
 
 
 class ControlScreen(ctk.CTkFrame):
@@ -18,10 +14,13 @@ class ControlScreen(ctk.CTkFrame):
 
         self.parent = parent
         self.root = root
-        self.boxModel = Box
         self.boxInfo = {}
 
         self.databaseController = DatabaseController(view=self)
+        self.manualController = ManualControlController(view=self)
+
+        self.boxModel = None
+        self.solenoid = None
 
         self.chooseBoxName = ctk.StringVar()
         self.lockStatus = ctk.StringVar(value="LOCK")
@@ -41,19 +40,31 @@ class ControlScreen(ctk.CTkFrame):
             command=self.go_back
         ).place(relx=.10, rely=.10, anchor=ctk.CENTER)
 
-        ctk.CTkButton(
+        self.button_on = ctk.CTkButton(
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Lock/Unlock",
-            command=self.lock_or_unlock_door
-        ).place(relwidth=.20, relheight=.10, relx=.15, rely=.32, anchor=ctk.CENTER)
+            fg_color="#1F6AA5",
+            state=ctk.NORMAL,
+            text="Unlock",
+            command=self.unlock_door
+        )
+
+        self.button_off = ctk.CTkButton(
+            master=self,
+            anchor=ctk.CENTER,
+            font=button_font,
+            fg_color="gray99",
+            state=ctk.DISABLED,
+            text="Lock",
+            command=self.lock_door
+        )
 
         ctk.CTkButton(
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Check Switch",
+            text="Check Door",
             command=self.check_magnetic_switch
         ).place(relwidth=.20, relheight=.10, relx=.15, rely=.47, anchor=ctk.CENTER)
 
@@ -101,6 +112,10 @@ class ControlScreen(ctk.CTkFrame):
 
         self.cabinetListBox = CabinetListBox(parent=self)
 
+        self.button_on.place(relwidth=.10, relheight=.10,
+                             relx=.10, rely=.32, anchor=ctk.CENTER)
+        self.button_off.place(relwidth=.10, relheight=.10,
+                              relx=.20, rely=.32, anchor=ctk.CENTER)
         self.labelLockStatus.place(
             relwidth=.15, relheight=.10, relx=.40, rely=.32, anchor=ctk.CENTER)
         self.labelSwitchStatus.place(
@@ -111,16 +126,31 @@ class ControlScreen(ctk.CTkFrame):
             relwidth=.20, relheight=.10, rely=.15, relx=.82, anchor="e")
         self.cabinetListBox.place(rely=.45, relx=.75, anchor=ctk.CENTER)
 
-    def lock_or_unlock_door(self):
-        if not self.chooseBoxName.get():
+    def define_gpio(self):
+        solenoidPin = self.boxModel.solenoidGpio
+        self.solenoid = self.manualController.set_LED(solenoidPin)
+
+    def unlock_door(self):
+        if not self.boxModel:
             self.labelDisplay.configure(
                 text_color="red", text="Please choose a box")
         else:
-            print(self.boxModel.id)
-            print(self.boxModel.solenoidGpio)
-            print(self.boxModel.switchGpio)
-            print(self.boxModel.loadcellDout)
-            print(self.boxModel.loadcellSck)
+            self.labelDisplay.configure(text="")
+            self.button_on.configure(state=ctk.DISABLED, fg_color="gray99")
+            self.button_off.configure(state=ctk.NORMAL, fg_color="#1F6AA5")
+
+            self.manualController.unlock_door(self.solenoid)
+
+    def lock_door(self):
+        if not self.boxModel:
+            self.labelDisplay.configure(
+                text_color="red", text="Please choose a box")
+        else:
+            self.labelDisplay.configure(text="")
+            self.button_on.configure(state=ctk.NORMAL, fg_color="#1F6AA5")
+            self.button_off.configure(state=ctk.DISABLED, fg_color="gray99")
+
+            self.manualController.lock_door(self.solenoid)
 
     def check_magnetic_switch(self):
         pass
@@ -129,8 +159,11 @@ class ControlScreen(ctk.CTkFrame):
         pass
 
     def refresh(self):
+        self.boxModel = None
+        self.solenoid = None
         self.labelDisplay.configure(text="")
-        self.cabinetListBox.repopulate()
+        self.cabinetListBox.listBox.selection_clear(0, tk.END)
+        self.cabinetListBox.listBox.delete(0, tk.END)
 
     def go_back(self):
         self.refresh()
@@ -165,6 +198,7 @@ class CabinetListBox(ctk.CTkFrame):
         self.listBox.bind("<<ListboxSelect>>", self.set_choice)
 
     def set_choice(self, event):
+        self.parent.boxModel = Box
         selection = event.widget.curselection()
         if selection:
             index = selection[0]
@@ -178,6 +212,8 @@ class CabinetListBox(ctk.CTkFrame):
                 self.parent.boxModel.switchGpio = value['switchGpio']
                 self.parent.boxModel.loadcellDout = value['loadcellDout']
                 self.parent.boxModel.loadcellSck = value['loadcellSck']
+
+        self.parent.define_gpio()
 
     def repopulate(self):
         self.listBox.delete(0, tk.END)
