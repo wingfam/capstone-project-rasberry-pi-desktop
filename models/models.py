@@ -3,14 +3,9 @@ from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import LED, Button
 
 
-
-
-
-
-
 class Cabinet():
     def __init__(
-        self, 
+        self,
         id,
         name,
         addDate,
@@ -22,7 +17,7 @@ class Cabinet():
         self.addDate = addDate
         self.isAvailable = isAvailable
         self.locationId = locationId
-    
+
     @property
     def id(self):
         return self.id
@@ -42,7 +37,7 @@ class Cabinet():
     @property
     def locationId(self):
         return self.locationId
-    
+
     @id.setter
     def id(self, value):
         self.id = value
@@ -66,9 +61,10 @@ class Cabinet():
     def __str__(self):
         return f"{self.name}, {self.addDate}, {self.isAvailable}"
 
+
 class MasterCode():
     def __init__(
-        self, 
+        self,
         id,
         code,
         isAvailable,
@@ -78,7 +74,7 @@ class MasterCode():
         self.code = code
         self.isAvailable = isAvailable
         self.cabinetId = cabinetId
-    
+
     @property
     def id(self):
         return self.id
@@ -110,13 +106,14 @@ class MasterCode():
     @cabinetId.setter
     def cabinetId(self, value):
         self.cabinetId = value
-        
+
     def __str__(self):
         return f"{self.code}, {self.isAvailable}"
-        
+
+
 class Box():
     def __init__(
-        self, 
+        self,
         id,
         nameBox,
         size,
@@ -125,7 +122,7 @@ class Box():
         isStore,
         isAvailable,
         solenoidGpio,
-        switchGpio, 
+        switchGpio,
         loadcellDout,
         loadcellSck,
         cabinetId,
@@ -178,15 +175,15 @@ class Box():
     @property
     def switchGpio(self):
         return self.switchGpio
-    
+
     @property
     def loadcellDout(self):
         return self.loadcellDout
-    
+
     @property
     def loadcellSck(self):
         return self.loadcellSck
-    
+
     @property
     def cabinetId(self):
         return self.cabinetId
@@ -206,65 +203,68 @@ class Box():
     @switchGpio.setter
     def switchGpio(self, value):
         self.switchGpio = value
-        
+
     @loadcellDout.setter
     def loadcellDout(self, value):
         self.loadcellDout = value
-        
+
     @loadcellSck.setter
     def loadcellSck(self, value):
         self.loadcellSck = value
-    
+
     def __str__(self):
         return f"{self.nameBox}, {self.size}, {self.isAvailable}"
+
 
 class SolenoidLock():
     def __init__(self, pin):
         self.pin = pin
-        
+
         '''Declare host for remote GPIO Only use to control gpio remotely'''
         # factory = PiGPIOFactory(host='192.168.0.102')
-        
+
         solenoid = LED(self.pin, initial_value=True)
         # solenoid_factory = LED(self.pin, initial_value=True, pin_factory=factory)
-    
+
+
 class MageneticSwitch():
     def __init__(self, pin):
         self.pin = pin
-        
+
         '''Declare host for remote GPIO Only use to control gpio remotely'''
-        # factory = PiGPIOFactory(host='192.168.0.102') 
-        
-        switch_hold_time = 3.0 # Magnetic switch hold time
-        
-        switch = Button(self.pin, pull_up=True, bounce_time=0.2, hold_time=switch_hold_time)
+        # factory = PiGPIOFactory(host='192.168.0.102')
+
+        switch_hold_time = 3.0  # Magnetic switch hold time
+
+        switch = Button(self.pin, pull_up=True, bounce_time=0.2,
+                        hold_time=switch_hold_time)
         # switch_factory = Button(self.pin, pull_up=True, bounce_time=0.2, pin_factory=factory, hold_time=switch_hold_time)
+
 
 class LoadCell():
     def __init__(self, dout, sck):
         self.dout = dout
         self.sck = sck
-        
+
         # Loadcell reference unit
         referenceUnit = 218
 
         # self.hx711 = HX711(self.dout, self.sck)
         self.hx711.set_reading_format("MSB", "MSB")
         self.hx711.set_reference_unit(referenceUnit)
-    
+
     def tare(self):
         self.hx711.tare()
-        print("Loadcell tare done!")      
-    
+        print("Loadcell tare done!")
+
     def powerUp(self):
         self.hx711.power_up()
-        print("Loadcell power up done!") 
-        
+        print("Loadcell power up done!")
+
     def powerDown(self):
         self.hx711.power_down()
-        print("Loadcell power down done!") 
-        
+        print("Loadcell power down done!")
+
     def reset(self):
         self.hx711.reset()
-        print("Loadcell reset done!") 
-        
+        print("Loadcell reset done!")

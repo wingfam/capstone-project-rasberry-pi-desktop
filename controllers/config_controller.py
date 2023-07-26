@@ -200,9 +200,9 @@ class EditCabinetController():
         boxResults = self.view.databaseController.get_box_by_cabinetId(
             self.view.cabinetId.get())
 
+        # Set data inside table with box results
         self.set_box_data(boxResults)
-        self.view.boxTable.data.update(boxResults)
-        self.view.boxTable.table.redraw()
+        self.view.boxData.update(boxResults)
 
     def set_box_data(self, boxResults):
         boxData = {}
@@ -213,8 +213,6 @@ class EditCabinetController():
                     'size': value['size'],
                     'width': value['width'],
                     'height': value['height'],
-                    'isStore': value['isStore'],
-                    'isAvailable': value['isAvailable'],
                     'solenoidGpio': value['solenoidGpio'],
                     'switchGpio': value['switchGpio'],
                     'loadcellDout': value['loadcellDout'],
@@ -224,8 +222,9 @@ class EditCabinetController():
 
         model = self.view.boxTable.table.model
         model.importDict(boxData)
+        self.view.boxTable.table.redraw()
 
-    def update_data(self):
+    def update_cabinet_data(self):
         cabinetValue = {
             'name': self.view.cabinetName.get(),
             'isAvailable': self.view.isAvailable.get(),
@@ -234,11 +233,23 @@ class EditCabinetController():
         }
 
         self.view.root.cabinetName.set(cabinetValue['name'])
-        self.view.databaseController.update_cabinet(cabinetValue)
+        isUpdate = self.view.databaseController.update_cabinet_to_db(
+            cabinetValue)
+        return isUpdate
 
-        boxTableData = self.view.boxTable.data
-        for key, value in boxTableData.items():
-            self.view.databaseController.update_box(value)
+    def update_box_data(self):
+        isUpdate = None
+        boxData = self.view.boxData
+        tableData = self.view.boxTable.table.getModel().data
+
+        for tableDataKey, tableDataValue in tableData.items():
+            for boxDataKey, boxDataValue in boxData.items():
+                if tableDataKey == boxDataKey:
+                    updateValue = {boxDataValue['id']: tableDataValue}
+                    isUpdate = self.view.databaseController.update_box_internal(
+                        updateValue)
+
+        return isUpdate
 
     def reupload_cabinet(self):
         isUpload = None
@@ -638,7 +649,7 @@ class DatabaseController():
                 FROM Cabinet 
                 WHERE name = ?
             '''
-            
+
             cur.execute(sql, (cabinetName,))
             results = cur.fetchone()
             conn.commit()
@@ -756,7 +767,8 @@ class DatabaseController():
         finally:
             conn.close()
 
-    def update_cabinet(self, data):
+    def update_cabinet_to_db(self, data):
+        isUpdate = None
         conn = self.opendb(db_file_name)
         try:
             conn = sqlite3.connect(db_file_name)
@@ -779,14 +791,17 @@ class DatabaseController():
 
             cur.execute(sql, model)
             conn.commit()
+            isUpdate = True
+            print("Update cabinet successful")
         except Exception as e:
+            isUpdate = False
             print("An error has occurred: ", e)
         finally:
             conn.close()
 
-        print("Update cabinet successful")
+        return isUpdate
 
-    def update_master_code(self, data):
+    def update_master_code_patch_event(self, data):
         conn = self.opendb(db_file_name)
         try:
             conn = sqlite3.connect(db_file_name)
@@ -807,14 +822,13 @@ class DatabaseController():
 
             cur.execute(sql, model)
             conn.commit()
+            print("Update master code successful")
         except Exception as e:
             print("An error has occurred: ", e)
         finally:
             conn.close()
 
-        print("Update master code successful")
-
-    def update_box(self, data):
+    def update_box_patch_event(self, data):
         conn = self.opendb(db_file_name)
         try:
             conn = sqlite3.connect(db_file_name)
@@ -843,12 +857,57 @@ class DatabaseController():
 
             cur.execute(sql, model)
             conn.commit()
+            print("Update box successful")
         except Exception as e:
             print("An error has occurred: ", e)
         finally:
             conn.close()
 
-        print("Update box successful")
+    def update_box_internal(self, data):
+        isUpdate = None
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            model = ()
+
+            for key, value in data.items():
+                model = (
+                    value['nameBox'],
+                    value['size'],
+                    value['width'],
+                    value['height'],
+                    value['solenoidGpio'],
+                    value['switchGpio'],
+                    value['loadcellDout'],
+                    value['loadcellSck'],
+                    key
+                )
+
+            sql = ''' 
+                UPDATE Box
+                SET nameBox = ?,
+                    size = ?,
+                    width = ?,
+                    height = ?,
+                    solenoidGpio = ?,
+                    switchGpio = ?,
+                    loadcellDout = ?,
+                    loadcellSck = ?
+                WHERE id = ?
+            '''
+
+            cur.execute(sql, model)
+            conn.commit()
+            isUpdate = True
+            print("Update box successful")
+        except Exception as e:
+            isUpdate = False
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+
+        return isUpdate
 
 
 class ControlPinController():

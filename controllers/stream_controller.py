@@ -18,7 +18,7 @@ class StreamController():
             cabinetId = path[1: len(path)]
             snapshot = firebaseDB.child("Cabinet").order_by_key().equal_to(cabinetId).get().val()
             for key, value in snapshot.items():
-                self.databaseController.update_cabinet(value)
+                self.databaseController.update_cabinet_to_db(value)
         
     def mastercode_stream_handler(self, stream):
         if stream['event'] == 'put':
@@ -29,7 +29,7 @@ class StreamController():
             mastercodeId = path[1: len(path)]
             snapshot = firebaseDB.child("MasterCode").order_by_key().equal_to(mastercodeId).get().val()
             for key, value in snapshot.items():
-                self.databaseController.update_master_code(value)
+                self.databaseController.update_master_code_patch_event(value)
         
     def box_stream_handler(self, stream):
         if stream['event'] == 'put':
@@ -40,7 +40,7 @@ class StreamController():
             boxId = path[1: len(path)]
             snapshot = firebaseDB.child("Box").order_by_key().equal_to(boxId).get().val()
             for key, value in snapshot.items():
-                self.databaseController.update_box(value)
+                self.databaseController.update_box_from_patch(value)
     
     def set_cabinet_stream(self, cabinetId):
         self.view.cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(

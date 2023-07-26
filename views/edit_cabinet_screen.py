@@ -23,6 +23,7 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.locationComboboxValues = []
         self.locationData = {}
         self.cabinetData = {}
+        self.boxData = {}
         
         self.statusComboboxVar = ctk.StringVar()
         self.cabinetId = ctk.StringVar()
@@ -168,9 +169,12 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.set_location_id(self.cabinetLocation.get())
     
     def update(self):
-        self.editController.update_data()
-        self.reload()
-        self.display_label.configure(text_color='green', text='Update successful')
+        isCabinetUpdate = self.editController.update_cabinet_data()
+        isBoxUpdate = self.editController.update_box_data()
+        if isCabinetUpdate and isBoxUpdate:
+            self.display_label.configure(text_color='green', text='Update successful')
+        else:
+            self.display_label.configure(text_color='red', text='Update unsuccessful')
         
     def reupload(self):
         isCabinetUpload = self.editController.reupload_cabinet()
