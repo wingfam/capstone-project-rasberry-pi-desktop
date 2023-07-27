@@ -2,7 +2,7 @@ import sys
 import RPi.GPIO as GPIO
 import customtkinter as ctk
 
-from models.models import LoadCell, MageneticSwitch, SolenoidLock
+from models.models import LoadCell, MagneticSwitch, SolenoidLock
 from constants.screen_views import ScreenView
 from views.config_screen import ConfigScreen
 from views.control_screen import ControlScreen
@@ -40,7 +40,7 @@ class MainApp(ctk.CTk):
             "Box2": {
                 "nameBox": "02",
                 "solenoid_lock": SolenoidLock.solenoid_lock1,
-                "magnetic_switch": MageneticSwitch.mag_switch1,
+                "magnetic_switch": MagneticSwitch.mag_switch1,
                 "loadcell": LoadCell.hx711,
             }
         }

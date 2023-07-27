@@ -4,6 +4,8 @@ import sqlite3 as sqlite3
 import random
 import math
 
+from gpiozero.pins.pigpio import PiGPIOFactory
+from gpiozero import LED, Button
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
@@ -11,15 +13,43 @@ from models.models import Cabinet, Box, MasterCode
 from services.firebase_config import firebaseDB
 from services.sqlite3 import dict_factory
 from constants.db_table import db_file_name
-from gpiozero.pins.pigpio import PiGPIOFactory
-from gpiozero import LED, Button
+# # from services.hx711 import HX711
 
 check_weight_time = 3
 
 
-class ChooseCabinetController():
+class GpioController():
     def __init__(self, view):
         self.view = view
+
+        '''Declare host for remote GPIO Only use to control gpio remotely'''
+        self.gpio_factory = PiGPIOFactory(host='192.168.0.101')
+
+        '''Magnetic switch hold time'''
+        self.hold_time = 3.0
+
+    def set_solenoid(self, pin):
+        solenoid = LED(pin, initial_value=True, pin_factory=self.gpio_factory)
+        return solenoid
+
+    def set_mag_switch(self, pin):
+        mag_switch = Button(pin, pull_up=True, bounce_time=0.2, 
+                            pin_factory=self.gpio_factory, hold_time=self.hold_time)
+        return mag_switch
+
+    def setup_gpio(self):
+        results = self.view.databaseController.get_box_gpio()
+        for box in results:
+            boxData = {
+                box['id']: {
+                    'id': box['id'],
+                    'nameBox': box['nameBox'],
+                    'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    # 'loadcell': loadcell(value['loadcellDout'], value['loadcellSck']),
+                }
+            }
+            self.view.globalBoxData.update(boxData)
 
 
 class AddCabinetController():
@@ -589,7 +619,7 @@ class DatabaseController():
 
         return dicts
 
-    def get_box_by_name_and_cabinetId(self, nameBox, cabinetId):
+    def get_box_gpio(self):
         conn = self.opendb(db_file_name)
         try:
             conn = sqlite3.connect(db_file_name)
@@ -597,14 +627,13 @@ class DatabaseController():
             cur = conn.cursor()
 
             sql = '''
-                SELECT *
+                SELECT id, nameBox, solenoidGpio,
+                    switchGpio, loadcellDout, loadcellSck
                 FROM Box 
-                WHERE nameBox = ? 
-                AND cabinetId = ?
             '''
 
-            cur.execute(sql, (nameBox, cabinetId,))
-            results = cur.fetchone()
+            cur.execute(sql)
+            results = cur.fetchall()
             conn.commit()
         except conn.DatabaseError as e:
             print("An error has occurred: ", e)
@@ -915,37 +944,26 @@ class DatabaseController():
 class ManualControlController():
     def __init__(self, view):
         self.view = view
-        
-        '''Declare host for remote GPIO Only use to control gpio remotely'''
-        self.gpio_factory = PiGPIOFactory(host='192.168.0.101')
-    
-    def set_LED(self, pin):
-        func = None
-        try:
-            func = LED(pin, initial_value=True, pin_factory=self.gpio_factory)
-        except Exception as e:
-            print("An error has occurred: ", e)
-        return func
-        
-    # This gets called whenever the ON button is pressed
+
+    # This gets called whenever the UNLOCK button is pressed
     def unlock_door(self, solenoid):
-        # self.solenoid = LED(self.pin, initial_value=True)
-        # print("Box's door is unlocked")
         solenoid.off()
 
-    # This gets called whenever the OFF button is pressed
+    # This gets called whenever the LOCK button is pressed
     def lock_door(self, solenoid):
-        # self.solenoid = LED(self.pin, initial_value=True)
-        # print("Box's door is locked")
         solenoid.on()
 
-    def check_weight(self):
+    # Check magnetic switch value and return it
+    def check_door(self, switch):
+        switchValue = switch.value
+        return switchValue
+
+    def check_weight(self, loadcell):
         count = 0
         weight_value = 0
-        loadcell = self.model.loadcell
 
         # Loop check loadcell weight value every 3 seconds
-        while count < check_weight_time:
+        while count < 3:
             weight_value = max(0, int(loadcell.get_weight(5)))
             print(weight_value)
             count += 1

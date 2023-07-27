@@ -1,8 +1,9 @@
 from tkinter import StringVar
 import customtkinter as ctk
 import sqlite3 as sqlite3
-from controllers.config_controller import DatabaseController
+from controllers.config_controller import DatabaseController, GpioController
 from controllers.stream_controller import StreamController
+from models.models import LoadCell, MagneticSwitch, SolenoidLock
 from views.add_box_screen import AddBoxScreen
 
 from views.add_cabinet_screen import AddCabinetScreen
@@ -21,8 +22,10 @@ class Window(ctk.CTk):
         self.title("Pre config window")
 
         self.databaseController = DatabaseController(view=self)
+        self.gpioController = GpioController(view=self)
         self.streamController = StreamController(view=self)
 
+        self.globalBoxData = {}
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
         self.cabinetStream = None
@@ -43,8 +46,8 @@ class Window(ctk.CTk):
             self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
+        self.gpioController.setup_gpio()
         self.streamController.set_all_stream()
-
         self.show_frame("ChooseCabinetScreen")
 
     def show_frame(self, page_name):
