@@ -8,7 +8,7 @@ class StreamController():
     def __init__(self, view):
         self.view = view
         self.databaseController = DatabaseController(self)
-        
+    
     def cabinet_stream_handler(self, stream):
         if stream['event'] == 'put':
             print("Listening to cabinet stream")
@@ -45,19 +45,19 @@ class StreamController():
     def set_cabinet_stream(self, cabinetId):
         cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
                 self.cabinet_stream_handler, stream_id='cabinet_stream')
-        time.sleep(0.08)
+        time.sleep(0.1)
         return cabinetStream
         
     def set_mastercode_stream(self, cabinetId):
         mastercodeStream = firebaseDB.child('MasterCode').order_by_child(
             'cabinetId').equal_to(cabinetId).stream(self.mastercode_stream_handler, stream_id='master_code_stream')
-        time.sleep(0.08)
+        time.sleep(0.1)
         return mastercodeStream
     
     def set_box_stream(self, cabinetId):
         boxStream = firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
                 self.box_stream_handler, stream_id='box_stream')
-        time.sleep(0.08)
+        time.sleep(0.1)
         return boxStream
     
     def set_all_stream(self):
@@ -76,3 +76,11 @@ class StreamController():
             
             self.view.globalStreams.update(stream)
             
+    def close_all_stream(self):
+        streams = self.view.globalStreams
+        for key, value in streams.items():
+            value['cabinetStream'].close()
+            value['masterCodeStream'].close()
+            value['boxStream'].close()
+        print("All stream has close")
+    

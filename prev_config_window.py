@@ -65,8 +65,9 @@ class MainWindow(ctk.CTk):
 
     def cleanAndExit(self):
         print("Cleaning...")
+        self.streamController.close_all_stream()
         # GPIO.cleanup()
-        print("Bye!")
+        print("Exiting program...")
         sys.exit()
 
 
@@ -87,9 +88,4 @@ if __name__ == "__main__":
     root.mainloop()
 
     if (SystemExit):
-        print("Exiting program...")
-        for key, value in root.globalStreams.items():
-            value['cabinetStream'].close()
-            value['masterCodeStream'].close()
-            value['boxStream'].close()
         root.cleanAndExit()
