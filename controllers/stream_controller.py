@@ -43,24 +43,36 @@ class StreamController():
                 self.databaseController.update_box_from_patch(value)
     
     def set_cabinet_stream(self, cabinetId):
-        self.view.cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
+        cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
                 self.cabinet_stream_handler, stream_id='cabinet_stream')
+        time.sleep(0.08)
+        return cabinetStream
         
     def set_mastercode_stream(self, cabinetId):
-        self.view.mastercodeStream = firebaseDB.child('MasterCode').order_by_child(
+        mastercodeStream = firebaseDB.child('MasterCode').order_by_child(
             'cabinetId').equal_to(cabinetId).stream(self.mastercode_stream_handler, stream_id='master_code_stream')
+        time.sleep(0.08)
+        return mastercodeStream
     
     def set_box_stream(self, cabinetId):
-        self.view.boxStream = firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
+        boxStream = firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
                 self.box_stream_handler, stream_id='box_stream')
+        time.sleep(0.08)
+        return boxStream
     
     def set_all_stream(self):
         print('set all stream')
+        stream = {}
         cabinets = self.view.databaseController.get_all_cabinet_id()
         for key, value in cabinets.items():
-            if value['id']:
-                self.set_cabinet_stream(value['id'])
-                time.sleep(0.08)
-                self.set_mastercode_stream(value['id'])
-                time.sleep(0.08)
-                self.set_box_stream(value['id'])
+            cabinetId = value['id']
+            stream = {
+                cabinetId : {
+                    'cabinetStream': self.set_cabinet_stream(cabinetId),
+                    'masterCodeStream': self.set_mastercode_stream(cabinetId),
+                    'boxStream': self.set_box_stream(cabinetId)
+                }
+            }
+            
+            self.view.globalStreams.update(stream)
+            

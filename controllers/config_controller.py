@@ -1,20 +1,18 @@
 import time
-import tkinter as tk
 import sqlite3 as sqlite3
 import random
 import math
 
 from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import LED, Button
+# from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
 from models.models import Cabinet, Box, MasterCode
 from services.firebase_config import firebaseDB
-from services.hx711 import HX711
 from services.sqlite3 import dict_factory
 from constants.db_table import db_file_name
-# # from services.hx711 import HX711
 
 check_weight_time = 3
 
@@ -24,7 +22,7 @@ class GpioController():
         self.view = view
 
         '''Declare host for remote GPIO Only use to control gpio remotely'''
-        self.gpio_factory = PiGPIOFactory(host='192.168.0.101')
+        self.gpio_factory = PiGPIOFactory(host='192.168.0.101') # NOTE: This is a thread
 
         '''Magnetic switch hold time'''
         self.hold_time = 3.0
@@ -38,18 +36,18 @@ class GpioController():
                             pin_factory=self.gpio_factory, hold_time=self.hold_time)
         return mag_switch
 
-    def set_loadcell(self, dout, sck):
-        # Loadcell reference unit
-        referenceUnit = 218
+    # def set_loadcell(self, dout, sck):
+    #     # Loadcell reference unit
+    #     referenceUnit = 218
         
-        loadcell = HX711(dout, sck)
-        loadcell.set_reading_format("MSB", "MSB")
-        loadcell.set_reference_unit(referenceUnit)
+    #     loadcell = HX711(dout, sck)
+    #     loadcell.set_reading_format("MSB", "MSB")
+    #     loadcell.set_reference_unit(referenceUnit)
         
-        self.reset_loadcell(loadcell)
-        self.tare_loadcell(loadcell)
+    #     self.reset_loadcell(loadcell)
+    #     self.tare_loadcell(loadcell)
         
-        return loadcell
+    #     return loadcell
     
     def tare_loadcell(self, loadcell):
         loadcell.tare()
