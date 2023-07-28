@@ -11,6 +11,7 @@ from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
 from models.models import Cabinet, Box, MasterCode
 from services.firebase_config import firebaseDB
+from services.hx711 import HX711
 from services.sqlite3 import dict_factory
 from constants.db_table import db_file_name
 # # from services.hx711 import HX711
@@ -37,6 +38,35 @@ class GpioController():
                             pin_factory=self.gpio_factory, hold_time=self.hold_time)
         return mag_switch
 
+    def set_loadcell(self, dout, sck):
+        # Loadcell reference unit
+        referenceUnit = 218
+        
+        loadcell = HX711(dout, sck)
+        loadcell.set_reading_format("MSB", "MSB")
+        loadcell.set_reference_unit(referenceUnit)
+        
+        self.reset_loadcell(loadcell)
+        self.tare_loadcell(loadcell)
+        
+        return loadcell
+    
+    def tare_loadcell(self, loadcell):
+        loadcell.tare()
+        print("Loadcell tare done!")
+
+    def powerUp_loadcell(self, loadcell):
+        loadcell.power_up()
+        print("Loadcell power up done!")
+
+    def powerDown_loadcell(self, loadcell):
+        loadcell.power_down()
+        print("Loadcell power down done!")
+
+    def reset_loadcell(self, loadcell):
+        loadcell.reset()
+        print("Loadcell reset done!")
+    
     def setup_gpio(self):
         results = self.view.databaseController.get_box_gpio()
         for box in results:
@@ -46,9 +76,10 @@ class GpioController():
                     'nameBox': box['nameBox'],
                     'solenoid': self.set_solenoid(box['solenoidGpio']),
                     'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    # 'loadcell': loadcell(value['loadcellDout'], value['loadcellSck']),
+                    # 'loadcell': self.set_loadcell(box['loadcellDout'], box['loadcellSck']),
                 }
             }
+            
             self.view.globalBoxData.update(boxData)
 
 

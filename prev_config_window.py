@@ -1,6 +1,9 @@
+import sys
 from tkinter import StringVar
 import customtkinter as ctk
 import sqlite3 as sqlite3
+import RPi.GPIO as GPIO
+
 from controllers.config_controller import DatabaseController, GpioController
 from controllers.stream_controller import StreamController
 from models.models import LoadCell, MagneticSwitch, SolenoidLock
@@ -61,7 +64,7 @@ class Window(ctk.CTk):
             frame.addBoxController.set_cabinetId()
         elif page_name == "ControlScreen":
             frame.cabinetListBox.set_list_box()
-
+        
 
 class ScreenView():
     frame_views = {
@@ -75,8 +78,17 @@ class ScreenView():
     }
 
 
+def cleanAndExit():
+    print("Cleaning...")
+    GPIO.cleanup()
+    print("Bye!")
+    sys.exit()
+
+
 if __name__ == "__main__":
     root = Window()
     root.mainloop()
 
-'''TODO: Chức năng thêm tủ cho một cabinet'''
+
+if (KeyboardInterrupt, SystemExit):
+    cleanAndExit()

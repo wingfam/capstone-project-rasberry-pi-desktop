@@ -279,7 +279,7 @@ class LoadCell():
         self.sck = sck
 
         # Loadcell reference unit
-        # referenceUnit = 218
+        referenceUnit = 218
 
         # self.hx711 = HX711(self.dout, self.sck)
         # self.hx711.set_reading_format("MSB", "MSB")
