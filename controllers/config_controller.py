@@ -22,7 +22,7 @@ class GpioController():
         self.view = view
 
         '''Declare host for remote GPIO Only use to control gpio remotely'''
-        self.gpio_factory = PiGPIOFactory(host='192.168.0.101') # NOTE: This is a thread
+        # self.gpio_factory = PiGPIOFactory(host='192.168.0.101') # NOTE: This is a thread
 
         '''Magnetic switch hold time'''
         self.hold_time = 3.0
@@ -72,8 +72,8 @@ class GpioController():
                 box['id']: {
                     'id': box['id'],
                     'nameBox': box['nameBox'],
-                    'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
                     # 'loadcell': self.set_loadcell(box['loadcellDout'], box['loadcellSck']),
                 }
             }
