@@ -7,6 +7,8 @@ class InstructionScreen(ctk.CTkFrame):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white")
         self.root = root
+        
+        self.boxId = StringVar()
         self.task = StringVar()
         
         ctk.CTkLabel(
@@ -61,12 +63,13 @@ class InstructionScreen(ctk.CTkFrame):
     def check_package(self):
         isConfirm = False
         task = self.task.get()
-        nameBox = self.root.app_data["nameBox"]
-        boxModel = self.root.box_model.values()
         
-        for item in boxModel:
-            if item['nameBox'] == nameBox:
-                isConfirm = confirm_task(item, task)
+        boxId = self.boxId.get()
+        globalBoxData = self.root.globalBoxData
+        
+        for key, value in globalBoxData.items():
+            if boxId == value['id']:
+                isConfirm = confirm_task(value, task)
                 break
                 
         if isConfirm:

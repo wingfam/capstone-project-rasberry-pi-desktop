@@ -29,17 +29,10 @@ class DeliveryScreen(ctk.CTkFrame):
             text="Lưu ý: mã có thời hạn là 10 phút. Nếu mã hết hạn,\nhãy yêu cầu người nhận hàng gửi lại mã khác."
         ).place(x=48, y=280)
         
-        self.entry_code = ctk.CTkEntry(
+        self.entry_code = ttk.Entry(
             master=self,
-            fg_color="#FFFFFF",
-            width=467.0,
-            height=82.0,
-            text_color="black",
+            justify="center",
             font=ctk.CTkFont(size=48),
-        )
-        self.entry_code.place(
-            x=42.0,
-            y=166.0,
         )
         
         self.label_error = ttk.Label(
@@ -60,7 +53,6 @@ class DeliveryScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=24),
             command=self.validate,
         )
-        self.button_confirm.place(x=48.0,y=432.0)
         
         self.button_back = ctk.CTkButton(
             master=self,
@@ -72,11 +64,15 @@ class DeliveryScreen(ctk.CTkFrame):
             image=back_image,
             command=self.restart,
         )
-        self.button_back.place(x=951.0,y=528.0)
+        
         
         self.keypad = Keypad(self)
         self.keypad.target = self.entry_code
         self.keypad.place(x=567,y=156)
+        
+        self.button_confirm.place(x=48.0,y=432.0)
+        self.button_back.place(relx=.95, rely=.10, anchor=ctk.CENTER)
+        self.entry_code.place(relwidth=.4, relheight=.15, relx=.28, rely=.4, anchor=ctk.CENTER)
         
     
     def validate(self):
@@ -84,8 +80,12 @@ class DeliveryScreen(ctk.CTkFrame):
         if item_list:
             self.deliveryController.update_app_data(fb_login=item_list[0], fb_item_list=item_list[1])
             nameBox = self.root.app_data["nameBox"]
+            boxId = self.root.app_data["boxId"]
+            
             self.root.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
+            self.root.frames["InstructionScreen"].boxId.set(boxId)
             self.root.frames["InstructionScreen"].task.set("delivery")
+            
             self.root.show_frame("InstructionScreen")
     
     def set_controller(self, root):

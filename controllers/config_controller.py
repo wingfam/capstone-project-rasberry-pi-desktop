@@ -76,8 +76,7 @@ class GpioController():
                     'loadcell': self.set_loadcell(
                         box['loadcellDout'], 
                         box['loadcellSck'],
-                        box['loadcellRf']
-                        ),
+                        box['loadcellRf']),
                 }
             }
             

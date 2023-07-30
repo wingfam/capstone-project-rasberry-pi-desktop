@@ -1,17 +1,11 @@
 import sys
 import RPi.GPIO as GPIO
 import customtkinter as ctk
+from controllers.config_controller import DatabaseController, GpioController
+from controllers.stream_controller import StreamController
 
 from models.models import LoadCell, MagneticSwitch, SolenoidLock
 from constants.screen_views import ScreenView
-from views.config_screen import ConfigScreen
-from views.control_screen import ControlScreen
-from views.main_screen import MainScreen
-from views.delivery_screen import DeliveryScreen
-from views.pickup_screen import PickupScreen
-from views.completion_screen import CompletionScreen
-from views.instruction_screen import InstructionScreen
-from views.pre_config_screen import PreConfigScreen
 
 class MainApp(ctk.CTk):
     def __init__(self, *args, **kwargs):
@@ -19,31 +13,21 @@ class MainApp(ctk.CTk):
         self.geometry("1024x600")
         self.title("Smart Locker")
         
+        self.databaseController = DatabaseController(view=self)
+        self.gpioController = GpioController(view=self)
+        self.streamController = StreamController(view=self)
+
+        self.globalBoxData = {}
+        self.globalStreams = {}
+        self.app_data = {}
+        
+        self.cabinetId = ctk.StringVar()
+        self.cabinetName = ctk.StringVar()
+        
         container = ctk.CTkFrame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
-        
-        self.loadcell = LoadCell
-        self.loadcell.reset()
-        self.loadcell.tare()
-        
-        self.app_data = {}
-        
-        self.box_model = {
-            "Box1": {
-                "nameBox": "01",
-                "solenoid_lock": 0,
-                "magnetic_switch": 0,
-                "loadcell": 0,
-            },
-            "Box2": {
-                "nameBox": "02",
-                "solenoid_lock": SolenoidLock.solenoid_lock1,
-                "magnetic_switch": MagneticSwitch.mag_switch1,
-                "loadcell": LoadCell.hx711,
-            }
-        }
         
         self.screen_views = ScreenView().frame_views
         self.frames = self.screen_views
@@ -54,6 +38,8 @@ class MainApp(ctk.CTk):
             self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         
+        self.gpioController.setup_gpio()
+        self.streamController.set_all_stream()
         self.show_frame("MainScreen")
         
     def show_frame(self, page_name):
@@ -62,14 +48,26 @@ class MainApp(ctk.CTk):
         if page_name == "CompletionScreen":
             frame.event_generate("<<GoBackMainScreen>>")
             frame.bind("<<GoBackMainScreen>>", frame.on_show_frame())
+        elif page_name == "AddCabinetScreen":
+            frame.set_location_data()
+        elif page_name == "EditCabinetScreen":
+            frame.editController.get_infos()
+        elif page_name == "AddBoxScreen":
+            frame.addBoxController.set_cabinetId()
+        elif page_name == "ControlScreen":
+            frame.cabinetListBox.set_list_box()
 
+    def cleanAndExit(self):
+        print("Cleaning...")
+        self.streamController.close_all_stream()
+        # GPIO.cleanup()
+        print("Exiting program...")
+        sys.exit()
+        
 
 if __name__ == "__main__":
     root = MainApp()
     root.mainloop()
-
-LoadCell().powerDown()
-print("Cleaning...")
-GPIO.cleanup()        
-print("Bye!")
-sys.exit()
+    
+    if KeyboardInterrupt or SystemExit:
+        root.cleanAndExit()

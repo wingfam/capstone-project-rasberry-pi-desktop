@@ -52,6 +52,6 @@ class MainScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=self.config_image,
-            command=lambda: root.show_frame("ControlPinScreen"),
+            command=lambda: root.show_frame("PreConfigScreen"),
         )
         button_config.place(x=951.0,y=38.0)

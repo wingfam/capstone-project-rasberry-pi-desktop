@@ -127,21 +127,24 @@ def save_notification(fb_login, fb_notification, messageTitle, messageBody):
     
 # This gets called whenever the ON button is pressed
 def unlock_door(model):
-    print("Box's door is unlocked")
-    model['solenoid_lock'].off()
-    print('Magnetic switch value: ', model["magnetic_switch"].value)
+    model['solenoid'].off()
 
 # This gets called whenever the OFF button is pressed
 def lock_door(model):
-    print("Box's door is locked")
-    model['solenoid_lock'].on()
-    print('Magnetic switch value: ', model['magnetic_switch'].value)
+    model['solenoid'].on()
 
 # Get weight of the package and return its value
 def get_weight(model):
     loadcell = model['loadcell']
+    loadcell.power_up()
+    time.sleep(0.01)
+    
     weightValue = max(0, int(loadcell.get_weight(5)))
-    print("Check weight is done")
+
+    time.sleep(0.01)
+    loadcell.power_down()
+    print("Check weight done!")
+    
     return weightValue
     
 def confirm_task(model, task):
@@ -153,7 +156,7 @@ def confirm_task(model, task):
     # Unlock box's door. Add wait for release event to magnetic switch
     # and check its state after 5 seconds
     unlock_door(model)
-    isReleased = model['magnetic_switch'].wait_for_release(waitTime)
+    isReleased = model['magSwitch'].wait_for_release(waitTime)
 
     if not isReleased:
         print('Magnetic switch is released: ', isReleased)
@@ -163,16 +166,16 @@ def confirm_task(model, task):
         # a hold_time seconds, activate lock_door function (check pin 
         # declare for hold_time)
         print("Add event to magnetic switch")
-        model['magnetic_switch'].wait_for_press()
-        if model['magnetic_switch'].is_pressed:
+        model['magSwitch'].wait_for_press()
+        if model['magSwitch'].is_pressed:
             time.sleep(switchHoldTime)
             lock_door(model)
             weightValue = get_weight(model)
         
         # Check if loadcell detect any weight
-        if (weightValue != 0 and task == "delivery"):
+        if (task == "delivery" and weightValue > 0):
             isConfirm = True
-        elif task == "pickup"and weightValue == 0:
+        elif (task == "pickup"and weightValue == 0):
             isConfirm = True
     
     return isConfirm

@@ -38,7 +38,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             font=button_font,
             text="Add cabinet",
             command=self.go_to_add_screen
-        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.32, anchor=ctk.CENTER)
+        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.22, anchor=ctk.CENTER)
 
         ctk.CTkButton(
             master=self,
@@ -46,7 +46,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             font=button_font,
             text="Check cabinet",
             command=self.go_to_check_cabinet
-        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.47, anchor=ctk.CENTER)
+        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.37, anchor=ctk.CENTER)
 
         ctk.CTkButton(
             master=self,
@@ -54,7 +54,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             font=button_font,
             text="Refresh",
             command=self.refresh
-        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.62, anchor=ctk.CENTER)
+        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.52, anchor=ctk.CENTER)
 
         ctk.CTkButton(
             master=self,
@@ -62,7 +62,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             font=button_font,
             text="Restart",
             command=self.restart
-        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.77, anchor=ctk.CENTER)
+        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.67, anchor=ctk.CENTER)
 
         self.error_label = ctk.CTkLabel(
             master=self,

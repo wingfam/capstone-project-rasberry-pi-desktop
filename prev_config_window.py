@@ -49,7 +49,7 @@ class MainWindow(ctk.CTk):
 
         self.gpioController.setup_gpio()
         self.streamController.set_all_stream()
-        self.show_frame("ChooseCabinetScreen")
+        self.show_frame("PreConfigScreen")
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
@@ -66,14 +66,14 @@ class MainWindow(ctk.CTk):
     def cleanAndExit(self):
         print("Cleaning...")
         self.streamController.close_all_stream()
-        GPIO.cleanup()
+        # GPIO.cleanup()
         print("Exiting program...")
         sys.exit()
 
 
 class ScreenView():
     frame_views = {
-        # "PreConfigScreen": PreConfigScreen,
+        "PreConfigScreen": PreConfigScreen,
         "ChooseCabinetScreen": ChooseCabinetScreen,
         "AddCabinetScreen": AddCabinetScreen,
         "ConfigScreen": ConfigScreen,
