@@ -52,9 +52,17 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
+            text="Refresh",
+            command=self.refresh
+        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.62, anchor=ctk.CENTER)
+
+        ctk.CTkButton(
+            master=self,
+            anchor=ctk.CENTER,
+            font=button_font,
             text="Restart",
             command=self.restart
-        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.62, anchor=ctk.CENTER)
+        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.77, anchor=ctk.CENTER)
 
         self.error_label = ctk.CTkLabel(
             master=self,

@@ -4,7 +4,7 @@ import random
 import math
 
 from gpiozero import LED, Button
-from services.hx711 import HX711
+# from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
@@ -34,18 +34,18 @@ class GpioController():
         mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
         return mag_switch
 
-    def set_loadcell(self, dout, sck):
-        # Loadcell reference unit
-        referenceUnit = 218
+    # def set_loadcell(self, dout, sck):
+    #     # Loadcell reference unit
+    #     referenceUnit = 218
         
-        loadcell = HX711(dout, sck)
-        loadcell.set_reading_format("MSB", "MSB")
-        loadcell.set_reference_unit(referenceUnit)
+    #     loadcell = HX711(dout, sck)
+    #     loadcell.set_reading_format("MSB", "MSB")
+    #     loadcell.set_reference_unit(referenceUnit)
         
-        self.reset_loadcell(loadcell)
-        self.tare_loadcell(loadcell)
+    #     self.reset_loadcell(loadcell)
+    #     self.tare_loadcell(loadcell)
         
-        return loadcell
+    #     return loadcell
     
     def tare_loadcell(self, loadcell):
         loadcell.tare()
@@ -70,8 +70,8 @@ class GpioController():
                 box['id']: {
                     'id': box['id'],
                     'nameBox': box['nameBox'],
-                    'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
                     # 'loadcell': self.set_loadcell(box['loadcellDout'], box['loadcellSck']),
                 }
             }
@@ -93,14 +93,14 @@ class AddCabinetController():
             self.view.cabinetName.get())
 
         if result:
-            return self.view.error_label.configure(text_color="red", text="Cabinet name has already existed")
+            return self.view.display_label.configure(text_color="red", text="Cabinet name has already existed")
         else:
             cabinetModel = Cabinet
             cabinetSave = self.view.databaseController.save_cabinet_to_db(
                 cabinetModel, currentTime)  # Save cabinet entries
 
             if not cabinetSave:
-                return self.view.error_label.configure(text_color="red", text="Make sure all cabinet entries are filled in")
+                return self.view.display_label.configure(text_color="red", text="Make sure all cabinet entries are filled in")
             else:
                 self.view.databaseController.save_master_code_to_db()  # Save master code entries
 
@@ -109,9 +109,9 @@ class AddCabinetController():
                     boxSave = self.view.databaseController.save_box_to_db(
                         boxModel, record)
                     if not boxSave:
-                        return self.view.error_label.configure(text_color="red", text="Make sure all box entries are filled in")
+                        return self.view.display_label.configure(text_color="red", text="Make sure all box entries are filled in")
 
-        return self.view.error_label.configure(text_color="green", text="New cabinet saved successful")
+        return self.view.display_label.configure(text_color="green", text="New cabinet saved successful")
 
     def upload_cabinet(self):
         isUpload = None
@@ -199,7 +199,6 @@ class AddCabinetController():
                     box['id']: {
                         'id': box['id'],
                         'nameBox': box['nameBox'],
-                        'size': box['size'],
                         'width': box['width'],
                         'height': box['height'],
                         'isStore': fb_isStore,
@@ -269,13 +268,13 @@ class EditCabinetController():
             boxData.update({
                 key: {
                     'nameBox': value['nameBox'],
-                    'size': value['size'],
                     'width': value['width'],
                     'height': value['height'],
                     'solenoidGpio': value['solenoidGpio'],
                     'switchGpio': value['switchGpio'],
                     'loadcellDout': value['loadcellDout'],
                     'loadcellSck': value['loadcellSck'],
+                    'loadcellRf': value['loadcellRf'],
                 }
             })
 
@@ -360,7 +359,6 @@ class EditCabinetController():
 
                 newData = {
                     'nameBox': box['nameBox'],
-                    'size': box['size'],
                     'width': box['width'],
                     'height': box['height'],
                     'isStore': fb_isStore,
@@ -388,10 +386,10 @@ class AddBoxController():
 
     def check_entries(self, value):
         isCheck = None
-        if (not value['nameBox'] or not value['size']
-            or not value['width'] or not value['height']
-            or not value['solenoidGpio'] or not value['switchGpio']
-                or not value['loadcellDout'] or not value['loadcellSck']):
+        if (not value['nameBox'] or not value['width'] 
+            or not value['height'] or not value['solenoidGpio'] 
+            or not value['switchGpio'] or not value['loadcellDout'] 
+            or not value['loadcellSck'] or not value['loadcellRf']):
             isCheck = False
         else:
             isCheck = True
@@ -443,7 +441,6 @@ class AddBoxController():
                     data['id']: {
                         'id': data['id'],
                         'nameBox': data['nameBox'],
-                        'size': data['size'],
                         'width': data['width'],
                         'height': data['height'],
                         'isStore': fb_isStore,
@@ -506,7 +503,7 @@ class DatabaseController():
         newData = {}
         try:
             fb_locations = firebaseDB.child("Location").get()
-
+            print(fb_locations)
             for location in fb_locations.each():
                 newKey = firebaseDB.generate_key()
                 locationName = location.val()['name']
@@ -731,7 +728,7 @@ class DatabaseController():
             model.locationId = self.view.locationId.get()
 
             if not model.name or not model.isAvailable or not model.locationId:
-                return self.view.error_label.configure(text="Cabinet entries can't be empty")
+                return self.view.display_label.configure(text="Cabinet entries can't be empty")
             else:
                 self.view.cabinetId = model.id
                 cabinet = (model.id, model.name, model.addDate,
@@ -760,7 +757,6 @@ class DatabaseController():
 
             model.id = firebaseDB.generate_key()
             model.nameBox = record['nameBox']
-            model.size = record['size']
             model.width = record['width']
             model.height = record['height']
             model.isStore = 0
@@ -770,16 +766,16 @@ class DatabaseController():
             model.loadcellDout = record['loadcellDout']
             model.loadcellSck = record['loadcellSck']
             model.loadcellRf = record['loadcellRf']
-            model.cabinetId = self.view.cabinetId.get()
+            model.cabinetId = self.view.cabinetId
 
-            box = (model.id, model.nameBox, model.size, model.width,
+            box = (model.id, model.nameBox, model.width,
                    model.height, model.isStore, model.isAvailable, model.solenoidGpio,
-                   model.switchGpio, model.loadcellDout, model.loadcellSck, model.cabinetId)
+                   model.switchGpio, model.loadcellDout, model.loadcellSck, model.loadcellRf, model.cabinetId)
 
             sql = '''
-                INSERT INTO Box (id, nameBox, size, width, height, isStore, isAvailable, 
+                INSERT INTO Box (id, nameBox, width, height, isStore, isAvailable, 
                     solenoidGpio, switchGpio, loadcellDout, loadcellSck, loadcellRf, cabinetId)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             '''
 
             cur.execute(sql, box)
@@ -933,7 +929,6 @@ class DatabaseController():
             for key, value in data.items():
                 model = (
                     value['nameBox'],
-                    value['size'],
                     value['width'],
                     value['height'],
                     value['solenoidGpio'],
@@ -947,7 +942,6 @@ class DatabaseController():
             sql = ''' 
                 UPDATE Box
                 SET nameBox = ?,
-                    size = ?,
                     width = ?,
                     height = ?,
                     solenoidGpio = ?,

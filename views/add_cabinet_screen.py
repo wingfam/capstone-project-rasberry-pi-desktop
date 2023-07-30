@@ -206,7 +206,6 @@ class BoxList(ctk.CTkFrame):
         self.data = {
             'rec': {
                 'nameBox': "",
-                'size': "",
                 'width': 0,
                 'height': 0,
                 'solenoidGpio': 0,
