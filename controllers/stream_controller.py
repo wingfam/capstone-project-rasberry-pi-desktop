@@ -40,7 +40,7 @@ class StreamController():
             boxId = path[1: len(path)]
             snapshot = firebaseDB.child("Box").order_by_key().equal_to(boxId).get().val()
             for key, value in snapshot.items():
-                self.databaseController.update_box_from_patch(value)
+                self.databaseController.update_box_patch_event(value)
     
     def set_cabinet_stream(self, cabinetId):
         cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(

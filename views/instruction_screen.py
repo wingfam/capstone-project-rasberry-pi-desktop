@@ -2,13 +2,16 @@ import customtkinter as ctk
 
 from tkinter import StringVar, ttk
 from constants.string_constants import instruction_label
-from controllers.instruction_controller import confirm_task, update_firebase
+from controllers.instruction_controller import InstructionController
 
 class InstructionScreen(ctk.CTkFrame):
     def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white")
+        
         self.root = root
+        
+        self.instructionController = InstructionController(view=self)
         
         self.instruction_label  = instruction_label
         self.boxId = StringVar()
@@ -67,11 +70,11 @@ class InstructionScreen(ctk.CTkFrame):
         
         for key, value in globalBoxData.items():
             if boxId == value['id']:
-                isConfirm = confirm_task(value, task)
+                isConfirm = self.instructionController.confirm_task(value, task)
                 break
                 
         if isConfirm:
-            update_firebase(self, task)
+            self.instructionController.update_firebase(task)
             self.root.show_frame("CompletionScreen")
         else:
             self.root.show_frame("MainScreen")
