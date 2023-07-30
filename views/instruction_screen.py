@@ -37,7 +37,7 @@ class InstructionScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=24),
             background="white",
             foreground="red",
-            text="02"
+            text=""
         )
         
         

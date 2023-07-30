@@ -52,7 +52,7 @@ class PickupScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=24),
-            command=self.go_to_instruction_screen,
+            command=self.validate,
         )
         
         self.button_back = ctk.CTkButton(
@@ -88,7 +88,7 @@ class PickupScreen(ctk.CTkFrame):
             self.root.frames["InstructionScreen"].boxId.set(boxId)
             self.root.frames["InstructionScreen"].task.set("pickup")
             
-            self.root.show_frame("InstructionScreen")
+            self.go_to_instruction_screen()
         
     def refresh(self):
         self.entry_code.delete(0, "end")
@@ -99,4 +99,5 @@ class PickupScreen(ctk.CTkFrame):
         self.root.show_frame("MainScreen")
         
     def go_to_instruction_screen(self):
+        self.refresh()
         self.root.show_frame("InstructionScreen")
