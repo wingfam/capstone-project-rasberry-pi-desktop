@@ -73,7 +73,7 @@ class DeliveryScreen(ctk.CTkFrame):
         
         self.notice_label1.place(x=568, y=108)
         self.notice_label2.place(x=48, y=280)
-        self.button_confirm.place(x=48.0,y=432.0)
+        self.button_confirm.place(relx=.45, rely=.70, anchor=ctk.CENTER)
         self.button_back.place(relx=.95, rely=.10, anchor=ctk.CENTER)
         self.entry_code.place(relwidth=.4, relheight=.15, relx=.28, rely=.32, anchor=ctk.CENTER)
         
