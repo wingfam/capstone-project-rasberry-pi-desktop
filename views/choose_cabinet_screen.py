@@ -6,8 +6,6 @@ import customtkinter as ctk
 from tkinter import StringVar
 from constants.image_imports import home_image
 from controllers.config_controller import DatabaseController
-from views.add_cabinet_screen import AddCabinetScreen
-from views.config_screen import ConfigScreen
 
 
 class ChooseCabinetScreen(ctk.CTkFrame):
@@ -16,6 +14,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         ctk.CTkFrame.configure(self, fg_color="white")
 
         self.root = root
+        
         self.databaseController = DatabaseController(view=self)
 
         self.chooseCabinet = StringVar()
@@ -96,9 +95,10 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         self.cabinetListBox.repopulate()
 
     def restart(self):
-        """Restarts the current program.
+        '''Restarts the current program.
         Note: this function does not return. Any cleanup action (like
-        saving data) must be done before calling this function."""
+        saving data) must be done before calling this function.'''
+        # self.root.cleanAndExit()
         self.root.streamController.close_all_stream()
         python = sys.executable
         os.execl(python, python, * sys.argv)
