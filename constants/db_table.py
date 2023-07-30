@@ -28,7 +28,6 @@ class DbTable():
         CREATE TABLE IF NOT EXISTS Box (
             [id] TEXT PRIMARY KEY NOT NULL,
             [nameBox] TEXT,
-            [size] TEXT,
             [width] INTEGER,
             [height] INTEGER,
             [isStore] INTEGER,
@@ -37,6 +36,7 @@ class DbTable():
             [switchGpio] INTEGER,
             [loadcellDout] INTEGER,
             [loadcellSck] INTEGER,
+            [loadcellRf] INTEGER,
             [cabinetId] TEXT NOT NULL,
             FOREIGN KEY (cabinetId)
                 REFERENCES Cabinet (id)

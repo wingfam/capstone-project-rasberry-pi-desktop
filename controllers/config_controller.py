@@ -72,12 +72,12 @@ class GpioController():
                     'nameBox': box['nameBox'],
                     'solenoid': self.set_solenoid(box['solenoidGpio']),
                     'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    'loadcell': self.set_loadcell(box['loadcellDout'], box['loadcellSck']),
+                    # 'loadcell': self.set_loadcell(box['loadcellDout'], box['loadcellSck']),
                 }
             }
             
             self.view.globalBoxData.update(boxData)
-
+            
 
 class AddCabinetController():
     def __init__(self, view):
@@ -654,8 +654,8 @@ class DatabaseController():
             cur = conn.cursor()
 
             sql = '''
-                SELECT id, nameBox, solenoidGpio,
-                    switchGpio, loadcellDout, loadcellSck
+                SELECT id, nameBox, solenoidGpio, switchGpio, 
+                    loadcellDout, loadcellSck, loadcellRf
                 FROM Box 
             '''
 
@@ -769,6 +769,7 @@ class DatabaseController():
             model.switchGpio = record['switchGpio']
             model.loadcellDout = record['loadcellDout']
             model.loadcellSck = record['loadcellSck']
+            model.loadcellRf = record['loadcellRf']
             model.cabinetId = self.view.cabinetId.get()
 
             box = (model.id, model.nameBox, model.size, model.width,
@@ -777,8 +778,8 @@ class DatabaseController():
 
             sql = '''
                 INSERT INTO Box (id, nameBox, size, width, height, isStore, isAvailable, 
-                    solenoidGpio, switchGpio, loadcellDout, loadcellSck, cabinetId)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    solenoidGpio, switchGpio, loadcellDout, loadcellSck, loadcellRf, cabinetId)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             '''
 
             cur.execute(sql, box)
@@ -939,6 +940,7 @@ class DatabaseController():
                     value['switchGpio'],
                     value['loadcellDout'],
                     value['loadcellSck'],
+                    value['loadcellRf'],
                     key
                 )
 
@@ -951,7 +953,8 @@ class DatabaseController():
                     solenoidGpio = ?,
                     switchGpio = ?,
                     loadcellDout = ?,
-                    loadcellSck = ?
+                    loadcellSck = ?,
+                    loadcellRf = ?
                 WHERE id = ?
             '''
 

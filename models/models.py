@@ -125,6 +125,7 @@ class Box():
         switchGpio,
         loadcellDout,
         loadcellSck,
+        loadcellRf,
         cabinetId,
     ):
         self.id = id
@@ -138,6 +139,7 @@ class Box():
         self.switchGpio = switchGpio
         self.loadcellDout = loadcellDout
         self.loadcellSck = loadcellSck
+        self.loadcellRf = loadcellRf
         self.cabinetId = cabinetId
 
     @property

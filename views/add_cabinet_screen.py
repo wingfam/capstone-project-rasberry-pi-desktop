@@ -213,6 +213,7 @@ class BoxList(ctk.CTkFrame):
                 'switchGpio': 0,
                 'loadcellDout': 0,
                 'loadcellSck': 0,
+                'loadcellRf': 0,
             }
         }
         
