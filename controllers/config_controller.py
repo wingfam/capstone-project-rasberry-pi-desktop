@@ -3,9 +3,8 @@ import sqlite3 as sqlite3
 import random
 import math
 
-from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import LED, Button
-# from services.hx711 import HX711
+from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
@@ -35,18 +34,18 @@ class GpioController():
         mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
         return mag_switch
 
-    # def set_loadcell(self, dout, sck):
-    #     # Loadcell reference unit
-    #     referenceUnit = 218
+    def set_loadcell(self, dout, sck):
+        # Loadcell reference unit
+        referenceUnit = 218
         
-    #     loadcell = HX711(dout, sck)
-    #     loadcell.set_reading_format("MSB", "MSB")
-    #     loadcell.set_reference_unit(referenceUnit)
+        loadcell = HX711(dout, sck)
+        loadcell.set_reading_format("MSB", "MSB")
+        loadcell.set_reference_unit(referenceUnit)
         
-    #     self.reset_loadcell(loadcell)
-    #     self.tare_loadcell(loadcell)
+        self.reset_loadcell(loadcell)
+        self.tare_loadcell(loadcell)
         
-    #     return loadcell
+        return loadcell
     
     def tare_loadcell(self, loadcell):
         loadcell.tare()
@@ -73,7 +72,7 @@ class GpioController():
                     'nameBox': box['nameBox'],
                     'solenoid': self.set_solenoid(box['solenoidGpio']),
                     'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    # 'loadcell': self.set_loadcell(box['loadcellDout'], box['loadcellSck']),
+                    'loadcell': self.set_loadcell(box['loadcellDout'], box['loadcellSck']),
                 }
             }
             

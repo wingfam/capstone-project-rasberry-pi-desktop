@@ -87,5 +87,5 @@ if __name__ == "__main__":
     root = MainWindow()
     root.mainloop()
 
-    if (SystemExit):
+    if KeyboardInterrupt or SystemExit:
         root.cleanAndExit()
