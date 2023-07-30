@@ -4,7 +4,7 @@ import random
 import math
 
 from gpiozero import LED, Button
-# from services.hx711 import HX711
+from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
@@ -34,18 +34,19 @@ class GpioController():
         mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
         return mag_switch
 
-    # def set_loadcell(self, dout, sck):
-    #     # Loadcell reference unit
-    #     referenceUnit = 218
+    def set_loadcell(self, dout, sck, ref):
+        # Loadcell reference unit
+        referenceUnit = ref
         
-    #     loadcell = HX711(dout, sck)
-    #     loadcell.set_reading_format("MSB", "MSB")
-    #     loadcell.set_reference_unit(referenceUnit)
+        loadcell = HX711(dout, sck)
+        loadcell.set_reading_format("MSB", "MSB")
+        loadcell.set_reference_unit(referenceUnit)
         
-    #     self.reset_loadcell(loadcell)
-    #     self.tare_loadcell(loadcell)
+        self.reset_loadcell(loadcell)
+        self.tare_loadcell(loadcell)
+        self.powerDown_loadcell(loadcell)
         
-    #     return loadcell
+        return loadcell
     
     def tare_loadcell(self, loadcell):
         loadcell.tare()
@@ -70,9 +71,13 @@ class GpioController():
                 box['id']: {
                     'id': box['id'],
                     'nameBox': box['nameBox'],
-                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    # 'loadcell': self.set_loadcell(box['loadcellDout'], box['loadcellSck']),
+                    'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    'loadcell': self.set_loadcell(
+                        box['loadcellDout'], 
+                        box['loadcellSck'],
+                        box['loadcellRf']
+                        ),
                 }
             }
             
@@ -985,17 +990,16 @@ class ManualControlController():
     def check_weight(self, loadcell):
         count = 0
         weight_value = 0
-
+        loadcell.power_up()
+        time.sleep(0.01)
         # Loop check loadcell weight value every 3 seconds
-        while count < 3:
-            weight_value = max(0, int(loadcell.get_weight(5)))
-            print(weight_value)
-            count += 1
-            time.sleep(1)
+        weight_value = max(0, int(loadcell.get_weight(5)))
 
-        newText = str(weight_value) + " grams"
-        # self.view.weight_label.configure(text=newText)
+        loadcell.power_down()
         print("Check weight done!")
+        
+        time.sleep(0.01)
+        return weight_value
 
     def confirm(self):
         # Unlock box's door. Add wait for release event to magnetic switch

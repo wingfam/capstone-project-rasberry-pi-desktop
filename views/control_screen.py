@@ -175,7 +175,9 @@ class ControlScreen(ctk.CTkFrame):
             self.labelDisplay.configure(
                 text_color="red", text="Please choose a box")
         else:
-            pass
+            self.labelDisplay.configure(text="")
+            weight = self.manualController.check_weight(self.gpioModel.loadcell)
+            self.weightValue.set(weight)
 
     def refresh(self):
         self.gpioModel = None
@@ -235,6 +237,7 @@ class CabinetListBox(ctk.CTkFrame):
             if value['id'] == boxId:
                 self.parent.gpioModel.solenoid = value['solenoid']
                 self.parent.gpioModel.magSwitch = value['magSwitch']
+                self.parent.gpioModel.loadcell = value['loadcell']
                 break
 
     def repopulate(self):

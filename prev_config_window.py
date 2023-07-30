@@ -2,7 +2,7 @@ import sys
 import time
 import customtkinter as ctk
 import sqlite3 as sqlite3
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 
 from services.firebase_config import firebaseDB
 from controllers.config_controller import DatabaseController, GpioController
@@ -66,7 +66,7 @@ class MainWindow(ctk.CTk):
     def cleanAndExit(self):
         print("Cleaning...")
         self.streamController.close_all_stream()
-        # GPIO.cleanup()
+        GPIO.cleanup()
         print("Exiting program...")
         sys.exit()
 
