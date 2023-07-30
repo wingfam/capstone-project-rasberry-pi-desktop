@@ -3,6 +3,7 @@ import customtkinter as ctk
 from tkinter import ttk
 from widgets.keypad import Keypad
 from constants.image_imports import back_image
+from constants.string_constants import pickup_notice_label
 from controllers.pickup_controller import PickupController
 
 class PickupScreen(ctk.CTkFrame):
@@ -27,7 +28,8 @@ class PickupScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=20),
             bg_color="white",
             text_color="black",
-            text="Lưu ý: nếu mã hết hạn, hãy yêu liên lạc với admin \nđể nhận mã khác."
+            justify='left',
+            text=pickup_notice_label
         )
         
         self.entry_code = ttk.Entry(
@@ -45,13 +47,13 @@ class PickupScreen(ctk.CTkFrame):
         
         self.button_confirm = ctk.CTkButton(
             master=self,
-            width=442,
+            width=430,
             height=64,
             bg_color="#FFFFFF",
             border_width=1,
             text="Xác Nhận",
             text_color="white",
-            font=ctk.CTkFont(size=24),
+            font=ctk.CTkFont(size=34),
             command=self.validate,
         )
         
@@ -68,13 +70,13 @@ class PickupScreen(ctk.CTkFrame):
         
         self.keypad = Keypad(self)
         self.keypad.target = self.entry_code
-        self.keypad.place(x=567,y=156)
         
-        self.notice_label1.place(x=568, y=108)
-        self.notice_label2.place(x=48, y=280)
-        self.button_confirm.place(x=48.0,y=432.0)
+        self.keypad.place(relx=.75, rely=.55, anchor=ctk.CENTER)
+        self.notice_label1.place(relx=.65, rely=.20, anchor=ctk.CENTER)
+        self.notice_label2.place(relx=.28, rely=.45, anchor=ctk.CENTER)
+        self.button_confirm.place(relx=.28, rely=.75, anchor=ctk.CENTER)
         self.button_back.place(relx=.95, rely=.10, anchor=ctk.CENTER)
-        self.entry_code.place(relwidth=.4, relheight=.15, relx=.28, rely=.32, anchor=ctk.CENTER)
+        self.entry_code.place(relwidth=.4, relheight=.10, relx=.28, rely=.32, anchor=ctk.CENTER)
     
     def validate(self):
         item_list = self.pickupController.check_unlock_code(input_data=self.entry_code)

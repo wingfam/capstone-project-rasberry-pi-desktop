@@ -3,6 +3,7 @@ import customtkinter as ctk
 from tkinter import ttk
 from widgets.keypad import Keypad
 from constants.image_imports import back_image
+from constants.string_constants import delivery_notice_label
 from controllers.delivery_controller import DeliveryController
         
 class DeliveryScreen(ctk.CTkFrame):
@@ -27,7 +28,8 @@ class DeliveryScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=20),
             bg_color="white",
             text_color="black",
-            text="Lưu ý: mã có thời hạn là 10 phút. Nếu mã hết hạn,\nhãy yêu cầu người nhận hàng gửi lại mã khác."
+            justify='left',
+            text=delivery_notice_label
         )
         
         self.entry_code = ttk.Entry(
@@ -45,13 +47,13 @@ class DeliveryScreen(ctk.CTkFrame):
         
         self.button_confirm = ctk.CTkButton(
             master=self,
-            width=442,
+            width=430,
             height=64,
             bg_color="#FFFFFF",
             border_width=1,
             text="Xác Nhận",
             text_color="white",
-            font=ctk.CTkFont(size=24),
+            font=ctk.CTkFont(size=34),
             command=self.go_to_instruction_screen,
         )
         
@@ -69,13 +71,13 @@ class DeliveryScreen(ctk.CTkFrame):
         
         self.keypad = Keypad(self)
         self.keypad.target = self.entry_code
-        self.keypad.place(x=567,y=156)
         
-        self.notice_label1.place(x=568, y=108)
-        self.notice_label2.place(x=48, y=280)
-        self.button_confirm.place(relx=.45, rely=.70, anchor=ctk.CENTER)
+        self.keypad.place(relx=.75, rely=.55, anchor=ctk.CENTER)
+        self.notice_label1.place(relx=.65, rely=.20, anchor=ctk.CENTER)
+        self.notice_label2.place(relx=.28, rely=.45, anchor=ctk.CENTER)
+        self.button_confirm.place(relx=.28, rely=.75, anchor=ctk.CENTER)
         self.button_back.place(relx=.95, rely=.10, anchor=ctk.CENTER)
-        self.entry_code.place(relwidth=.4, relheight=.15, relx=.28, rely=.32, anchor=ctk.CENTER)
+        self.entry_code.place(relwidth=.4, relheight=.10, relx=.28, rely=.32, anchor=ctk.CENTER)
         
     
     def validate(self):
