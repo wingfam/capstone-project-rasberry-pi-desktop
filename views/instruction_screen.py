@@ -1,5 +1,7 @@
 import customtkinter as ctk
+
 from tkinter import StringVar, ttk
+from constants.string_constants import instruction_label
 from controllers.instruction_controller import confirm_task, update_firebase
 
 class InstructionScreen(ctk.CTkFrame):
@@ -8,57 +10,53 @@ class InstructionScreen(ctk.CTkFrame):
         ctk.CTkFrame.configure(self, fg_color="white")
         self.root = root
         
+        self.instruction_label  = instruction_label
         self.boxId = StringVar()
         self.task = StringVar()
         
-        ctk.CTkLabel(
+        self.notice_label1 = ctk.CTkLabel(
             master=self,
             font=ctk.CTkFont(size=24),
             bg_color="white",
             text_color="black",
             text="Tủ của bạn là số: "
-        ).place(x=445, y=118)
+        )
         
-        ctk.CTkLabel(
+        self.notice_label2 = ctk.CTkLabel(
             master=self,
             font=ctk.CTkFont(size=24),
             bg_color="white",
             text_color="black",
-            text="Hãy nhấn nút xác nhận để mở khóa tủ. \nSau khi bỏ hàng vào, vui lòng đóng kín cửa tủ lại."
-        ).place(x=445, y=205)
+            justify='left',
+            anchor='e',
+            text=self.instruction_label,
+        )
         
         self.nameBox_label = ttk.Label(
             master=self,
             font=ctk.CTkFont(size=24),
             background="white",
             foreground="red",
-            text=""
+            text="02"
         )
-        self.nameBox_label.place(x=635.0, y=114.5)
+        
         
         self.button_confirm = ctk.CTkButton(
             master=self,
-            width=503,
-            height=86,
             bg_color="#FFFFFF",
             border_width=1,
             text="Xác Nhận",
             text_color="white",
-            font=ctk.CTkFont(size=24),
+            font=ctk.CTkFont(size=34),
             command=self.check_package,
         )
-        self.button_confirm.place(x=445.0, y=375.0)
         
-        self.error_label = ttk.Label(
-            self, 
-            background="white", 
-            font=ctk.CTkFont(size=16),
-            text="", 
-        )
-        self.error_label.place(
-            x=445.0,
-            y=485.0,
-        )
+        
+        self.notice_label1.place(relx=.45, rely=.18)
+        self.notice_label2.place(relx=.45, rely=.25)
+        self.nameBox_label.place(relx=.64, rely=.1755)
+        self.button_confirm.place(relwidth=.4, relheight=.15, relx=.45, rely=.55)
+        
         
     def check_package(self):
         isConfirm = False

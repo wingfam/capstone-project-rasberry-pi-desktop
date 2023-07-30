@@ -84,15 +84,7 @@ def update_firebase(self, task):
             print("Pickup completed!")
             return isCompleted
     except Exception as e:
-        isError = True
-        error_text= e
-        print(error_text)
-    
-    if isError:
-        return self.error_label.configure(
-            text=error_text,
-            foreground="red",
-        )
+        print("An error has occurred: ", e)
 
 def send_notification(fb_notification, messageTitle, messageBody):
     pushService = PushNotificationService()

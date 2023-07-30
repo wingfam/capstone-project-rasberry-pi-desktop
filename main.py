@@ -1,5 +1,5 @@
 import sys
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import customtkinter as ctk
 from controllers.config_controller import DatabaseController, GpioController
 from controllers.stream_controller import StreamController
