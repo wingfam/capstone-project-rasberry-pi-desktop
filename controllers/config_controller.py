@@ -28,12 +28,11 @@ class GpioController():
         self.hold_time = 3.0
 
     def set_solenoid(self, pin):
-        solenoid = LED(pin, initial_value=True, pin_factory=self.gpio_factory)
+        solenoid = LED(pin, initial_value=True)
         return solenoid
 
     def set_mag_switch(self, pin):
-        mag_switch = Button(pin, pull_up=True, bounce_time=0.2, 
-                            pin_factory=self.gpio_factory, hold_time=self.hold_time)
+        mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
         return mag_switch
 
     # def set_loadcell(self, dout, sck):
@@ -72,8 +71,8 @@ class GpioController():
                 box['id']: {
                     'id': box['id'],
                     'nameBox': box['nameBox'],
-                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    'magSwitch': self.set_mag_switch(box['switchGpio']),
                     # 'loadcell': self.set_loadcell(box['loadcellDout'], box['loadcellSck']),
                 }
             }
