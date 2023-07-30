@@ -1,3 +1,5 @@
+import sys
+import os
 import tkinter as tk
 import customtkinter as ctk
 
@@ -51,8 +53,8 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Refresh",
-            command=self.refresh
+            text="Restart",
+            command=self.restart
         ).place(relwidth=.25, relheight=.10, relx=.35, rely=.62, anchor=ctk.CENTER)
 
         self.error_label = ctk.CTkLabel(
@@ -93,6 +95,13 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         self.error_label.configure(text="")
         self.cabinetListBox.repopulate()
 
+    def restart(self):
+        """Restarts the current program.
+        Note: this function does not return. Any cleanup action (like
+        saving data) must be done before calling this function."""
+        self.root.streamController.close_all_stream()
+        python = sys.executable
+        os.execl(python, python, * sys.argv)
 
 class CabinetListBox(ctk.CTkFrame):
     def __init__(self, parent):

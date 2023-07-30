@@ -45,19 +45,22 @@ class StreamController():
     def set_cabinet_stream(self, cabinetId):
         cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
                 self.cabinet_stream_handler, stream_id='cabinet_stream')
-        time.sleep(0.1)
+        time.sleep(0.01)
+        cabinetStream.make_session()
         return cabinetStream
         
     def set_mastercode_stream(self, cabinetId):
         mastercodeStream = firebaseDB.child('MasterCode').order_by_child(
             'cabinetId').equal_to(cabinetId).stream(self.mastercode_stream_handler, stream_id='master_code_stream')
-        time.sleep(0.1)
+        time.sleep(0.01)
+        mastercodeStream.make_session()
         return mastercodeStream
     
     def set_box_stream(self, cabinetId):
         boxStream = firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
                 self.box_stream_handler, stream_id='box_stream')
-        time.sleep(0.1)
+        time.sleep(0.01)
+        boxStream.make_session()
         return boxStream
     
     def set_all_stream(self):
@@ -82,5 +85,18 @@ class StreamController():
             value['cabinetStream'].close()
             value['masterCodeStream'].close()
             value['boxStream'].close()
+            
+            # cabinetStream = value['cabinetStream']
+            # masterCodeStream= value['masterCodeStream']
+            # boxStreamT = value['boxStream']
+            
+            # if cabinetStream is None:
+            #     print("Cabinet stream is None")
+            #     pass
+            # else:
+            #     print("Cabinet stream is not None")
+            #     print(cabinetStream)
+            #     cabinetStream.close()
+            
         print("All stream has close")
     
