@@ -4,7 +4,7 @@ import random
 import math
 
 from gpiozero import LED, Button
-# from services.hx711 import HX711
+from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
@@ -34,21 +34,21 @@ class GpioController():
         mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
         return mag_switch
 
-    # def set_loadcell(self, dout, sck, ref):
-    #     # Loadcell reference unit
-    #     referenceUnit = ref
+    def set_loadcell(self, dout, sck, ref):
+        # Loadcell reference unit
+        referenceUnit = ref
         
-    #     loadcell = HX711(dout, sck)
+        loadcell = HX711(dout, sck)
         
-    #     # Set loadcell reading format
-    #     loadcell.set_reading_format("MSB", "MSB")
-    #     loadcell.set_reference_unit(referenceUnit)
+        # Set loadcell reading format
+        loadcell.set_reading_format("MSB", "MSB")
+        loadcell.set_reference_unit(referenceUnit)
         
-    #     self.reset_loadcell(loadcell)
-    #     self.tare_loadcell(loadcell)
-    #     self.powerDown_loadcell(loadcell)
+        self.reset_loadcell(loadcell)
+        self.tare_loadcell(loadcell)
+        self.powerDown_loadcell(loadcell)
         
-    #     return loadcell
+        return loadcell
     
     def tare_loadcell(self, loadcell):
         loadcell.tare()
@@ -73,12 +73,12 @@ class GpioController():
                 box['id']: {
                     'id': box['id'],
                     'nameBox': box['nameBox'],
-                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    # 'loadcell': self.set_loadcell(
-                    #     box['loadcellDout'], 
-                    #     box['loadcellSck'],
-                    #     box['loadcellRf']),
+                    'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    'loadcell': self.set_loadcell(
+                        box['loadcellDout'], 
+                        box['loadcellSck'],
+                        box['loadcellRf']),
                 }
             }
             
