@@ -2,6 +2,7 @@ import customtkinter as ctk
 
 from tkinter import StringVar, ttk
 from constants.string_constants import instruction_label
+from constants.image_imports import cabinet_image
 from controllers.instruction_controller import InstructionController
 
 class InstructionScreen(ctk.CTkFrame):
@@ -16,6 +17,13 @@ class InstructionScreen(ctk.CTkFrame):
         self.instruction_label  = instruction_label
         self.boxId = StringVar()
         self.task = StringVar()
+        
+        self.cabinet_label_image = ctk.CTkLabel(
+            master=self,
+            compound="center",
+            image=cabinet_image,
+            text="",
+        )
         
         self.notice_label1 = ctk.CTkLabel(
             master=self,
@@ -55,10 +63,11 @@ class InstructionScreen(ctk.CTkFrame):
         )
         
         
-        self.notice_label1.place(relx=.45, rely=.18)
-        self.notice_label2.place(relx=.45, rely=.25)
-        self.nameBox_label.place(relx=.64, rely=.1755)
-        self.button_confirm.place(relwidth=.4, relheight=.15, relx=.45, rely=.55)
+        self.cabinet_label_image.place(relx=.10, rely=.10)
+        self.notice_label1.place(relx=.55, rely=.18)
+        self.notice_label2.place(relx=.55, rely=.25)
+        self.nameBox_label.place(relx=.74, rely=.1755)
+        self.button_confirm.place(relwidth=.4, relheight=.15, relx=.55, rely=.55)
         
         
     def check_package(self):
