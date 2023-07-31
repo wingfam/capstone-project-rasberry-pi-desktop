@@ -171,7 +171,7 @@ class EditCabinetScreen(ctk.CTkFrame):
     def update(self):
         isCabinetUpdate = self.editController.update_cabinet_data()
         isBoxUpdate = self.editController.update_box_data()
-        if isCabinetUpdate and isBoxUpdate:
+        if isCabinetUpdate or isBoxUpdate:
             self.display_label.configure(text_color='green', text='Update successful')
         else:
             self.display_label.configure(text_color='red', text='Update unsuccessful')
@@ -179,7 +179,7 @@ class EditCabinetScreen(ctk.CTkFrame):
     def reupload(self):
         isCabinetUpload = self.editController.reupload_cabinet()
         isBoxUpload = self.editController.reupload_box()
-        if isBoxUpload and isCabinetUpload:
+        if isBoxUpload or isCabinetUpload:
             self.display_label.configure(text_color='green', text='Upload successful')
         else:
             self.display_label.configure(text_color='red', text='Upload unsuccessful')
