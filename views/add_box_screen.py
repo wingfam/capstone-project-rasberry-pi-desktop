@@ -88,13 +88,13 @@ class AddBoxScreen(ctk.CTkFrame):
             newData = {
                 '01': {
                     'nameBox': '',
-                    'size': '',
                     'width': '',
                     'height': '',
                     'solenoidGpio': '',
                     'switchGpio': '',
                     'loadcellDout': '',
                     'loadcellSck': '',
+                    'loadcellRf': '',
                 }
             }
             self.boxTable.table.model.importDict(newData)
@@ -116,13 +116,13 @@ class BoxList(ctk.CTkFrame):
         self.data = {
             '01': {
                 'nameBox': '',
-                'size': '',
                 'width': '',
                 'height': '',
                 'solenoidGpio': '',
                 'switchGpio': '',
                 'loadcellDout': '',
                 'loadcellSck': '',
+                'loadcellRf': '',
             }
         }
 

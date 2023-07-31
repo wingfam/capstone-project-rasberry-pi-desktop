@@ -54,7 +54,7 @@ class DeliveryScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=34),
-            command=self.go_to_instruction_screen,
+            command=self.validate,
         )
         
         self.button_back = ctk.CTkButton(
