@@ -10,29 +10,25 @@ class PreConfigController():
         error_text= ""
         
         try:
-            input_code = input_data.get()
+            inputCode = input_data.get()
             
             fb_master_code = firebaseDB.child("Cabinet").order_by_child(
-                "masterCodeStatus").equal_to(input_code).get().val()
+                "masterCode").equal_to(inputCode).get().val()
             
-            fb_master_code_status = firebaseDB.child("Cabinet").order_by_child(
-                "masterCodeStatus").equal_to(1).get().val()
-            
-            if fb_master_code != None and fb_master_code_status:
-                isConfirm = True
-            elif not fb_master_code_status:
-                isError = True
-                error_text = "Master code is unavailable"
+            for item in fb_master_code.items():
+                # print(item[1])
+                if (item[1]['masterCodeStatus'] == 1):
+                    isConfirm = True
+                else:
+                    isError = True
+                    error_text = "Mã master không thể dùng vào lúc này"
                 
         except IndexError:
             isError = True
-            error_text = "Master code is incorrect"
-            if input_code == "111111":
-                isError = False
-                isConfirm = True
+            error_text = "Mã master không đúng, vui lòng nhập lại"
         
         if isError:
-            return self.view.master_code_label.configure(
+            return self.view.error_label.configure(
                 text=error_text,
                 foreground="red",
             )

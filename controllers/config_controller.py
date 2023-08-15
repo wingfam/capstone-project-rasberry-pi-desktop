@@ -66,19 +66,19 @@ class GpioController():
         loadcell.reset()
         print("Loadcell reset done!")
     
-    def setup_gpio(self):
+    def setup_box_data(self):
         results = self.view.databaseController.get_box_gpio()
         for box in results:
             boxData = {
                 box['id']: {
                     'id': box['id'],
                     'nameBox': box['nameBox'],
-                    'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    'loadcell': self.set_loadcell(
-                        box['loadcellDout'], 
-                        box['loadcellSck'],
-                        box['loadcellRf']),
+                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    # 'loadcell': self.set_loadcell(
+                    #     box['loadcellDout'], 
+                    #     box['loadcellSck'],
+                    #     box['loadcellRf']),
                 }
             }
             
@@ -352,10 +352,10 @@ class AddBoxController():
 
     def check_entries(self, value):
         isCheck = None
-        if (not value['nameBox'] or not value['width'] 
-            or not value['height'] or not value['solenoidGpio'] 
-            or not value['switchGpio'] or not value['loadcellDout'] 
-            or not value['loadcellSck'] or not value['loadcellRf']):
+        if (not value['nameBox'] or not value['status'] 
+            or not value['solenoidGpio'] or not value['switchGpio'] 
+            or not value['loadcellDout'] or not value['loadcellSck'] 
+            or not value['loadcellRf']):
             isCheck = False
         else:
             isCheck = True
@@ -364,52 +364,37 @@ class AddBoxController():
 
     def add_more_box(self, data):
         isSaved = None
+        
         for key, value in data.items():
             isCheck = self.check_entries(value)
             if not isCheck:
                 self.view.display_label.configure(
                     text_color="red",
-                    text="Please make sure all entries are correct")
+                    text="Hãy kiểm tra lại các ô điền đúng"
+                )
                 break
             else:
-                boxModel = Box
-                isSaved = self.view.databaseController.save_box_to_db(boxModel, value)
+                isSaved = self.view.databaseController.save_box_to_db(value)
                 if isSaved:
                     self.view.display_label.configure(
                         text_color="green",
-                        text="Box added successful")
+                        text="Hộp tủ được tạo thành công")
 
         return isSaved
 
     def upload_more_box(self, cabinetId, limit):
         isUpload = None
         try:
-            results = self.view.databaseController.get_last_box_insert_by_cabinetId(
-                cabinetId, limit)
+            results = self.view.databaseController.get_last_box_insert_by_cabinetId(cabinetId, limit)
 
             for data in results:
                 boxRef = firebaseDB.child("Box")
-                fb_isAvailable = None
-                fb_isStore = None
-
-                if data['status']:
-                    fb_isAvailable = True
-                elif not data['status']:
-                    fb_isAvailable = False
-
-                if data['isStore']:
-                    fb_isStore = True
-                elif not data['isStore']:
-                    fb_isStore = False
 
                 newData = {
                     data['id']: {
                         'id': data['id'],
                         'nameBox': data['nameBox'],
-                        'width': data['width'],
-                        'height': data['height'],
-                        'isStore': fb_isStore,
-                        'status': fb_isAvailable,
+                        'status': data['status'],
                         'cabinetId': data['cabinetId']
                     }
                 }
@@ -914,6 +899,32 @@ class DatabaseController():
                     loadcellDout = ?,
                     loadcellSck = ?,
                     loadcellRf = ?
+                WHERE id = ?
+            '''
+
+            cur.execute(sql, model)
+            conn.commit()
+            isUpdate = True
+            print("Update box successful")
+        except Exception as e:
+            isUpdate = False
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+
+        return isUpdate
+    
+    def update_box_status(self, status, boxId):
+        isUpdate = None
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            model = (status, boxId)
+
+            sql = ''' 
+                UPDATE Box
+                SET status = ?,
                 WHERE id = ?
             '''
 

@@ -14,8 +14,10 @@ class Keypad(tk.Frame):
         super().__init__(*args, **kwargs)
         self.target = None
         
-        style = ttk.Style()
-        style.configure('my.TButton', font=('Helvetica', 20))
+        numberStyle = ttk.Style()
+        stringStyke = ttk.Style()
+        numberStyle.configure('my.TButton', font=('Helvetica', 20))
+        stringStyke.configure('string.TButton', font=('Helvetica', 18))
 
         for y, row in enumerate(self.cells):
             for x, item in enumerate(row):
@@ -28,10 +30,10 @@ class Keypad(tk.Frame):
                 )
                 b.grid(ipady=22, row=y, column=x, sticky='news')
 
-        x = ttk.Button(self, text='Clear', command=self.clear)
+        x = ttk.Button(self, text='Hủy', style='string.TButton', command=self.clear)
         x.grid(ipady=22, row=3, column=0, sticky='news')
         
-        x = ttk.Button(self, text='Backspace', command=self.backspace)
+        x = ttk.Button(self, text='Xóa', style='string.TButton', command=self.backspace)
         x.grid(ipady=22, row=3, column=2, sticky='news')
 
 

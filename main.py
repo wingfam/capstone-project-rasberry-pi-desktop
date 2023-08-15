@@ -37,7 +37,7 @@ class MainApp(ctk.CTk):
             self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         
-        # self.gpioController.setup_gpio()
+        self.gpioController.setup_box_data()
         self.streamController.set_all_stream()
         self.show_frame("MainScreen")
         

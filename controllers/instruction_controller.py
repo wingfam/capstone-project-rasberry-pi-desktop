@@ -7,118 +7,7 @@ from services.push_notification import PushNotificationService
 class InstructionController():
     def __init__(self, view):
         self.view = view
-
-    def update_firebase(self, task):
-        currentDateTime = datetime.now()
-        currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M:%S")
-        
-        try:
-            fb_login = firebase_login()
-            isCompleted = False
-            
-            if task == "delivery":
-                # Update booking code status to False
-                newBookingStatus = False
-                isStore = True
-                newBookingStatus = "Storing"
-                
-                code_id = self.view.root.app_data["bookingCodeId"]
-                booking_id = self.view.root.app_data["bookingId"]
-                box_id = self.view.root.app_data["boxId"]
-                
-                firebaseDB.child("BookingCode", code_id).update(
-                    {"status": newBookingStatus}, fb_login["idToken"])
-                
-                firebaseDB.child("BookingOrder", booking_id).update(
-                    {"status": newBookingStatus}, fb_login["idToken"])
-
-                firebaseDB.child("Box/", box_id).update(
-                    {"isStore": isStore}, fb_login["idToken"])
-                
-                residentId = self.view.root.app_data["residentId"]
-                nameBox = self.view.root.app_data["nameBox"]
-                
-                messageTitle = "Giao hàng thàng công!"
-                messageBody = "Bạn có một món hàng ở tủ số: " + nameBox + "Hãy vào trang Xem booking để lấy mã unlock"
-                
-                fb_notification = firebaseDB.child("Notification").order_by_child(
-                    "residentId").equal_to(residentId).get(fb_login["idToken"])
-                
-                self.send_notification(fb_notification, messageTitle, messageBody)
-                
-                self.save_notification(fb_login, fb_notification, messageTitle, messageBody)
-                
-                print("Delivery completed!")
-                return isCompleted
-            
-            elif task == "pickup":
-                # Update booking order status to False
-                isStore = False
-                status = True
-                newBookingStatus = "Done"
-                
-                booking_id = self.view.root.app_data["bookingId"]
-                residentId = self.view.root.app_data["residentId"]
-                box_id = self.view.root.app_data["boxId"]
-                
-                firebaseDB.child("BookingOrder", booking_id).update(
-                    {"status": newBookingStatus}, fb_login["idToken"])
-                
-                firebaseDB.child("Box/", box_id).update(
-                    {"status": status, "isStore": isStore}, fb_login["idToken"])
-                
-                firebaseDB.child("BookingHistory").push(
-                    {"bookingId": booking_id, "residentId": residentId}, fb_login["idToken"])
-                
-                residentId = self.view.root.app_data["residentId"]
-                nameBox = self.view.root.app_data["nameBox"]
-                
-                messageTitle = "Đã lấy hàng"
-                messageBody = "Đơn hàng của bạn đã được lấy ra vào ngày: " + currentTime
-                
-                fb_notification = firebaseDB.child("Notification").order_by_child(
-                    "residentId").equal_to(residentId).get(fb_login["idToken"])
-                
-                self.send_notification(fb_notification, messageTitle, messageBody)
-                
-                self.save_notification(fb_login, fb_notification, messageTitle, messageBody)
-                
-                print("Pickup completed!")
-                return isCompleted
-        except Exception as e:
-            print("An error has occurred: ", e)
-
-    def send_notification(self, fb_notification, messageTitle, messageBody):
-        pushService = PushNotificationService()
-        
-        fb_item_list = list(fb_notification.val().items())
-        
-        fcm_token = fb_item_list[0][1].get("token")
-        
-        result = pushService.push_notification(fcm_token, messageTitle, messageBody)
-
-        print(result)
-
-    def save_notification(self, fb_login, fb_notification, messageTitle, messageBody):
-        currentDateTime = datetime.now()
-        currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M:%S")
-        newKey = firebaseDB.generate_key()
-        
-        data = {
-            "message/" + newKey: {
-                "sendDate": currentTime,
-                "messageTitle": messageTitle,
-                "messageBody": messageBody,
-            }
-        }
-        
-        fb_item_list = list(fb_notification.val().items())
-        noti_id = fb_item_list[0][0]
-        
-        firebaseDB.child("Notification/", noti_id).update(data, fb_login["idToken"])
-        
-        print("Save notification successful")
-        
+ 
     # This gets called whenever the ON button is pressed
     def unlock_door(self, model):
         model['solenoid'].off()
@@ -176,3 +65,136 @@ class InstructionController():
                 isConfirm = True
         
         return isConfirm
+    
+    def update_firebase(self, task):
+        currentDateTime = datetime.now()
+        currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M")
+        
+        try:
+            fb_login = firebase_login()
+            isCompleted = False
+            
+            if task == "delivery":
+                newBookingStatus = 3 # status "Storing"
+                newBookingCodeStatus = 0 # status "Unavailable"
+                newBoxStatus = 0 # status "Unavailable"
+                
+                bookingCodeId = self.view.root.app_data["bookingCodeId"]
+                bookingId = self.view.root.app_data["bookingId"]
+                boxId = self.view.root.app_data["boxId"]
+                
+                firebaseDB.child("BookingOrder", bookingId).update(
+                    {"status": newBookingStatus}, fb_login["idToken"])
+
+                firebaseDB.child("BookingCode", bookingCodeId).update(
+                    {"status": newBookingCodeStatus}, fb_login["idToken"])
+                
+                firebaseDB.child("Box", boxId).update(
+                    {"status": newBoxStatus}, fb_login["idToken"])
+                
+                customerId = self.view.root.app_data["customerId"]
+                nameBox = self.view.root.app_data["nameBox"]
+                
+                notiTitle = "Gửi hàng thàng công!"
+                notiBody = "Bạn có một món hàng ở tủ số: " + nameBox + " .Hãy vào trang Xem booking để lấy mã unlock"
+                
+                bookingLogTitle = "Gửi hàng"
+                bookingLogBody = "Đơn hàng được gửi thành công ở tủ số "+ nameBox + " vào ngày " + currentTime
+                
+                self.add_booking_log(fb_login, bookingLogTitle, bookingLogBody, bookingId, currentTime)
+                
+                self.send_notification(fb_login, customerId, notiTitle, notiBody)
+                
+                self.save_notification(fb_login, customerId, notiTitle, notiBody, currentTime)
+                
+                isCompleted = True
+                print("Delivery completed!")
+            
+            elif task == "pickup":
+                newBookingStatus = 4 # status "Done"
+                newBoxStatus = 1 # status "Available"
+                
+                bookingId = self.view.root.app_data["bookingId"]
+                customerId = self.view.root.app_data["customerId"]
+                boxId = self.view.root.app_data["boxId"]
+                
+                firebaseDB.child("BookingOrder", bookingId).update(
+                    {"status": newBookingStatus}, fb_login["idToken"])
+                
+                firebaseDB.child("Box", boxId).update(
+                    {"status": newBoxStatus}, fb_login["idToken"])
+                
+                customerId = self.view.root.app_data["customerId"]
+                nameBox = self.view.root.app_data["nameBox"]
+                
+                notiTitle = "Lấy hàng thành công!"
+                notiBody = "Đơn hàng của bạn được lấy ra vào ngày: " + currentTime
+                
+                bookingLogTitle = "Lấy hàng"
+                bookingLogBody = "Đơn hàng được lấy ra ở tủ số "+ nameBox + " vào ngày " + currentTime
+                
+                self.add_booking_log(fb_login, bookingLogTitle, bookingLogBody, bookingId, currentTime)
+                
+                self.send_notification(fb_login, customerId, notiTitle, notiBody)
+                
+                self.save_notification(fb_login, customerId, notiTitle, notiBody, currentTime)
+                
+                isCompleted = True
+                print("Pickup completed!")
+            
+        except Exception as e:
+            print("An error has occurred: ", e)
+        
+        return isCompleted
+
+    def add_booking_log(self, fb_login, logTitle, logBody, bookingId, currentTime):
+        newKey = firebaseDB.generate_key()
+        
+        data = {
+            "id": newKey,
+            "bookingOrderId": bookingId,
+            "messageTitle": logTitle,
+            "messageBody": logBody,
+            "messageStatus": 1,
+            "createDate": currentTime,
+        }
+        
+        firebaseDB.child("BookingOrderLog").push(data, fb_login["idToken"])
+        
+        print("Save notification successful")
+    
+    def send_notification(self, fb_login, customerId, messageTitle, messageBody):
+        fb_notification = firebaseDB.child("Notification").order_by_child(
+            "customerId").equal_to(customerId).get(fb_login["idToken"])
+        
+        pushService = PushNotificationService()
+        
+        fb_item_list = list(fb_notification.val().items())
+        
+        fcm_token = fb_item_list[0][1].get("token")
+        
+        result = pushService.push_notification(fcm_token, messageTitle, messageBody)
+
+        print(result)
+
+    def save_notification(self, fb_login, customerId, messageTitle, messageBody, currentTime):
+        fb_notification = firebaseDB.child("Notification").order_by_child(
+            "customerId").equal_to(customerId).get(fb_login["idToken"])
+        
+        newKey = firebaseDB.generate_key()
+        
+        data = {
+            "message/" + newKey: {
+                "sendDate": currentTime,
+                "messageTitle": messageTitle,
+                "messageBody": messageBody,
+            }
+        }
+        
+        fb_item_list = list(fb_notification.val().items())
+        noti_id = fb_item_list[0][0]
+        
+        firebaseDB.child("Notification", noti_id).update(data, fb_login["idToken"])
+        
+        print("Save notification successful")
+       

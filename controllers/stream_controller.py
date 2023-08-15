@@ -11,9 +11,9 @@ class StreamController():
     
     def cabinet_stream_handler(self, stream):
         if stream['event'] == 'put':
-            print("Listening to cabinet stream")
+            print("Cabinet stream Put event happened")
         elif stream['event'] == 'patch':
-            print("Patch event")
+            print("Cabinet stream Patch event happened")
             path = stream['path']
             cabinetId = path[1: len(path)]
             snapshot = firebaseDB.child("Cabinet").order_by_key().equal_to(cabinetId).get().val()
@@ -22,9 +22,9 @@ class StreamController():
        
     def box_stream_handler(self, stream):
         if stream['event'] == 'put':
-            print("Listening to box stream")
+            print("Box stream Put event happened")
         elif stream['event'] == 'patch':
-            print("Patch event")
+            print("Box stream Patch event happened")
             path = stream['path']
             boxId = path[1: len(path)]
             snapshot = firebaseDB.child("Box").order_by_key().equal_to(boxId).get().val()
@@ -62,7 +62,6 @@ class StreamController():
         streams = self.view.globalStreams
         for key, value in streams.items():
             value['cabinetStream'].close()
-            value['masterCodeStream'].close()
             value['boxStream'].close()
         print("All stream has close")
     

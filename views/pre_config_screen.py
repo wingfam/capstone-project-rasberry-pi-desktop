@@ -24,8 +24,15 @@ class PreConfigScreen(ctk.CTkFrame):
             fg_color="#FFFFFF",
             text= "",
             image=back_image,
-            command=lambda: self.root.show_frame("MainScreen"),
+            command=self.go_to_main_screen,
         ).place(relx=.95, rely=.10, anchor=ctk.CENTER)
+        
+        self.error_label = ttk.Label(
+            master=self,
+            background="white",
+            font=ctk.CTkFont(size=20),
+            text=""
+        )
         
         self.master_code_label = ttk.Label(
             master=self,
@@ -47,18 +54,30 @@ class PreConfigScreen(ctk.CTkFrame):
             height=80,
             corner_radius=15.0,
             font=text_font,
-            text="Confirm",
+            text="Xác Nhận",
             command=self.verify
         ).place(relwidth=.4, relx=.28, rely=.71, anchor=ctk.CENTER)
         
         self.keypad = Keypad(self)
         self.keypad.target = self.master_code_entry
         self.keypad.place(relx=.78, rely=.5, anchor=CENTER)
-        self.master_code_label.place(relx=.26, rely=.25, anchor=CENTER)
-        self.master_code_entry.place(relwidth=.4, relheight=.15, relx=.28, rely=.4, anchor=CENTER)
+        self.error_label.place(relx=.26, rely=.15, anchor=CENTER)
+        self.master_code_label.place(relx=.26, rely=.45, anchor=CENTER)
+        self.master_code_entry.place(relwidth=.4, relheight=.15, relx=.28, rely=.30, anchor=CENTER)
     
     def verify(self):
         isConfirm = self.configController.check_master_code(self.input_master_code)
         if isConfirm:
-            self.root.show_frame("ChooseCabinetScreen")
- 
+            self.go_to_choose_screen()
+    
+    def refresh(self):
+        self.input_master_code.set("")
+        self.error_label.configure(text="")
+        
+    def go_to_main_screen(self):
+        self.refresh()
+        self.root.show_frame("MainScreen")
+        
+    def go_to_choose_screen(self):
+        self.refresh()
+        self.root.show_frame("ChooseCabinetScreen")

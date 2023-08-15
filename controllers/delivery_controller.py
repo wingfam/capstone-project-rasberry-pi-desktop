@@ -16,34 +16,37 @@ class DeliveryController():
             try:
                 # Login vào firebase mỗi lần gửi yêu cầu để tránh bị timeout
                 fb_login = firebase_login()
-                current_datetime = datetime.now()
-                input_code = input_data.get()
+                currentDate = datetime.now()
+                inputCode = input_data.get()
+                order = ()
                 
                 fb_booking_code = firebaseDB.child("BookingCode").order_by_child(
-                    "bcode").equal_to(input_code).get(fb_login["idToken"])
+                    "bcode").equal_to(inputCode).get(fb_login["idToken"])
                 
-                fb_item_list = list(fb_booking_code.val().items())
-                
-                valid_datetime = datetime.strptime(fb_item_list[0][1].get(
-                    "validDate"), "%Y-%m-%d %H:%M:%S")
-                
-                status = fb_item_list[0][1].get("status")
-                
-                if not status or current_datetime > valid_datetime:
-                    isError = True
-                    error_text = "Mã booking đã hết hạn, vui lòng tạo booking khác"
-                else:
-                    item_list = []
-                    item_list.append(fb_login)
-                    item_list.append(fb_item_list)
-                    return item_list
+                for key, value in fb_booking_code.val().items():
+                    print(value)
+                    status = value['status']
+                    validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
+                    if status == 0 or currentDate > validDate:
+                        isError = True
+                        error_text = "Mã booking đã hết hạn, vui lòng tạo mã khác"
+                        break
+                    else:
+                        order = ({
+                            'bookingCodeId': value['id'],
+                            'bookingId': value['bookingId'],
+                            'status': value['status']
+                        })
+                        break
+                    
+                return order
             except IndexError:
                 isError = True
                 error_text = "Mã booking không đúng, vui lòng nhập lại"
         
         if isError:
             self.view.label_error.grid(
-                padx=45,
+                padx=95,
                 pady=116,
             )
             return self.view.label_error.configure(
@@ -51,25 +54,23 @@ class DeliveryController():
                 foreground="red",
             )
 
-    def update_app_data(self, fb_item_list, fb_login):
-        bookingCodeId = fb_item_list[0][0]
-        bookingId = fb_item_list[0][1].get("bookingId")
-        status = fb_item_list[0][1].get("status")
+    def update_app_data(self, order):
+        fb_login = firebase_login()
         
-        residentId = firebaseDB.child(
-            "BookingOrder/", bookingId, "/residentId").get(fb_login["idToken"]).val()
+        customerId = firebaseDB.child(
+            "BookingOrder/", order['bookingId'], "/customerId").get(fb_login["idToken"]).val()
         
         boxId = firebaseDB.child(
-            "BookingOrder/", bookingId, "/boxId").get(fb_login["idToken"]).val()
+            "BookingOrder/", order['bookingId'], "/boxId").get(fb_login["idToken"]).val()
         
         nameBox = firebaseDB.child(
             "Box/", boxId, "/nameBox").get(fb_login["idToken"]).val()
         
         self.view.root.app_data.update({
-            "residentId": residentId,
-            "bookingCodeId": bookingCodeId,
-            "bookingId": bookingId,
+            "bookingCodeId": order['bookingCodeId'],
+            "bookingId": order['bookingId'],
+            "customerId": customerId,
             "boxId": boxId,
             "nameBox": nameBox,
-            "status": status,
+            "status": order['status'],
         })

@@ -3,6 +3,7 @@ import customtkinter as ctk
 from tkinter import StringVar, ttk
 from constants.string_constants import instruction_label
 from constants.image_imports import cabinet_image
+from controllers.config_controller import DatabaseController
 from controllers.instruction_controller import InstructionController
 
 class InstructionScreen(ctk.CTkFrame):
@@ -13,6 +14,7 @@ class InstructionScreen(ctk.CTkFrame):
         self.root = root
         
         self.instructionController = InstructionController(view=self)
+        self.databaseController = DatabaseController(view=self)
         
         self.instruction_label  = instruction_label
         self.boxId = StringVar()
@@ -71,16 +73,16 @@ class InstructionScreen(ctk.CTkFrame):
         
         
     def check_package(self):
-        isConfirm = False
+        isConfirm = True
         task = self.task.get()
         
         boxId = self.boxId.get()
         globalBoxData = self.root.globalBoxData
         
-        for key, value in globalBoxData.items():
-            if boxId == value['id']:
-                isConfirm = self.instructionController.confirm_task(value, task)
-                break
+        # for key, value in globalBoxData.items():
+        #     if boxId == value['id']:
+        #         isConfirm = self.instructionController.confirm_task(value, task)
+        #         break
                 
         if isConfirm:
             self.instructionController.update_firebase(task)

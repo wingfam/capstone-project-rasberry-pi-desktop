@@ -40,8 +40,6 @@ class AddBoxScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=24),
             text="",
         )
-        self.display_label.place(
-            relwidth=.53, relx=.45, rely=.05, anchor=ctk.CENTER)
 
         self.upload_button = ctk.CTkButton(
             master=self,
@@ -51,24 +49,22 @@ class AddBoxScreen(ctk.CTkFrame):
             state="disabled",
             command=self.upload_box
         )
-        self.upload_button.place(
-            relwidth=.35, relheight=.10, relx=.22, rely=.85, anchor=ctk.CENTER)
 
         self.add_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
             text="1. Add box",
-            command=self.add_box
+            command=self.create_box
         )
-        self.add_button.place(relwidth=.35, relheight=.10,
-                              relx=.75, rely=.85, anchor=ctk.CENTER)
 
         self.boxTable = BoxList(self, root=self.root)
-        self.boxTable.place(relwidth=.90, relheight=.65,
-                            relx=.48, rely=.45, anchor=ctk.CENTER)
+        self.boxTable.place(relwidth=.90, relheight=.65,relx=.48, rely=.45, anchor=ctk.CENTER)
+        self.display_label.place(relwidth=.53, relx=.45, rely=.05, anchor=ctk.CENTER)
+        self.add_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.85, anchor=ctk.CENTER)
+        self.upload_button.place(relwidth=.35, relheight=.10, relx=.75, rely=.85, anchor=ctk.CENTER)
 
-    def add_box(self):
+    def create_box(self):
         tableData = self.boxTable.table.getModel().data
         isSaved = self.addBoxController.add_more_box(tableData)
         if isSaved:
@@ -88,8 +84,7 @@ class AddBoxScreen(ctk.CTkFrame):
             newData = {
                 '01': {
                     'nameBox': '',
-                    'width': '',
-                    'height': '',
+                    'status': '',
                     'solenoidGpio': '',
                     'switchGpio': '',
                     'loadcellDout': '',
@@ -116,8 +111,7 @@ class BoxList(ctk.CTkFrame):
         self.data = {
             '01': {
                 'nameBox': '',
-                'width': '',
-                'height': '',
+                'status': '',
                 'solenoidGpio': '',
                 'switchGpio': '',
                 'loadcellDout': '',

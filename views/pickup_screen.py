@@ -79,9 +79,9 @@ class PickupScreen(ctk.CTkFrame):
         self.entry_code.place(relwidth=.4, relheight=.10, relx=.28, rely=.32, anchor=ctk.CENTER)
     
     def validate(self):
-        item_list = self.pickupController.check_unlock_code(input_data=self.entry_code)
-        if item_list:
-            self.pickupController.update_app_data(fb_login=item_list[0], fb_item_list=item_list[1])
+        bookingId = self.pickupController.check_unlock_code(input_data=self.entry_code)
+        if bookingId:
+            self.pickupController.update_app_data(bookingId)
             
             nameBox = self.root.app_data["nameBox"]
             boxId = self.root.app_data["boxId"]

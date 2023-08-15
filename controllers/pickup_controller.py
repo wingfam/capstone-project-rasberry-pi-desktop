@@ -17,32 +17,26 @@ class PickupController():
                 # Login vào firebase mỗi lần gửi yêu cầu để tránh bị timeout
                 fb_login = firebase_login()
                 currentDate = datetime.now()
-                input_code = input_data.get()
+                inputCode = input_data.get()
+                bookingId = ""
                 
-                fb_unlock_code = firebaseDB.child("UnlockCode").order_by_child(
-                    "ucode").equal_to(input_code).get(fb_login["idToken"])
+                fb_booking_order = firebaseDB.child("BookingOrder").order_by_child(
+                    "unlockCode").equal_to(inputCode).get(fb_login["idToken"])
                 
-                fb_item_list = list(fb_unlock_code.val().items())
-                bookingId = fb_item_list[0][1].get("bookingId")
+                for key, value in fb_booking_order.val().items():
+                    status = value['status']
+                    validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
+                    if status == 4 or currentDate > validDate:
+                        isError = True
+                        error_text = "Booking đã hết hạn"
+                        break
+                    else:
+                        bookingId = value['id']
+                        break
                 
-                validDate = firebaseDB.child(
-                    "BookingOrder/", bookingId, "/validDate").get(fb_login["idToken"])
-                
-                validDate = datetime.strptime(
-                    validDate.val(), "%Y-%m-%d %H:%M:%S")
-                
-                status = firebaseDB.child(
-                    "BookingOrder/", bookingId, "/status").get(fb_login["idToken"]).val()
-                
-                if status == "Done" or currentDate > validDate:
-                    isError = True
-                    error_text = "Booking Order đã hết hạn"
-                else:
-                    item_list = []
-                    item_list.append(fb_login)
-                    item_list.append(fb_item_list)
-                    return item_list
+                return bookingId
             except IndexError:
+                print("IndexError")
                 isError = True
                 error_text = "Mã unlock không đúng, vui lòng nhập lại"
         
@@ -56,11 +50,11 @@ class PickupController():
                 text_color="red",
             )
     
-    def update_app_data(self, fb_item_list, fb_login):
-        bookingId = fb_item_list[0][1].get("bookingId")
+    def update_app_data(self, bookingId):
+        fb_login = firebase_login()
         
-        residentId = firebaseDB.child(
-            "BookingOrder/", bookingId, "/residentId").get(fb_login["idToken"]).val()
+        customerId = firebaseDB.child(
+            "BookingOrder/", bookingId, "/customerId").get(fb_login["idToken"]).val()
         
         boxId = firebaseDB.child(
             "BookingOrder/", bookingId, "/boxId").get(fb_login["idToken"]).val()
@@ -70,7 +64,7 @@ class PickupController():
         
         self.view.root.app_data.update({
             "bookingId": bookingId,
-            "residentId": residentId,
+            "customerId": customerId,
             "boxId": boxId,
             "nameBox": nameBox,
         })
