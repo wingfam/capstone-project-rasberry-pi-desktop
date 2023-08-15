@@ -33,15 +33,13 @@ class PreConfigScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=20),
             text="Nhập mã master code để vào config"
         )
-        
-        
+                
         self.master_code_entry = ttk.Entry(
             master=self,
             justify="center",
             font=text_font,
             textvariable=self.input_master_code,
         )
-        
         
         self.check_code_button = ctk.CTkButton(
             master=self,
@@ -56,7 +54,6 @@ class PreConfigScreen(ctk.CTkFrame):
         self.keypad = Keypad(self)
         self.keypad.target = self.master_code_entry
         self.keypad.place(relx=.78, rely=.5, anchor=CENTER)
-        
         self.master_code_label.place(relx=.26, rely=.25, anchor=CENTER)
         self.master_code_entry.place(relwidth=.4, relheight=.15, relx=.28, rely=.4, anchor=CENTER)
     

@@ -25,8 +25,9 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.statusComboboxVar = ctk.StringVar()
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
-        self.cabinetIsAvailable = IntVar()
+        self.cabinetStatus = IntVar()
         self.cabinetLocation = ctk.StringVar()
+        self.businessId = ctk.StringVar()
         self.locationId = ctk.StringVar()
         
         label_font = ctk.CTkFont(size=24)
@@ -85,7 +86,6 @@ class AddCabinetScreen(ctk.CTkFrame):
             text_color="red",
             text="",
         )
-        self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         
         self.name_entry = ctk.CTkEntry(
             master=self,
@@ -95,7 +95,6 @@ class AddCabinetScreen(ctk.CTkFrame):
             font=label_font,
             textvariable=self.cabinetName,
         )
-        self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
         
         self.status_combobox = ctk.CTkComboBox(
             master=self,
@@ -109,7 +108,6 @@ class AddCabinetScreen(ctk.CTkFrame):
             variable=self.statusComboboxVar,
             command=self.status_combobox_callback
         )
-        self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
         
         self.location_combobox = ctk.CTkComboBox(
             master=self,
@@ -122,77 +120,81 @@ class AddCabinetScreen(ctk.CTkFrame):
             variable=self.cabinetLocation,
             command=self.location_combobox_callback
         )
-        self.location_combobox.place(relwidth=.23, relx=.310, rely=.45, anchor=ctk.CENTER)
         
-        ctk.CTkButton(
+        self.save_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
             text="1. Save data",
             command=self.save_data
-        ).place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkButton(
+        self.upload_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
             text="2. Upload data",
+            state=ctk.DISABLED,
             command=self.upload_data
-        ).place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
+        )
         
         self.boxTable = BoxList(self, root=self.root)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
+        self.location_combobox.place(relwidth=.23, relx=.310, rely=.45, anchor=ctk.CENTER)
+        self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
+        self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
+        self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
+        self.save_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
+        self.upload_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
     
     def save_data(self):
+        self.upload_button.configure(state=ctk.NORMAL)
         self.addCabinetController.save_to_database()
     
     def upload_data(self):
-        isCabinetUpload = self.addCabinetController.upload_cabinet()
-        isCodeUpload = self.addCabinetController.upload_mastercode(self.cabinetId)
-        isBoxUpload = self.addCabinetController.upload_box(self.cabinetId)
-        if isCabinetUpload and isCodeUpload and isBoxUpload:
-            self.streamController.set_cabinet_stream(self.cabinetId.get())
-            self.streamController.set_box_stream(self.cabinetId.get())
-            self.streamController.set_mastercode_stream(self.cabinetId.get())
-            self.display_label.configure(text_color="green", text="New cabinet uploaded")
+        self.upload_button.configure(state=ctk.DISABLED)
+        self.addCabinetController.upload_to_firebase()
     
     def set_location_data(self):
         results = self.databaseController.get_location_data()
         self.locationData.update(results)
+        
         for key, value in self.locationData.items():
             self.locationComboboxValues.append(value['locationName'])
-            
-        datalist = self.locationComboboxValues
-        return self.location_combobox.configure(require_redraw=True, values=datalist,)
+        
+        return self.location_combobox.configure(require_redraw=True, values=self.locationComboboxValues,)
 
     def refresh(self):
-        self.locationComboboxValues = []
-        
+        self.locationData.clear()
+        self.locationComboboxValues.clear()
         self.cabinetName.set("")
         self.statusComboboxVar.set("")
         self.cabinetLocation.set("")
         self.display_label.configure(text="")
-    
+        self.location_combobox.set('')
+        
     def go_back_prev_screen(self):
         self.refresh()
         self.root.show_frame("ChooseCabinetScreen")
         
     def status_combobox_callback(self, choice):
         if choice == 'Yes':
-            self.cabinetIsAvailable.set(1)
+            self.cabinetStatus.set(1)
         elif choice == 'No':
-            self.cabinetIsAvailable.set(0)
+            self.cabinetStatus.set(0)
         self.statusComboboxVar.set(choice)
         choice = self.statusComboboxVar.get()
-        print("status_combobox:", choice)
     
     def location_combobox_callback(self, choice):
         self.cabinetLocation.set(choice)
         locationChoice = self.cabinetLocation.get()
-        for value in self.locationData.items():
-            if value[1]['locationName'] == locationChoice:
-                self.locationId.set(value[1]['locationId'])
-        print("location_combobox:", locationChoice)
+        for key, value in self.locationData.items():
+            if value['locationName'] == locationChoice:
+                self.businessId.set(value['businessId'])
+                self.locationId.set(value['locationId'])
+        # print(locationChoice)
+        # print("BussinesId: ", self.businessId.get())
+        # print("LocationId: ", self.locationId.get())
 
 
 class BoxList(ctk.CTkFrame):
@@ -206,8 +208,6 @@ class BoxList(ctk.CTkFrame):
         self.data = {
             'rec': {
                 'nameBox': "",
-                'width': 0,
-                'height': 0,
                 'solenoidGpio': 0,
                 'switchGpio': 0,
                 'loadcellDout': 0,

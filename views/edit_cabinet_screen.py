@@ -28,8 +28,9 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.statusComboboxVar = ctk.StringVar()
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
-        self.isAvailable = IntVar()
+        self.status = IntVar()
         self.cabinetLocation = ctk.StringVar()
+        self.businessId = ctk.StringVar()
         self.locationId = ctk.StringVar()
         
         ctk.CTkButton(
@@ -96,7 +97,6 @@ class EditCabinetScreen(ctk.CTkFrame):
             fg_color="white",
             text="",
         )
-        self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         
         self.name_entry = ctk.CTkEntry(
             master=self,
@@ -106,7 +106,6 @@ class EditCabinetScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=24),
             textvariable=self.cabinetName,
         )
-        self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
         
         self.status_combobox = ctk.CTkComboBox(
             master=self,
@@ -120,7 +119,6 @@ class EditCabinetScreen(ctk.CTkFrame):
             variable=self.statusComboboxVar,
             command=self.status_combobox_callback
         )
-        self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
         
         self.location_combobox = ctk.CTkComboBox(
             master=self,
@@ -134,52 +132,68 @@ class EditCabinetScreen(ctk.CTkFrame):
             variable=self.cabinetLocation,
             command=self.location_combobox_callback
         )
-        self.location_combobox.place(relwidth=.23, relx=.310, rely=.45, anchor=ctk.CENTER)
     
-        ctk.CTkButton(
+        self.save_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="Save data",
+            text="1. Save data",
             command=self.update
-        ).place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkButton(
+        self.upload_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="Reupload",
+            text="2. Reupload",
+            state=ctk.DISABLED,
             command=self.reupload
-        ).place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
+        )
         
         self.boxTable = BoxList(self, root=self.root)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
+        self.location_combobox.place(relwidth=.23, relx=.310, rely=.45, anchor=ctk.CENTER)
+        self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
+        self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
+        self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
+        self.save_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
+        self.upload_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
          
     def status_combobox_callback(self, choice):
         if choice == 'Yes':
-            self.isAvailable.set(1)
+            self.status.set(1)
         elif choice == 'No':
-            self.isAvailable.set(0)
+            self.status.set(0)
         self.statusComboboxVar.set(choice)
         choice = self.statusComboboxVar.get()
         print("status_combobox:", choice)
     
     def location_combobox_callback(self, choice):
         self.cabinetLocation.set(choice)
-        self.set_location_id(self.cabinetLocation.get())
+        locationChoice = self.cabinetLocation.get()
+        for key, value in self.locationData.items():
+            if value['locationName'] == locationChoice:
+                self.businessId.set(value['businessId'])
+                self.locationId.set(value['locationId'])
+        # print(locationChoice)
+        # print(self.businessId.get())
+        # print(self.locationId.get())
     
     def update(self):
+        self.upload_button.configure(state=ctk.NORMAL)
         isCabinetUpdate = self.editController.update_cabinet_data()
         isBoxUpdate = self.editController.update_box_data()
-        if isCabinetUpdate or isBoxUpdate:
+        if isCabinetUpdate and isBoxUpdate:
+            self.reload()
             self.display_label.configure(text_color='green', text='Update successful')
         else:
             self.display_label.configure(text_color='red', text='Update unsuccessful')
         
     def reupload(self):
+        self.upload_button.configure(state=ctk.DISABLED)
         isCabinetUpload = self.editController.reupload_cabinet()
         isBoxUpload = self.editController.reupload_box()
-        if isBoxUpload or isCabinetUpload:
+        if isCabinetUpload and isBoxUpload:
             self.display_label.configure(text_color='green', text='Upload successful')
         else:
             self.display_label.configure(text_color='red', text='Upload unsuccessful')
@@ -187,9 +201,21 @@ class EditCabinetScreen(ctk.CTkFrame):
     def reload(self):
         self.locationData.clear()
         self.locationComboboxValues.clear()
+        self.cabinetLocation.set("")
         self.editController.get_infos()
+    
+    def refresh(self):
+        self.locationData.clear()
+        self.locationComboboxValues.clear()
+        self.cabinetName.set("")
+        self.statusComboboxVar.set("")
+        self.display_label.configure(text="")
+        self.location_combobox.set('')
         
     def go_back(self):
+        # Refresh data
+        self.refresh()
+        
         # Clear display label
         self.display_label.configure(text='') 
         self.boxTable.data.clear()

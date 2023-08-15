@@ -1,10 +1,9 @@
 import sys
 # import RPi.GPIO as GPIO
 import customtkinter as ctk
+
 from controllers.config_controller import DatabaseController, GpioController
 from controllers.stream_controller import StreamController
-
-from models.models import LoadCell, MagneticSwitch, SolenoidLock
 from constants.screen_views import ScreenView
 
 class MainApp(ctk.CTk):
@@ -38,7 +37,7 @@ class MainApp(ctk.CTk):
             self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         
-        self.gpioController.setup_gpio()
+        # self.gpioController.setup_gpio()
         self.streamController.set_all_stream()
         self.show_frame("MainScreen")
         

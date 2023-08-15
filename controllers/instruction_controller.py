@@ -54,7 +54,7 @@ class InstructionController():
             elif task == "pickup":
                 # Update booking order status to False
                 isStore = False
-                isAvailable = True
+                status = True
                 newBookingStatus = "Done"
                 
                 booking_id = self.view.root.app_data["bookingId"]
@@ -65,7 +65,7 @@ class InstructionController():
                     {"status": newBookingStatus}, fb_login["idToken"])
                 
                 firebaseDB.child("Box/", box_id).update(
-                    {"isAvailable": isAvailable, "isStore": isStore}, fb_login["idToken"])
+                    {"status": status, "isStore": isStore}, fb_login["idToken"])
                 
                 firebaseDB.child("BookingHistory").push(
                     {"bookingId": booking_id, "residentId": residentId}, fb_login["idToken"])

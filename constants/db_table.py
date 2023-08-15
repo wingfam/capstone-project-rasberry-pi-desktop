@@ -4,18 +4,23 @@ class DbTable():
     cabinetTable = '''
         CREATE TABLE IF NOT EXISTS Cabinet (
             [id] TEXT PRIMARY KEY NOT NULL,
-            [name] TEXT,
+            [nameCabinet] TEXT,
             [addDate] TEXT,
-            [isAvailable] INTEGER,
+            [status] INTEGER,
+            [masterCode] TEXT,
+            [masterCodeStatus] INTEGER,
+            [businessId] TEXT NOT NULL,
             [locationId] TEXT NOT NULL
         );
     '''
     
-    masterCodeTable = '''
-        CREATE TABLE IF NOT EXISTS MasterCode (
+    cabinetLog = '''
+        CREATE TABLE IF NOT EXISTS CabinetLog (
             [id] TEXT PRIMARY KEY NOT NULL,
-            [code] TEXT,
-            [isAvailable] INTEGER,
+            [messageTitle] TEXT,
+            [messageBody] TEXT,
+            [createDate] TEXT,
+            [messageStatus] INTEGER,
             [cabinetId] TEXT NOT NULL,
             FOREIGN KEY (cabinetId)
                 REFERENCES Cabinet (id)
@@ -28,10 +33,7 @@ class DbTable():
         CREATE TABLE IF NOT EXISTS Box (
             [id] TEXT PRIMARY KEY NOT NULL,
             [nameBox] TEXT,
-            [width] INTEGER,
-            [height] INTEGER,
-            [isStore] INTEGER,
-            [isAvailable] INTEGER,
+            [status] INTEGER,
             [solenoidGpio] INTEGER,
             [switchGpio] INTEGER,
             [loadcellDout] INTEGER,
@@ -45,4 +47,4 @@ class DbTable():
         );
     '''
     
-    tableList = [cabinetTable, masterCodeTable, boxTable]
+    tableList = [cabinetTable, cabinetLog, boxTable]

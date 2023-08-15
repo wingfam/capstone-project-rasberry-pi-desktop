@@ -19,18 +19,7 @@ class StreamController():
             snapshot = firebaseDB.child("Cabinet").order_by_key().equal_to(cabinetId).get().val()
             for key, value in snapshot.items():
                 self.databaseController.update_cabinet_to_db(value)
-        
-    def mastercode_stream_handler(self, stream):
-        if stream['event'] == 'put':
-            print("Listening to master code stream")
-        elif stream['event'] == 'patch':
-            print("Patch event")
-            path = stream['path']
-            mastercodeId = path[1: len(path)]
-            snapshot = firebaseDB.child("MasterCode").order_by_key().equal_to(mastercodeId).get().val()
-            for key, value in snapshot.items():
-                self.databaseController.update_master_code_patch_event(value)
-        
+       
     def box_stream_handler(self, stream):
         if stream['event'] == 'put':
             print("Listening to box stream")
@@ -46,21 +35,12 @@ class StreamController():
         cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
                 self.cabinet_stream_handler, stream_id='cabinet_stream')
         time.sleep(0.01)
-        # cabinetStream.make_session()
         return cabinetStream
-        
-    def set_mastercode_stream(self, cabinetId):
-        mastercodeStream = firebaseDB.child('MasterCode').order_by_child(
-            'cabinetId').equal_to(cabinetId).stream(self.mastercode_stream_handler, stream_id='master_code_stream')
-        time.sleep(0.01)
-        # mastercodeStream.make_session()
-        return mastercodeStream
-    
+     
     def set_box_stream(self, cabinetId):
         boxStream = firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
                 self.box_stream_handler, stream_id='box_stream')
         time.sleep(0.01)
-        # boxStream.make_session()
         return boxStream
     
     def set_all_stream(self):
@@ -72,7 +52,6 @@ class StreamController():
             stream = {
                 cabinetId : {
                     'cabinetStream': self.set_cabinet_stream(cabinetId),
-                    'masterCodeStream': self.set_mastercode_stream(cabinetId),
                     'boxStream': self.set_box_stream(cabinetId)
                 }
             }

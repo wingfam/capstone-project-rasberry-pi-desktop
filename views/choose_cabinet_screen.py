@@ -124,16 +124,16 @@ class CabinetListBox(ctk.CTkFrame):
             justify=ctk.CENTER,
             background='white',
         )
-        self.listBox.pack()
 
         cabinets = self.parent.databaseController.get_all_cabinet()
         self.insert_list_box(cabinets)
 
         self.listBox.bind("<<ListboxSelect>>", self.set_cabinet_name)
+        self.listBox.pack()
 
     def insert_list_box(self, cabinets):
         for key, value in cabinets.items():
-            self.listBox.insert(key, value['name'])
+            self.listBox.insert(key, value['nameCabinet'])
 
     def set_cabinet_name(self, event):
         selection = event.widget.curselection()

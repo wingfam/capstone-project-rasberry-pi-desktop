@@ -1,21 +1,22 @@
-from gpiozero.pins.pigpio import PiGPIOFactory
-from gpiozero import LED, Button
-# from services.hx711 import HX711
-
-
 class Cabinet():
     def __init__(
         self,
         id,
-        name,
+        nameCabinet,
+        status,
+        masterCode,
+        masterCodeStatus,
         addDate,
-        isAvailable,
+        businessId,
         locationId,
     ):
         self.id = id
-        self.name = name
+        self.nameCabinet = nameCabinet
+        self.status = status
+        self.masterCode = masterCode
+        self.masterCodeStatus = masterCodeStatus
         self.addDate = addDate
-        self.isAvailable = isAvailable
+        self.businessId = businessId
         self.locationId = locationId
 
     @property
@@ -23,92 +24,74 @@ class Cabinet():
         return self.id
 
     @property
-    def name(self):
-        return self.name
+    def nameCabinet(self):
+        return self.nameCabinet
+
+    @property
+    def status(self):
+        return self.status
+
+    @property
+    def masterCode(self):
+        return self.masterCode
+
+    @property
+    def masterCodeStatus(self):
+        return self.masterCodeStatus
 
     @property
     def addDate(self):
         return self.addDate
 
     @property
-    def isAvailable(self):
-        return self.isAvailable
+    def businessId(self):
+        return self.businessId
 
     @property
     def locationId(self):
         return self.locationId
+    
 
-    @id.setter
-    def id(self, value):
-        self.id = value
-
-    @name.setter
-    def name(self, value):
-        self.name = value
-
-    @addDate.setter
-    def addDate(self, value):
-        self.addDate = value
-
-    @isAvailable.setter
-    def isAvailable(self, value):
-        self.isAvailable = value
-
-    @locationId.setter
-    def locationId(self, value):
-        self.locationId = value
-
-    def __str__(self):
-        return f"{self.name}, {self.addDate}, {self.isAvailable}"
-
-
-class MasterCode():
+class CabinetLog():
     def __init__(
         self,
         id,
-        code,
-        isAvailable,
         cabinetId,
+        messageTitle,
+        messageBody,
+        messageStatus,
+        createDate
     ):
         self.id = id
-        self.code = code
-        self.isAvailable = isAvailable
         self.cabinetId = cabinetId
+        self.messageTitle = messageTitle
+        self.messageBody = messageBody
+        self.messageStatus = messageStatus
+        self.createDate = createDate
 
     @property
     def id(self):
         return self.id
 
     @property
-    def code(self):
-        return self.code
-
-    @property
-    def isAvailable(self):
-        return self.isAvailable
-
-    @property
     def cabinetId(self):
         return self.cabinetId
 
-    @id.setter
-    def id(self, value):
-        self.id = value
+    @property
+    def messageTitle(self):
+        return self.messageTitle
 
-    @code.setter
-    def code(self, value):
-        self.code = value
+    @property
+    def messageBody(self):
+        return self.messageBody
 
-    @isAvailable.setter
-    def isAvailable(self, value):
-        self.isAvailable = value
+    @property
+    def messageStatus(self):
+        return self.messageStatus
 
-    @cabinetId.setter
-    def cabinetId(self, value):
-        self.cabinetId = value
-
-    def __str__(self):
-        return f"{self.code}, {self.isAvailable}"
+    @property
+    def createDate(self):
+        return self.createDate
 
 
 class Box():
@@ -116,11 +99,7 @@ class Box():
         self,
         id,
         nameBox,
-        size,
-        width,
-        height,
-        isStore,
-        isAvailable,
+        status,
         solenoidGpio,
         switchGpio,
         loadcellDout,
@@ -130,11 +109,7 @@ class Box():
     ):
         self.id = id
         self.nameBox = nameBox
-        self.size = size
-        self.width = width
-        self.height = height
-        self.isStore = isStore
-        self.isAvailable = isAvailable
+        self.status = status,
         self.solenoidGpio = solenoidGpio
         self.switchGpio = switchGpio
         self.loadcellDout = loadcellDout
@@ -151,24 +126,8 @@ class Box():
         return self.nameBox
 
     @property
-    def size(self):
-        return self.size
-
-    @property
-    def width(self):
-        return self.width
-
-    @property
-    def height(self):
-        return self.height
-
-    @property
-    def isStore(self):
-        return self.isStore
-
-    @property
-    def isAvailable(self):
-        return self.isAvailable
+    def status(self):
+        return self.status
 
     @property
     def solenoidGpio(self):
@@ -189,33 +148,6 @@ class Box():
     @property
     def cabinetId(self):
         return self.cabinetId
-
-    @isStore.setter
-    def isStore(self, value):
-        self.isStore = value
-
-    @isAvailable.setter
-    def isAvailable(self, value):
-        self.isAvailable = value
-
-    @switchGpio.setter
-    def switchGpio(self, value):
-        self.switchGpio = value
-
-    @switchGpio.setter
-    def switchGpio(self, value):
-        self.switchGpio = value
-
-    @loadcellDout.setter
-    def loadcellDout(self, value):
-        self.loadcellDout = value
-
-    @loadcellSck.setter
-    def loadcellSck(self, value):
-        self.loadcellSck = value
-
-    def __str__(self):
-        return f"{self.nameBox}, {self.size}, {self.isAvailable}"
 
 
 class Gpio():
@@ -248,73 +180,3 @@ class Gpio():
     def loadcell(self, value):
         self.loadcell = value
         
-        
-class SolenoidLock():
-    def __init__(self, pin):
-        self.pin = pin
-
-    @property
-    def pin(self):
-        return self.pin
-
-    @pin.setter
-    def pin(self, value):
-        self.pin = value
-        
-
-class MagneticSwitch():
-    def __init__(self, pin):
-        self.pin = pin
-
-    @property
-    def pin(self):
-        return self.pin
-    
-    @pin.setter
-    def pin(self, value):
-        self.pin = value
-
-
-class LoadCell():
-    def __init__(self, dout, sck):
-        self.dout = dout
-        self.sck = sck
-
-        # Loadcell reference unit
-        referenceUnit = 218
-
-        # self.hx711 = HX711(self.dout, self.sck)
-        # self.hx711.set_reading_format("MSB", "MSB")
-        # self.hx711.set_reference_unit(referenceUnit)
-    
-    @property
-    def dout(self):
-        return self.dout
-    
-    @property
-    def sck(self):
-        return self.sck
-    
-    @dout.setter
-    def dout(self, value):
-        self.dout = value
-    
-    @sck.setter
-    def sck(self, value):
-        self.sck = value
-
-    def tare(self):
-        self.hx711.tare()
-        print("Loadcell tare done!")
-
-    def powerUp(self):
-        self.hx711.power_up()
-        print("Loadcell power up done!")
-
-    def powerDown(self):
-        self.hx711.power_down()
-        print("Loadcell power down done!")
-
-    def reset(self):
-        self.hx711.reset()
-        print("Loadcell reset done!")

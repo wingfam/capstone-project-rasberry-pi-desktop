@@ -12,31 +12,29 @@ class PreConfigController():
         try:
             input_code = input_data.get()
             
-            fb_master_code = firebaseDB.child("MasterCode").order_by_child(
-                "code").equal_to(input_code).get().val()
+            fb_master_code = firebaseDB.child("Cabinet").order_by_child(
+                "masterCodeStatus").equal_to(input_code).get().val()
             
-            if fb_master_code != None and input_code == "111111":
-                isError = True
-                error_text = "Master code is incorrect!"
-                self.view.master_code_label.configure(
-                    text=error_text,
-                    foreground="red")
-                return
-            else:
+            fb_master_code_status = firebaseDB.child("Cabinet").order_by_child(
+                "masterCodeStatus").equal_to(1).get().val()
+            
+            if fb_master_code != None and fb_master_code_status:
                 isConfirm = True
+            elif not fb_master_code_status:
+                isError = True
+                error_text = "Master code is unavailable"
                 
         except IndexError:
             isError = True
-            error_text = "Use default code to enter"
-            
+            error_text = "Master code is incorrect"
             if input_code == "111111":
-                print("Enter with default master code")
+                isError = False
+                isConfirm = True
         
         if isError:
             return self.view.master_code_label.configure(
                 text=error_text,
                 foreground="red",
             )
-        
-        print("Master code is correct!")
+      
         return isConfirm
