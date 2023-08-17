@@ -1,10 +1,9 @@
 import time
 import customtkinter as ctk
 
-from tkinter import IntVar
-from constants.image_imports import back_image, refresh_image
+from constants.image_imports import back_image
 from tkintertable import TableCanvas
-from controllers.config_controller import AddCabinetController, DatabaseController, AddBoxController
+from controllers.config_controller import DatabaseController, AddBoxController
 from controllers.stream_controller import StreamController
 
 
@@ -20,7 +19,7 @@ class AddBoxScreen(ctk.CTkFrame):
         self.databaseController = DatabaseController(view=self)
         self.streamController = StreamController(view=self.root)
 
-        self.cabinetId = ctk.StringVar()
+        self.cabinetId = ""
 
         ctk.CTkButton(
             master=self,
@@ -66,6 +65,7 @@ class AddBoxScreen(ctk.CTkFrame):
 
     def create_box(self):
         tableData = self.boxTable.table.getModel().data
+        # print(self.cabinetId)
         isSaved = self.addBoxController.add_more_box(tableData)
         if isSaved:
             self.upload_button.configure(state="normal")
@@ -83,13 +83,12 @@ class AddBoxScreen(ctk.CTkFrame):
             self.upload_button.configure(state="disabled")
             newData = {
                 '01': {
-                    'nameBox': '',
-                    'status': '',
-                    'solenoidGpio': '',
-                    'switchGpio': '',
-                    'loadcellDout': '',
-                    'loadcellSck': '',
-                    'loadcellRf': '',
+                    'nameBox': "",
+                    'solenoidGpio': 0,
+                    'switchGpio': 0,
+                    'loadcellDout': 0,
+                    'loadcellSck': 0,
+                    'loadcellRf': 0,
                 }
             }
             self.boxTable.table.model.importDict(newData)
@@ -110,13 +109,12 @@ class BoxList(ctk.CTkFrame):
 
         self.data = {
             '01': {
-                'nameBox': '',
-                'status': '',
-                'solenoidGpio': '',
-                'switchGpio': '',
-                'loadcellDout': '',
-                'loadcellSck': '',
-                'loadcellRf': '',
+                'nameBox': "",
+                'solenoidGpio': 0,
+                'switchGpio': 0,
+                'loadcellDout': 0,
+                'loadcellSck': 0,
+                'loadcellRf': 0,
             }
         }
 

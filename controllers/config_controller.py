@@ -26,45 +26,45 @@ class GpioController():
         '''Magnetic switch hold time'''
         self.hold_time = 3.0
 
-    def set_solenoid(self, pin):
-        solenoid = LED(pin, initial_value=True)
-        return solenoid
+    # def set_solenoid(self, pin):
+    #     solenoid = LED(pin, initial_value=True)
+    #     return solenoid
 
-    def set_mag_switch(self, pin):
-        mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
-        return mag_switch
+    # def set_mag_switch(self, pin):
+    #     mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
+    #     return mag_switch
 
-    def set_loadcell(self, dout, sck, ref):
-        # Loadcell reference unit
-        referenceUnit = ref
+    # def set_loadcell(self, dout, sck, ref):
+    #     # Loadcell reference unit
+    #     referenceUnit = ref
         
-        loadcell = HX711(dout, sck)
+    #     loadcell = HX711(dout, sck)
         
-        # Set loadcell reading format
-        loadcell.set_reading_format("MSB", "MSB")
-        loadcell.set_reference_unit(referenceUnit)
+    #     # Set loadcell reading format
+    #     loadcell.set_reading_format("MSB", "MSB")
+    #     loadcell.set_reference_unit(referenceUnit)
         
-        self.reset_loadcell(loadcell)
-        self.tare_loadcell(loadcell)
-        self.powerDown_loadcell(loadcell)
+    #     self.reset_loadcell(loadcell)
+    #     self.tare_loadcell(loadcell)
+    #     self.powerDown_loadcell(loadcell)
         
-        return loadcell
+    #     return loadcell
     
-    def tare_loadcell(self, loadcell):
-        loadcell.tare()
-        print("Loadcell tare done!")
+    # def tare_loadcell(self, loadcell):
+    #     loadcell.tare()
+    #     print("Loadcell tare done!")
 
-    def powerUp_loadcell(self, loadcell):
-        loadcell.power_up()
-        print("Loadcell power up done!")
+    # def powerUp_loadcell(self, loadcell):
+    #     loadcell.power_up()
+    #     print("Loadcell power up done!")
 
-    def powerDown_loadcell(self, loadcell):
-        loadcell.power_down()
-        print("Loadcell power down done!")
+    # def powerDown_loadcell(self, loadcell):
+    #     loadcell.power_down()
+    #     print("Loadcell power down done!")
 
-    def reset_loadcell(self, loadcell):
-        loadcell.reset()
-        print("Loadcell reset done!")
+    # def reset_loadcell(self, loadcell):
+    #     loadcell.reset()
+    #     print("Loadcell reset done!")
     
     def setup_box_data(self):
         results = self.view.databaseController.get_box_gpio()
@@ -348,14 +348,14 @@ class AddBoxController():
         self.view.cabinetData = self.view.databaseController.get_cabinet_by_name(
             self.view.root.cabinetName.get())
 
-        self.view.cabinetId.set(self.view.cabinetData['id'])
+        self.view.cabinetId = self.view.cabinetData['id']
 
     def check_entries(self, value):
-        isCheck = None
-        if (not value['nameBox'] or not value['status'] 
-            or not value['solenoidGpio'] or not value['switchGpio'] 
-            or not value['loadcellDout'] or not value['loadcellSck'] 
-            or not value['loadcellRf']):
+        isCheck = False
+        if (not value['nameBox'] or not value['solenoidGpio'] 
+            or not value['switchGpio']  or not value['loadcellDout'] 
+            or not value['loadcellSck'] or not value['loadcellRf']):
+            # print(value)
             isCheck = False
         else:
             isCheck = True
@@ -363,7 +363,7 @@ class AddBoxController():
         return isCheck
 
     def add_more_box(self, data):
-        isSaved = None
+        isSaved = False
         
         for key, value in data.items():
             isCheck = self.check_entries(value)
@@ -374,6 +374,7 @@ class AddBoxController():
                 )
                 break
             else:
+                # print("Save box data: ", value)
                 isSaved = self.view.databaseController.save_box_to_db(value)
                 if isSaved:
                     self.view.display_label.configure(
@@ -383,7 +384,7 @@ class AddBoxController():
         return isSaved
 
     def upload_more_box(self, cabinetId, limit):
-        isUpload = None
+        isUpload = False
         try:
             results = self.view.databaseController.get_last_box_insert_by_cabinetId(cabinetId, limit)
 
@@ -785,6 +786,7 @@ class DatabaseController():
             loadcellSck = record['loadcellSck']
             loadcellRf = record['loadcellRf']
             cabinetId = self.view.cabinetId
+            print("Cabinet Id: ", cabinetId)
 
             box = (id, nameBox, status,
                    solenoidGpio, switchGpio, loadcellDout, 

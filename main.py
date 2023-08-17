@@ -6,6 +6,10 @@ from controllers.config_controller import DatabaseController, GpioController
 from controllers.stream_controller import StreamController
 from constants.screen_views import ScreenView
 
+# TODO: cập nhật lại globalBoxData và globalStreams mỗi khi cập nhật 
+# Thông tin tủ từ admin hoặc local
+
+
 class MainApp(ctk.CTk):
     def __init__(self, *args, **kwargs):
         ctk.CTk.__init__(self, *args, **kwargs)
