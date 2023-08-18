@@ -92,18 +92,18 @@ class AddCabinetController():
     def save_to_database(self):
         tableModel = self.view.boxTable.table.getModel()
         records = tableModel.data
+        isSave = False
 
         result = self.view.databaseController.get_cabinet_by_name(self.view.cabinetName.get())
-        print(result)
 
         if result is not None:
-            return self.view.display_label.configure(text_color="red", text="Cabinet name has already existed")
+            return self.view.display_label.configure(text_color="red", text="Tên cabinet đã tồn tại")
         else:
             # Save cabinet entries
             cabinetSave = self.view.databaseController.save_cabinet_to_db()
 
             if not cabinetSave:
-                return self.view.display_label.configure(text_color="red", text="Cabinet cannot be save to database")
+                return self.view.display_label.configure(text_color="red", text="Thông tin cabinet không thể lưu")
             else:
                 # Save cabinet log
                 logTitle = "Tạo cabinet"
@@ -114,22 +114,20 @@ class AddCabinetController():
                     boxSave = self.view.databaseController.save_box_to_db(record)
                     if not boxSave:
                         return self.view.display_label.configure(
-                            text_color="red", text="Make sure all box entries are filled in")
+                            text_color="red", text="Kiểm tra lại các ô điền đúng và không để trống")
+                isSave = True
 
-        return self.view.display_label.configure(text_color="green", text="New cabinet saved successful")
+        return isSave
     
-    def upload_to_firebase(self):
+    def upload_to_firebase(self, totalBox):
         cabinetId = self.view.cabinetId
-        isCabinetUpload = self.upload_cabinet()
+        isCabinetUpload = self.upload_cabinet(totalBox)
         isLogUpload = self.upload_cabinetLog(cabinetId)
         isBoxUpload = self.upload_box(cabinetId)
         if isCabinetUpload and isLogUpload and isBoxUpload:
-            self.view.streamController.set_cabinet_stream(cabinetId)
-            self.view.streamController.set_box_stream(cabinetId)
-        
-        return self.view.display_label.configure(text_color="green", text="New cabinet uploaded successful")
+            return True
 
-    def upload_cabinet(self):
+    def upload_cabinet(self, totalBox):
         isUpload = None
         try:
             data = self.view.databaseController.get_last_cabinet()
@@ -142,6 +140,7 @@ class AddCabinetController():
                         'nameCabinet': value['nameCabinet'],
                         'addDate': value['addDate'],
                         'status': value['status'],
+                        'totalBox': totalBox,
                         'masterCode': value['masterCode'],
                         'masterCodeStatus': value['masterCodeStatus'],
                         'businessId': value['businessId'],
@@ -545,6 +544,36 @@ class DatabaseController():
 
         return dicts
 
+    def get_masterCode(self, input):
+        conn = self.opendb(db_file_name)
+        dicts = {}
+        try:
+            conn = sqlite3.connect(db_file_name)
+            conn.row_factory = dict_factory
+            cur = conn.cursor()
+            
+            sql = '''
+                SELECT masterCode, masterCodeStatus
+                FROM Cabinet 
+                WHERE masterCode = ?
+            '''
+            
+            results = cur.execute(sql, (input,))
+            
+            count = 0
+            for row in results:
+                rowData = {
+                    str(count): row
+                }
+                count += 1
+                dicts.update(rowData)
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+
+        return dicts
+    
     def get_box_by_cabinetId(self, cabinetId):
         conn = self.opendb(db_file_name)
         dicts = {}
@@ -819,6 +848,8 @@ class DatabaseController():
             model = (
                 data['nameCabinet'],
                 data['status'],
+                data['masterCode'],
+                data['masterCodeStatus'],
                 data['businessId'],
                 data['locationId'],
                 data['id']
@@ -828,6 +859,8 @@ class DatabaseController():
                 UPDATE Cabinet
                 SET nameCabinet = ?,
                     status = ?,
+                    masterCode = ?,
+                    masterCodeStatus = ?,
                     businessId = ?,
                     locationId = ?
                 WHERE id = ?
@@ -942,6 +975,81 @@ class DatabaseController():
 
         return isUpdate
 
+    def delete_cabinet(self, nameCabinet):
+        isDelete = None
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            model = (nameCabinet,)
+            
+            sql = ''' 
+                DELETE FROM Cabinet
+                WHERE nameCabinet = ?
+            '''
+
+            cur.execute(sql, model)
+            conn.commit()
+            isDelete = True
+            print("Cabinet delete successful")
+        except Exception as e:
+            isDelete = False
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+
+        return isDelete
+    
+    def delete_boxes(self, cabinetId):
+        isDelete = None
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            model = (cabinetId,)
+            
+            sql = ''' 
+                DELETE FROM Box
+                WHERE cabinetId = ?
+            '''
+
+            cur.execute(sql, model)
+            conn.commit()
+            isDelete = True
+            print("Cabinet delete successful")
+        except Exception as e:
+            isDelete = False
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+
+        return isDelete
+    
+    def delete_cabinetLog(self, cabinetId):
+        isDelete = None
+        conn = self.opendb(db_file_name)
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            model = (cabinetId,)
+            
+            sql = ''' 
+                DELETE FROM CabinetLog
+                WHERE cabinetId = ?
+            '''
+
+            cur.execute(sql, model)
+            conn.commit()
+            isDelete = True
+            print("Cabinet delete successful")
+        except Exception as e:
+            isDelete = False
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+
+        return isDelete
+    
 
 class ManualControlController():
     def __init__(self, view):

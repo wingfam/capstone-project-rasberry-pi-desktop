@@ -32,37 +32,21 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             command=self.go_back_main_screen
         ).place(relx=.10, rely=.10, anchor=ctk.CENTER)
 
-        ctk.CTkButton(
+        self.add_cabinet_btn = ctk.CTkButton(
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
             text="Add cabinet",
             command=self.go_to_add_screen
-        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.22, anchor=ctk.CENTER)
+        )
 
-        ctk.CTkButton(
+        self.check_cabinet_btn = ctk.CTkButton(
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
             text="Check cabinet",
             command=self.go_to_check_cabinet
-        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.37, anchor=ctk.CENTER)
-
-        ctk.CTkButton(
-            master=self,
-            anchor=ctk.CENTER,
-            font=button_font,
-            text="Refresh",
-            command=self.refresh
-        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.52, anchor=ctk.CENTER)
-
-        ctk.CTkButton(
-            master=self,
-            anchor=ctk.CENTER,
-            font=button_font,
-            text="Restart",
-            command=self.restart
-        ).place(relwidth=.25, relheight=.10, relx=.35, rely=.67, anchor=ctk.CENTER)
+        )
 
         self.error_label = ctk.CTkLabel(
             master=self,
@@ -70,8 +54,10 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             text_color="red",
             text="",
         )
+        
         self.error_label.place(rely=.15, relx=.82, anchor="e")
-
+        self.add_cabinet_btn.place(relwidth=.25, relheight=.10, relx=.35, rely=.32, anchor=ctk.CENTER)
+        self.check_cabinet_btn.place(relwidth=.25, relheight=.10, relx=.35, rely=.47, anchor=ctk.CENTER)
         self.cabinetListBox = CabinetListBox(parent=self)
         self.cabinetListBox.place(rely=.45, relx=.75, anchor=ctk.CENTER)
 
@@ -102,14 +88,6 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         self.error_label.configure(text="")
         self.cabinetListBox.repopulate()
 
-    def restart(self):
-        '''Restarts the current program.
-        Note: this function does not return. Any cleanup action (like
-        saving data) must be done before calling this function.'''
-        # self.root.cleanAndExit()
-        self.root.streamController.close_all_stream()
-        python = sys.executable
-        os.execl(python, python, * sys.argv)
 
 class CabinetListBox(ctk.CTkFrame):
     def __init__(self, parent):

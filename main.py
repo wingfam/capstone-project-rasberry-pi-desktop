@@ -43,7 +43,12 @@ class MainApp(ctk.CTk):
         
         self.gpioController.setup_box_data()
         self.streamController.set_all_stream()
-        self.show_frame("MainScreen")
+        
+        if not self.globalBoxData:
+            print("Need to add cabinet info first")
+            self.show_frame("AddCabinetScreen")
+        else:
+            self.show_frame("MainScreen")
         
     def show_frame(self, page_name):
         frame = self.frames[page_name]
@@ -51,6 +56,8 @@ class MainApp(ctk.CTk):
         if page_name == "CompletionScreen":
             frame.event_generate("<<GoBackMainScreen>>")
             frame.bind("<<GoBackMainScreen>>", frame.on_show_frame())
+        elif page_name == "ChooseCabinetScreen":
+            frame.refresh()
         elif page_name == "AddCabinetScreen":
             frame.set_location_data()
         elif page_name == "EditCabinetScreen":

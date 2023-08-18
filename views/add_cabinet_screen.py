@@ -1,9 +1,11 @@
+import os
+import sys
 import customtkinter as ctk
 
-from tkinter import IntVar
+from tkinter import IntVar, messagebox
 from constants.image_imports import back_image
 from tkintertable import TableCanvas
-from controllers.config_controller import AddCabinetController, DatabaseController
+from controllers.config_controller import AddCabinetController, DatabaseController, GpioController
 from controllers.stream_controller import StreamController
 
 
@@ -14,6 +16,7 @@ class AddCabinetScreen(ctk.CTkFrame):
         
         self.parent = parent
         self.root = root
+        
         self.databaseController = DatabaseController(view=self)
         self.addCabinetController = AddCabinetController(view=self)
         self.streamController = StreamController(view=self)
@@ -22,6 +25,7 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.locationComboboxValues = []
         self.locationData = {}
         
+        self.isRestart = False
         self.statusComboboxVar = ctk.StringVar()
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
@@ -125,17 +129,17 @@ class AddCabinetScreen(ctk.CTkFrame):
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="1. Save data",
+            text="Save Data",
             command=self.save_data
         )
         
-        self.upload_button = ctk.CTkButton(
+        self.restart_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="2. Upload data",
-            state=ctk.DISABLED,
-            command=self.upload_data
+            text="Restart System",
+            state="disabled",
+            command=self.save_data
         )
         
         self.boxTable = BoxList(self, root=self.root)
@@ -144,16 +148,19 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
         self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
-        self.save_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
-        self.upload_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
+        self.save_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.72, anchor=ctk.CENTER)
     
     def save_data(self):
-        self.upload_button.configure(state=ctk.NORMAL)
-        self.addCabinetController.save_to_database()
-    
-    def upload_data(self):
-        self.upload_button.configure(state=ctk.DISABLED)
-        self.addCabinetController.upload_to_firebase()
+        tableData = self.boxTable.table.getModel().data
+        isSave = self.addCabinetController.save_to_database()
+        isUpload = self.addCabinetController.upload_to_firebase(len(tableData))
+        self.restart_button.configure(state="normal")
+        if isSave and isUpload:
+            self.isRestart = True
+            self.display_label.configure(text_color="green", text="Thông tin cabinet và box được tạo thành công")
+            answer = messagebox.askyesno("Question","Cần restart lại hệ thống khi đã thêm thông tin")
+            if answer:
+                self.restart()
     
     def set_location_data(self):
         results = self.databaseController.get_location_data()
@@ -172,11 +179,7 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.cabinetLocation.set("")
         self.display_label.configure(text="")
         self.location_combobox.set('')
-        
-    def go_back_prev_screen(self):
-        self.refresh()
-        self.root.show_frame("ChooseCabinetScreen")
-        
+      
     def status_combobox_callback(self, choice):
         if choice == 'Yes':
             self.cabinetStatus.set(1)
@@ -195,8 +198,24 @@ class AddCabinetScreen(ctk.CTkFrame):
         # print(locationChoice)
         # print("BussinesId: ", self.businessId.get())
         # print("LocationId: ", self.locationId.get())
-
-
+   
+    def go_back_prev_screen(self):
+        if not self.isRestart:
+            self.refresh()
+            self.root.show_frame("ChooseCabinetScreen")
+        else:
+            return self.display_label.configure(text_color="red", text="Bạn cần restart lại hệ thống trước")
+       
+    def restart(self):
+        '''Restarts the current program.
+        Note: this function does not return. Any cleanup action (like
+        saving data) must be done before calling this function.'''
+        # self.root.cleanAndExit()
+        self.root.streamController.close_all_stream()
+        python = sys.executable
+        os.execl(python, python, * sys.argv)
+    
+    
 class BoxList(ctk.CTkFrame):
     def __init__ (self, parent, root):
         ctk.CTkFrame.__init__(self, parent)

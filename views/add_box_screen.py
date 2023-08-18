@@ -1,3 +1,5 @@
+import os
+import sys
 import time
 import customtkinter as ctk
 
@@ -40,47 +42,29 @@ class AddBoxScreen(ctk.CTkFrame):
             text="",
         )
 
-        self.upload_button = ctk.CTkButton(
-            master=self,
-            corner_radius=15.0,
-            font=ctk.CTkFont(size=28, weight="bold"),
-            text="2. Upload",
-            state="disabled",
-            command=self.upload_box
-        )
-
         self.add_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
-            font=ctk.CTkFont(size=28, weight="bold"),
-            text="1. Add box",
-            command=self.create_box
+            font=ctk.CTkFont(size=30, weight="bold"),
+            text="Save Box",
+            command=self.save_box
         )
 
         self.boxTable = BoxList(self, root=self.root)
         self.boxTable.place(relwidth=.90, relheight=.65,relx=.48, rely=.45, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.53, relx=.45, rely=.05, anchor=ctk.CENTER)
-        self.add_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.85, anchor=ctk.CENTER)
-        self.upload_button.place(relwidth=.35, relheight=.10, relx=.75, rely=.85, anchor=ctk.CENTER)
+        self.add_button.place(relwidth=.55, relheight=.10, relx=.50, rely=.85, anchor=ctk.CENTER)
 
-    def create_box(self):
+    def save_box(self):
         tableData = self.boxTable.table.getModel().data
-        # print(self.cabinetId)
         isSaved = self.addBoxController.add_more_box(tableData)
-        if isSaved:
-            self.upload_button.configure(state="normal")
-
-    def upload_box(self):
-        tableData = self.boxTable.table.getModel().data
-        # print("Data Length: ", len(tableData))
-        self.root.boxStream.close()
-
-        isBoxUpload = self.addBoxController.upload_more_box(
-            self.cabinetId.get(), len(tableData))
-
-        if isBoxUpload:
+        isBoxUpload = self.addBoxController.upload_more_box(self.cabinetId.get(), len(tableData))
+        
+        if isSaved and isBoxUpload:
+            self.root.globalBoxData.clear()
+            self.root.boxStream.close()
+            self.root.gpioController.setup_box_data()
             self.streamController.set_box_stream(self.cabinetId.get())
-            self.upload_button.configure(state="disabled")
             newData = {
                 '01': {
                     'nameBox': "",
@@ -93,6 +77,36 @@ class AddBoxScreen(ctk.CTkFrame):
             }
             self.boxTable.table.model.importDict(newData)
             self.boxTable.table.redrawTable()
+        
+    def restart(self):
+        '''Restarts the current program.
+        Note: this function does not return. Any cleanup action (like
+        saving data) must be done before calling this function.'''
+        # self.root.cleanAndExit()
+        self.root.streamController.close_all_stream()
+        python = sys.executable
+        os.execl(python, python, * sys.argv)
+        
+    # def upload_box(self):
+    #     tableData = self.boxTable.table.getModel().data
+    #     # print("Data Length: ", len(tableData))
+
+    #     if isBoxUpload:
+    #         self.root.boxStream.close()
+    #         self.streamController.set_box_stream(self.cabinetId.get())
+    #         self.upload_button.configure(state="disabled")
+    #         newData = {
+    #             '01': {
+    #                 'nameBox': "",
+    #                 'solenoidGpio': 0,
+    #                 'switchGpio': 0,
+    #                 'loadcellDout': 0,
+    #                 'loadcellSck': 0,
+    #                 'loadcellRf': 0,
+    #             }
+    #         }
+    #         self.boxTable.table.model.importDict(newData)
+    #         self.boxTable.table.redrawTable()
 
     def go_back(self):
         self.display_label.configure(text='')  # Clear display label

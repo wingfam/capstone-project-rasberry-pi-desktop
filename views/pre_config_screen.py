@@ -2,7 +2,7 @@ import customtkinter as ctk
 
 from tkinter import ttk, CENTER
 from constants.image_imports import back_image
-from controllers.pre_config_controller import PreConfigController
+from controllers.config_controller import DatabaseController
 from widgets.keypad import Keypad
 
 class PreConfigScreen(ctk.CTkFrame):
@@ -11,7 +11,9 @@ class PreConfigScreen(ctk.CTkFrame):
         ctk.CTkFrame.configure(self, fg_color="white")
         
         self.root = root
-        self.configController = PreConfigController(self)
+        
+        self.databaseController = DatabaseController(self)
+        
         self.input_master_code = ctk.StringVar()
         
         text_font = ctk.CTkFont(size=38, weight="bold")
@@ -55,7 +57,7 @@ class PreConfigScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=text_font,
             text="Xác Nhận",
-            command=self.verify
+            command=self.check_master_code
         ).place(relwidth=.4, relx=.28, rely=.71, anchor=ctk.CENTER)
         
         self.keypad = Keypad(self)
@@ -65,10 +67,22 @@ class PreConfigScreen(ctk.CTkFrame):
         self.master_code_label.place(relx=.26, rely=.45, anchor=CENTER)
         self.master_code_entry.place(relwidth=.4, relheight=.15, relx=.28, rely=.30, anchor=CENTER)
     
-    def verify(self):
-        isConfirm = self.configController.check_master_code(self.input_master_code)
-        if isConfirm:
-            self.go_to_choose_screen()
+    def check_master_code(self):
+        inputCode = self.input_master_code.get()
+        
+        foundMasterCode = self.databaseController.get_masterCode(inputCode)
+        
+        if not foundMasterCode:
+            error_text = "Mã master không đúng"
+            return self.error_label.configure(text=error_text, foreground="red")
+            
+        for key, value in foundMasterCode.items():
+            masterCodeStatus =  int(value['masterCodeStatus'])
+            if masterCodeStatus == 1:
+                self.go_to_choose_screen()
+            else:
+                error_text = "Mã master không thể dùng vào lúc này"
+                return self.error_label.configure(text=error_text, foreground="red")
     
     def refresh(self):
         self.input_master_code.set("")
