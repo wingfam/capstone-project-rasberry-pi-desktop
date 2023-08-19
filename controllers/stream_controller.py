@@ -7,7 +7,6 @@ from services.firebase_config import firebaseDB
 class StreamController():
     def __init__(self, view):
         self.view = view
-        self.databaseController = DatabaseController(self)
     
     def cabinet_stream_handler(self, stream):
         if stream['event'] == 'put':
@@ -17,8 +16,9 @@ class StreamController():
             path = stream['path']
             cabinetId = path[1: len(path)]
             snapshot = firebaseDB.child("Cabinet").order_by_key().equal_to(cabinetId).get().val()
+            
             for key, value in snapshot.items():
-                self.databaseController.update_cabinet_to_db(value)
+                self.view.databaseController.update_cabinet_to_db(value)
        
     def box_stream_handler(self, stream):
         if stream['event'] == 'put':
@@ -28,8 +28,12 @@ class StreamController():
             path = stream['path']
             boxId = path[1: len(path)]
             snapshot = firebaseDB.child("Box").order_by_key().equal_to(boxId).get().val()
+            
             for key, value in snapshot.items():
-                self.databaseController.update_box_patch_event(value)
+                self.view.databaseController.update_box_patch_event(value)
+            
+            self.view.gpioController.close_gpio()
+            self.view.gpioController.setup_box_data()
     
     def set_cabinet_stream(self, cabinetId):
         cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
