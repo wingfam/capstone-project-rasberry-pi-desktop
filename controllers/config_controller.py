@@ -2,13 +2,14 @@ import time
 import sqlite3 as sqlite3
 import random
 import math
+# import RPi.GPIO as GPIO
 
-# from gpiozero import LED, Button
+from gpiozero import LED, Button
+from gpiozero.pins.pigpio import PiGPIOFactory
 # from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
-from models.models import Cabinet, CabinetLog, Box
 from services.firebase_config import firebaseDB
 from services.sqlite3 import dict_factory
 from constants.db_table import db_file_name
@@ -21,18 +22,18 @@ class GpioController():
         self.view = view
 
         '''Declare host for remote GPIO Only use to control gpio remotely'''
-        # self.gpio_factory = PiGPIOFactory(host='192.168.0.101') # NOTE: This is a thread
+        self.gpio_factory = PiGPIOFactory(host='192.168.0.109') # NOTE: This is a thread
 
         '''Magnetic switch hold time'''
         self.hold_time = 3.0
 
-    # def set_solenoid(self, pin):
-    #     solenoid = LED(pin, initial_value=True)
-    #     return solenoid
+    def set_solenoid(self, pin):
+        solenoid = LED(pin, initial_value=True)
+        return solenoid
 
-    # def set_mag_switch(self, pin):
-    #     mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
-    #     return mag_switch
+    def set_mag_switch(self, pin):
+        mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
+        return mag_switch
 
     # def set_loadcell(self, dout, sck, ref):
     #     # Loadcell reference unit
@@ -73,8 +74,8 @@ class GpioController():
                 box['id']: {
                     'id': box['id'],
                     'nameBox': box['nameBox'],
-                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    'magSwitch': self.set_mag_switch(box['switchGpio']),
                     # 'loadcell': self.set_loadcell(
                     #     box['loadcellDout'], 
                     #     box['loadcellSck'],
@@ -83,7 +84,14 @@ class GpioController():
             }
             
             self.view.globalBoxData.update(boxData)
+    
+    def close_gpio(self):
+        globalBoxData = self.view.root.globalBoxData
+        for key, value in globalBoxData.items():
+            value['solenoid'].close()
+            value['magSwitch'].close()
             
+        # GPIO.cleanup()
 
 class AddCabinetController():
     def __init__(self, view):
