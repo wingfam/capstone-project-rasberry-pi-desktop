@@ -31,9 +31,6 @@ class StreamController():
             
             for key, value in snapshot.items():
                 self.view.databaseController.update_box_patch_event(value)
-            
-            self.view.gpioController.close_gpio()
-            self.view.gpioController.setup_box_data()
     
     def set_cabinet_stream(self, cabinetId):
         cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(

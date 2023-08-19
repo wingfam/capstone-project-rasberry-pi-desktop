@@ -69,7 +69,6 @@ class GpioController():
             boxData = {
                 box['id']: {
                     'id': box['id'],
-                    'nameBox': box['nameBox'],
                     'solenoid': self.set_solenoid(box['solenoidGpio']),
                     'magSwitch': self.set_mag_switch(box['switchGpio']),
                     # 'loadcell': self.set_loadcell(
