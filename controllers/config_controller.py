@@ -5,7 +5,6 @@ import math
 # import RPi.GPIO as GPIO
 
 from gpiozero import LED, Button
-from gpiozero.pins.pigpio import PiGPIOFactory
 # from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
@@ -20,9 +19,6 @@ check_weight_time = 3
 class GpioController():
     def __init__(self, view):
         self.view = view
-
-        '''Declare host for remote GPIO Only use to control gpio remotely'''
-        self.gpio_factory = PiGPIOFactory(host='192.168.0.109') # NOTE: This is a thread
 
         '''Magnetic switch hold time'''
         self.hold_time = 3.0
