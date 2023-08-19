@@ -36,7 +36,7 @@ class AddCabinetScreen(ctk.CTkFrame):
         
         label_font = ctk.CTkFont(size=24)
         
-        ctk.CTkButton(
+        self.go_back_btn = ctk.CTkButton(
             master=self,
             width=44,
             height=44,
@@ -45,43 +45,43 @@ class AddCabinetScreen(ctk.CTkFrame):
             text= "",
             image=back_image,
             command=self.go_back_prev_screen,
-        ).place(relx=.05, rely=.10, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkLabel(
+        self.box_list_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="w",
             text_color="black",
             font=label_font,
             text="Box list: ",
-        ).place(relx=.60, rely=.08, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkLabel(
+        self.cabinet_name_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=label_font,
             text="Cabinet name: ",
-        ).place(relx=.08, rely=.25, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkLabel(
+        self.status_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=label_font,
             text="Is Available: ",
-        ).place(relx=.08, rely=.35, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkLabel(
+        self.location_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=label_font,
             text="Location: ",
-        ).place(relx=.08, rely=.45, anchor=ctk.CENTER)
+        )
         
         self.display_label = ctk.CTkLabel(
             master=self,
@@ -143,11 +143,17 @@ class AddCabinetScreen(ctk.CTkFrame):
         )
         
         self.boxTable = BoxList(self, root=self.root)
+        
+        self.go_back_btn.place(relx=.05, rely=.10, anchor=ctk.CENTER)
+        self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
+        self.cabinet_name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
+        self.status_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
+        self.location_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
+        self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
         self.location_combobox.place(relwidth=.23, relx=.310, rely=.45, anchor=ctk.CENTER)
         self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
         self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
-        self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         self.save_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.72, anchor=ctk.CENTER)
     
     def save_data(self):
@@ -205,7 +211,7 @@ class AddCabinetScreen(ctk.CTkFrame):
             self.root.show_frame("ChooseCabinetScreen")
         else:
             return self.display_label.configure(text_color="red", text="Bạn cần restart lại hệ thống trước")
-       
+    
     def restart(self):
         '''Restarts the current program.
         Note: this function does not return. Any cleanup action (like

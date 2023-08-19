@@ -15,19 +15,12 @@ class ConfigScreen(ctk.CTkFrame):
         ctk.CTkFrame.configure(self, fg_color="white")
 
         self.root = root
+
         self.databaseController = DatabaseController(view=self)
-
-        self.editScreen = EditCabinetScreen(
-            parent=self, root=self.root)
-
-        self.controlScreen = ControlScreen(
-            parent=self, root=self.root)
-
-        self.isRestart = False
         
         button_font = ctk.CTkFont(size=38, weight="bold")
 
-        ctk.CTkButton(
+        self.go_back_btn = ctk.CTkButton(
             master=self,
             width=44,
             height=44,
@@ -36,18 +29,9 @@ class ConfigScreen(ctk.CTkFrame):
             text="",
             image=back_image,
             command=self.go_back
-        ).place(relx=.10, rely=.10, anchor=ctk.CENTER)
-        
-        self.display_label = ctk.CTkLabel(
-            master=self,
-            width=200,
-            fg_color="white",
-            text_color="red",
-            font=ctk.CTkFont(size=24),
-            text="",
         )
-
-        self.edit_button = ctk.CTkButton(
+        
+        self.edit_btn = ctk.CTkButton(
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
@@ -55,15 +39,7 @@ class ConfigScreen(ctk.CTkFrame):
             command=self.go_to_edit_screen
         )
 
-        self.add_box_button = ctk.CTkButton(
-            master=self,
-            anchor=ctk.CENTER,
-            font=button_font,
-            text="Add Box",
-            command=self.go_to_add_box_screen
-        )
-
-        self.manual_control_button = ctk.CTkButton(
+        self.manual_control_btn = ctk.CTkButton(
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
@@ -71,7 +47,7 @@ class ConfigScreen(ctk.CTkFrame):
             command=self.go_to_control_screen
         )
         
-        self.delete_button = ctk.CTkButton(
+        self.delete_btn = ctk.CTkButton(
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
@@ -79,16 +55,23 @@ class ConfigScreen(ctk.CTkFrame):
             command=self.delete
         )
         
+        self.restart_btn = ctk.CTkButton(
+            master=self,
+            anchor=ctk.CENTER,
+            font=button_font,
+            text="Restart System",
+            command=self.restart
+        )
         
-        self.edit_button.place(relwidth=.45, relheight=.15, relx=.5, rely=.20, anchor=ctk.CENTER)
-        self.add_box_button.place(relwidth=.45, relheight=.15, relx=.5, rely=.40, anchor=ctk.CENTER)
-        self.manual_control_button.place(relwidth=.45, relheight=.15, relx=.5, rely=.60, anchor=ctk.CENTER)
-        self.delete_button.place(relwidth=.45, relheight=.15, relx=.5, rely=.80, anchor=ctk.CENTER)
-        self.display_label.place(relwidth=.23, relx=.12, rely=.50, anchor=ctk.CENTER)
-        
+        self.go_back_btn.place(relx=.10, rely=.10, anchor=ctk.CENTER)
+        self.edit_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.20, anchor=ctk.CENTER)
+        self.manual_control_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.40, anchor=ctk.CENTER)
+        self.delete_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.60, anchor=ctk.CENTER)
+        self.restart_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.80, anchor=ctk.CENTER)
 
     def go_back(self):
-        if not self.isRestart:
+        print(self.root.isRestart.get())
+        if not self.root.isRestart.get():
             self.root.show_frame("ChooseCabinetScreen")
         else:
             answer = messagebox.askyesno("Question","Bạn cần restart lại hệ thống trước")
@@ -97,9 +80,6 @@ class ConfigScreen(ctk.CTkFrame):
 
     def go_to_edit_screen(self):
         self.root.show_frame("EditCabinetScreen")
-
-    def go_to_add_box_screen(self):
-        self.root.show_frame("AddBoxScreen")
 
     def go_to_control_screen(self):
         self.root.show_frame("ControlScreen")
@@ -116,15 +96,12 @@ class ConfigScreen(ctk.CTkFrame):
             if not isCabinetDeleted and not isCabinetLogDeleted and not isBoxDeleted:
                 return self.display_label.configure(text="Không thể xóa cabinet")
             else:
-                self.isRestart = True
+                self.root.isRestart = True
         
-        if self.isRestart:
+        if self.root.isRestart:
             answer = messagebox.askyesno("Question","Bạn cần restart lại hệ thống trước")
             if answer:
                 self.restart()
-        
-    def refresh(self):
-        self.display_label.configure(text="")
     
     def restart(self):
         '''Restarts the current program.

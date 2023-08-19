@@ -228,6 +228,7 @@ class EditCabinetController():
         self.view.cabinetId.set(self.view.cabinetData['id'])
         self.view.cabinetName.set(self.view.cabinetData['nameCabinet'])
         self.view.status.set(self.view.cabinetData['status'])
+        self.view.masterCode.set(self.view.cabinetData['masterCode'])
         self.view.businessId.set(self.view.cabinetData['businessId'])
         self.view.locationId.set(self.view.cabinetData['locationId'])
 
@@ -271,6 +272,8 @@ class EditCabinetController():
         cabinetValue = {
             'nameCabinet': self.view.cabinetName.get(),
             'status': self.view.status.get(),
+            'masterCode': self.view.masterCode.get(),
+            'masterCodeStatus': self.view.cabinetData['masterCodeStatus'],
             'businessId': self.view.businessId.get(),
             'locationId': self.view.locationId.get(),
             'id': self.view.cabinetId.get()
@@ -319,9 +322,9 @@ class EditCabinetController():
         isUpload = None
         try:
             boxData = self.view.boxData
-            print(boxData)
+            # print(boxData)
             for box in boxData.values():
-                print(box['id'])
+                # print(box['id'])
                 boxId = box['id']
                 boxRef = firebaseDB.child("Box/", boxId)
 

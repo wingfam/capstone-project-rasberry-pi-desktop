@@ -86,27 +86,6 @@ class AddBoxScreen(ctk.CTkFrame):
         self.root.streamController.close_all_stream()
         python = sys.executable
         os.execl(python, python, * sys.argv)
-        
-    # def upload_box(self):
-    #     tableData = self.boxTable.table.getModel().data
-    #     # print("Data Length: ", len(tableData))
-
-    #     if isBoxUpload:
-    #         self.root.boxStream.close()
-    #         self.streamController.set_box_stream(self.cabinetId.get())
-    #         self.upload_button.configure(state="disabled")
-    #         newData = {
-    #             '01': {
-    #                 'nameBox': "",
-    #                 'solenoidGpio': 0,
-    #                 'switchGpio': 0,
-    #                 'loadcellDout': 0,
-    #                 'loadcellSck': 0,
-    #                 'loadcellRf': 0,
-    #             }
-    #         }
-    #         self.boxTable.table.model.importDict(newData)
-    #         self.boxTable.table.redrawTable()
 
     def go_back(self):
         self.display_label.configure(text='')  # Clear display label

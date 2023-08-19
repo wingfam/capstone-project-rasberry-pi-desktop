@@ -1,8 +1,7 @@
-import time
 import customtkinter as ctk
 
 from tkinter import IntVar
-from constants.image_imports import back_image, refresh_image
+from constants.image_imports import back_image, add_image
 from tkintertable import TableCanvas
 from controllers.config_controller import DatabaseController, EditCabinetController
 from controllers.stream_controller import StreamController
@@ -28,12 +27,13 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.statusComboboxVar = ctk.StringVar()
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
+        self.masterCode = ctk.StringVar()
         self.status = IntVar()
         self.cabinetLocation = ctk.StringVar()
         self.businessId = ctk.StringVar()
         self.locationId = ctk.StringVar()
         
-        ctk.CTkButton(
+        self.go_back_btn = ctk.CTkButton(
             master=self,
             width=44,
             height=44,
@@ -42,54 +42,63 @@ class EditCabinetScreen(ctk.CTkFrame):
             text= "",
             image=back_image,
             command=self.go_back,
-        ).place(relx=.05, rely=.10, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkButton(
+        self.add_box_btn = ctk.CTkButton(
             master=self,
             width=44,
             height=44,
             bg_color="#FFFFFF",
             fg_color="#FFFFFF",
-            text= "",
-            image=refresh_image,
-            command=self.reload,
-        ).place(relx=.90, rely=.05, anchor=ctk.CENTER)
-        
-        ctk.CTkLabel(
+            text="",
+            image=add_image,
+            command=self.go_to_add_box_screen
+        )
+
+        self.box_list_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="w",
             text_color="black",
             font=ctk.CTkFont(size=24),
             text="Box list: ",
-        ).place(relx=.60, rely=.08, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkLabel(
+        self.cabinet_name_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=ctk.CTkFont(size=24),
             text="Cabinet name: ",
-        ).place(relx=.08, rely=.25, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkLabel(
+        self.status_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=ctk.CTkFont(size=24),
             text="Is Available: ",
-        ).place(relx=.08, rely=.35, anchor=ctk.CENTER)
+        )
         
-        ctk.CTkLabel(
+        self.location_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=ctk.CTkFont(size=24),
             text="Location: ",
-        ).place(relx=.08, rely=.45, anchor=ctk.CENTER)
+        )
+        
+        self.master_code_label = ctk.CTkLabel(
+            master=self,
+            width=200,
+            anchor="e",
+            text_color="black",
+            font=ctk.CTkFont(size=24),
+            text="Master Code: ",
+        )
         
         self.display_label = ctk.CTkLabel(
             master=self,
@@ -133,31 +142,40 @@ class EditCabinetScreen(ctk.CTkFrame):
             command=self.location_combobox_callback
         )
     
+        self.master_code_entry = ctk.CTkEntry(
+            master=self,
+            width=200,
+            fg_color="white",
+            text_color="black",
+            font=ctk.CTkFont(size=24),
+            textvariable=self.masterCode,
+        )
+        
         self.save_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="1. Save data",
+            text="Update Data",
             command=self.update
         )
         
-        self.upload_button = ctk.CTkButton(
-            master=self,
-            corner_radius=15.0,
-            font=ctk.CTkFont(size=28, weight="bold"),
-            text="2. Reupload",
-            state=ctk.DISABLED,
-            command=self.reupload
-        )
-        
         self.boxTable = BoxList(self, root=self.root)
-        self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
-        self.location_combobox.place(relwidth=.23, relx=.310, rely=.45, anchor=ctk.CENTER)
-        self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
-        self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
+        
+        
+        self.go_back_btn.place(relx=.05, rely=.10, anchor=ctk.CENTER)
+        self.add_box_btn.place(relx=.80, rely=.05, anchor=ctk.CENTER)
+        self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
+        self.cabinet_name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
+        self.status_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
+        self.location_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
+        self.master_code_label.place(relx=.08, rely=.55, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
-        self.save_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.62, anchor=ctk.CENTER)
-        self.upload_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.75, anchor=ctk.CENTER)
+        self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
+        self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
+        self.location_combobox.place(relwidth=.23, relx=.31, rely=.45, anchor=ctk.CENTER)
+        self.master_code_entry.place(relwidth=.23, relx=.31, rely=.55, anchor=ctk.CENTER)
+        self.save_button.place(relwidth=.25, relheight=.10, relx=.70, rely=.85, anchor=ctk.CENTER)
+        self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
          
     def status_combobox_callback(self, choice):
         if choice == 'Yes':
@@ -180,50 +198,33 @@ class EditCabinetScreen(ctk.CTkFrame):
         # print(self.locationId.get())
     
     def update(self):
-        self.upload_button.configure(state=ctk.NORMAL)
         isCabinetUpdate = self.editController.update_cabinet_data()
         isBoxUpdate = self.editController.update_box_data()
-        if isCabinetUpdate and isBoxUpdate:
-            self.reload()
+        isCabinetUpload = self.editController.reupload_cabinet()
+        isBoxUpload = self.editController.reupload_box()
+        
+        if isCabinetUpdate and isBoxUpdate and isCabinetUpload and isBoxUpload:
+            self.root.isRestart.set(True)
             self.display_label.configure(text_color='green', text='Update successful')
         else:
             self.display_label.configure(text_color='red', text='Update unsuccessful')
-        
-    def reupload(self):
-        self.upload_button.configure(state=ctk.DISABLED)
-        isCabinetUpload = self.editController.reupload_cabinet()
-        isBoxUpload = self.editController.reupload_box()
-        if isCabinetUpload and isBoxUpload:
-            self.display_label.configure(text_color='green', text='Upload successful')
-        else:
-            self.display_label.configure(text_color='red', text='Upload unsuccessful')
-    
-    def reload(self):
-        self.locationData.clear()
-        self.locationComboboxValues.clear()
-        self.cabinetLocation.set("")
-        self.editController.get_infos()
     
     def refresh(self):
         self.locationData.clear()
         self.locationComboboxValues.clear()
         self.cabinetName.set("")
         self.statusComboboxVar.set("")
-        self.display_label.configure(text="")
-        self.location_combobox.set('')
-        
-    def go_back(self):
-        # Refresh data
-        self.refresh()
-        
-        # Clear display label
-        self.display_label.configure(text='') 
+        self.location_combobox.set("")
+        self.display_label.configure(text="") 
         self.boxTable.data.clear()
-        
-        # Clear data inside table
         tableData = self.boxTable.table.getModel().data
         tableData.clear()
-        
+    
+    def go_to_add_box_screen(self):
+        self.root.show_frame("AddBoxScreen")
+       
+    def go_back(self):
+        self.refresh()
         self.root.show_frame("ConfigScreen")
    
 class BoxList(ctk.CTkFrame):

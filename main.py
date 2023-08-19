@@ -26,6 +26,7 @@ class MainApp(ctk.CTk):
         
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
+        self.isRestart = ctk.BooleanVar()
         
         container = ctk.CTkFrame(self)
         container.pack(side="top", fill="both", expand=True)
