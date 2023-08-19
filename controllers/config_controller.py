@@ -82,7 +82,7 @@ class GpioController():
             self.view.globalBoxData.update(boxData)
     
     def close_gpio(self):
-        globalBoxData = self.view.root.globalBoxData
+        globalBoxData = self.view.globalBoxData
         for key, value in globalBoxData.items():
             value['solenoid'].close()
             value['magSwitch'].close()
