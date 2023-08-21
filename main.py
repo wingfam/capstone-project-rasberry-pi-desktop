@@ -10,7 +10,7 @@ from constants.screen_views import ScreenView
 class MainApp(ctk.CTk):
     def __init__(self, *args, **kwargs):
         ctk.CTk.__init__(self, *args, **kwargs)
-        self.geometry("1024x600")
+        self.attributes('-fullscreen', True)
         self.title("Smart Locker")
         
         self.databaseController = DatabaseController(view=self)
