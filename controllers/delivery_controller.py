@@ -7,11 +7,12 @@ class DeliveryController():
         self.view = view
     
     def check_booking_code(self, input_data):
-        isError = False
         error_text= ""
         if input_data.index("end") == 0:
-            isError = True
             error_text = "Trường nhập không được để trống"
+            return self.view.label_error.configure(
+                text=error_text,
+                foreground="red")
         else:
             try:
                 # Login vào firebase mỗi lần gửi yêu cầu để tránh bị timeout
@@ -24,35 +25,40 @@ class DeliveryController():
                     "bcode").equal_to(inputCode).get(fb_login["idToken"])
                 
                 for key, value in fb_booking_code.val().items():
-                    print(value)
+                    # print(value)
                     status = value['status']
-                    validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
-                    if status == 0 or currentDate > validDate:
-                        isError = True
-                        error_text = "Mã booking đã hết hạn, vui lòng tạo mã khác"
-                        break
-                    else:
-                        order = ({
-                            'bookingCodeId': value['id'],
-                            'bookingId': value['bookingId'],
-                            'status': value['status']
-                        })
-                        break
                     
+                    boxId = firebaseDB.child(
+                        "BookingOrder/", value['bookingId'], "/boxId").get(fb_login["idToken"]).val()
+                    
+                    cabinetId = self.view.databaseController.get_cabinetId_by_boxId(boxId)
+                    
+                    if not cabinetId:
+                        error_text = "Booking này không đúng với Cabinet, vui lòng kiểm tra lại"
+                        return self.view.label_error.configure(
+                            text=error_text,
+                            foreground="red")
+                    else:
+                        validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
+                        if status == 0 or currentDate > validDate:
+                            error_text = "Mã booking đã hết hạn, vui lòng tạo mã khác"
+                            return self.view.label_error.configure(
+                                text=error_text,
+                                foreground="red")
+                        else:
+                            order = ({
+                                'bookingCodeId': value['id'],
+                                'bookingId': value['bookingId'],
+                                'status': value['status']
+                            })
+                            break
+                        
                 return order
             except IndexError:
-                isError = True
                 error_text = "Mã booking không đúng, vui lòng nhập lại"
-        
-        if isError:
-            self.view.label_error.grid(
-                padx=95,
-                pady=116,
-            )
-            return self.view.label_error.configure(
-                text=error_text,
-                foreground="red",
-            )
+                return self.view.label_error.configure(
+                    text=error_text,
+                    foreground="red")
 
     def update_app_data(self, order):
         fb_login = firebase_login()

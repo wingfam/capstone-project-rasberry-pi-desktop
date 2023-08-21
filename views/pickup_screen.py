@@ -1,6 +1,7 @@
 import customtkinter as ctk
 
 from tkinter import ttk
+from controllers.config_controller import DatabaseController
 from widgets.keypad import Keypad
 from constants.image_imports import back_image
 from constants.string_constants import pickup_notice_label
@@ -10,9 +11,12 @@ class PickupScreen(ctk.CTkFrame):
     def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white")
+        
         self.parent = parent
         self.root = root
         self.back_image = back_image
+        
+        self.databaseController = DatabaseController(self)
         self.pickupController = PickupController(self)
         
         self.notice_label1 = ctk.CTkLabel(
@@ -74,6 +78,7 @@ class PickupScreen(ctk.CTkFrame):
         self.keypad.place(relx=.75, rely=.55, anchor=ctk.CENTER)
         self.notice_label1.place(relx=.65, rely=.20, anchor=ctk.CENTER)
         self.notice_label2.place(relx=.28, rely=.45, anchor=ctk.CENTER)
+        self.label_error.grid(padx=45,pady=110)
         self.button_confirm.place(relx=.28, rely=.75, anchor=ctk.CENTER)
         self.button_back.place(relx=.95, rely=.10, anchor=ctk.CENTER)
         self.entry_code.place(relwidth=.4, relheight=.10, relx=.28, rely=.32, anchor=ctk.CENTER)

@@ -2,9 +2,9 @@ import time
 import sqlite3 as sqlite3
 import random
 import math
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
-from gpiozero import LED, Button
+# from gpiozero import LED, Button
 # from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
@@ -31,37 +31,37 @@ class GpioController():
         mag_switch = Button(pin, pull_up=True, bounce_time=0.2, hold_time=self.hold_time)
         return mag_switch
 
-    # def set_loadcell(self, dout, sck, ref):
-    #     # Loadcell reference unit
-    #     referenceUnit = ref
+    def set_loadcell(self, dout, sck, ref):
+        # Loadcell reference unit
+        referenceUnit = ref
         
-    #     loadcell = HX711(dout, sck)
+        loadcell = HX711(dout, sck)
         
-    #     # Set loadcell reading format
-    #     loadcell.set_reading_format("MSB", "MSB")
-    #     loadcell.set_reference_unit(referenceUnit)
+        # Set loadcell reading format
+        loadcell.set_reading_format("MSB", "MSB")
+        loadcell.set_reference_unit(referenceUnit)
         
-    #     self.reset_loadcell(loadcell)
-    #     self.tare_loadcell(loadcell)
-    #     self.powerDown_loadcell(loadcell)
+        self.reset_loadcell(loadcell)
+        self.tare_loadcell(loadcell)
+        self.powerDown_loadcell(loadcell)
         
-    #     return loadcell
+        return loadcell
     
-    # def tare_loadcell(self, loadcell):
-    #     loadcell.tare()
-    #     print("Loadcell tare done!")
+    def tare_loadcell(self, loadcell):
+        loadcell.tare()
+        print("Loadcell tare done!")
 
-    # def powerUp_loadcell(self, loadcell):
-    #     loadcell.power_up()
-    #     print("Loadcell power up done!")
+    def powerUp_loadcell(self, loadcell):
+        loadcell.power_up()
+        print("Loadcell power up done!")
 
-    # def powerDown_loadcell(self, loadcell):
-    #     loadcell.power_down()
-    #     print("Loadcell power down done!")
+    def powerDown_loadcell(self, loadcell):
+        loadcell.power_down()
+        print("Loadcell power down done!")
 
-    # def reset_loadcell(self, loadcell):
-    #     loadcell.reset()
-    #     print("Loadcell reset done!")
+    def reset_loadcell(self, loadcell):
+        loadcell.reset()
+        print("Loadcell reset done!")
     
     def setup_box_data(self):
         results = self.view.databaseController.get_box_gpio()
@@ -69,8 +69,8 @@ class GpioController():
             boxData = {
                 box['id']: {
                     'id': box['id'],
-                    'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
                     # 'loadcell': self.set_loadcell(
                     #     box['loadcellDout'], 
                     #     box['loadcellSck'],
@@ -549,6 +549,28 @@ class DatabaseController():
             conn.close()
 
         return dicts
+
+    def get_cabinetId_by_boxId(self, boxId):
+        conn = self.opendb(db_file_name)
+        result = ""
+        try:
+            conn = sqlite3.connect(db_file_name)
+            cur = conn.cursor()
+            
+            sql = '''
+                SELECT cabinetId 
+                FROM Box
+                WHERE id = ?
+            '''
+            cur.execute(sql, (boxId,))
+            result = cur.fetchone()
+            conn.commit()
+        except conn.DatabaseError as e:
+            print("An error has occurred: ", e)
+        finally:
+            conn.close()
+
+        return result
 
     def get_masterCode(self, input):
         conn = self.opendb(db_file_name)

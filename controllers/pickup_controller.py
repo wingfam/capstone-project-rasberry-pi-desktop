@@ -7,11 +7,11 @@ class PickupController():
         self.view = view
 
     def check_unlock_code(self, input_data):
-        isError = False
-        error_text= ""
         if input_data.index("end") == 0:
-            isError = True
             error_text = "Trường nhập không được để trống"
+            return self.view.label_error.configure(
+                text=error_text,
+                text_color="red")
         else:
             try:
                 # Login vào firebase mỗi lần gửi yêu cầu để tránh bị timeout
@@ -25,30 +25,34 @@ class PickupController():
                 
                 for key, value in fb_booking_order.val().items():
                     status = value['status']
-                    validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
-                    if status == 4 or currentDate > validDate:
-                        isError = True
-                        error_text = "Booking đã hết hạn"
-                        break
+                    
+                    boxId = firebaseDB.child(
+                        "BookingOrder/", value['id'], "/boxId").get(fb_login["idToken"]).val()
+                    
+                    cabinetId = self.view.databaseController.get_cabinetId_by_boxId(boxId)
+                    
+                    if not cabinetId:
+                        error_text = "Booking này không đúng với Cabinet, vui lòng kiểm tra lại"
+                        return self.view.label_error.configure(
+                            text=error_text,
+                            text_color="red")
                     else:
-                        bookingId = value['id']
-                        break
+                        validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
+                        if status == 4 or currentDate > validDate:
+                            error_text = "Booking đã hết hạn"
+                            return self.view.label_error.configure(
+                                text=error_text,
+                                text_color="red")
+                        else:
+                            bookingId = value['id']
+                            break
                 
                 return bookingId
             except IndexError:
-                print("IndexError")
-                isError = True
                 error_text = "Mã unlock không đúng, vui lòng nhập lại"
-        
-        if isError:
-            self.view.label_error.grid(
-                padx=45,
-                pady=116,
-            )
-            return self.view.label_error.configure(
-                text=error_text,
-                text_color="red",
-            )
+                return self.view.label_error.configure(
+                    text=error_text,
+                    text_color="red")
     
     def update_app_data(self, bookingId):
         fb_login = firebase_login()
