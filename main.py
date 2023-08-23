@@ -1,5 +1,4 @@
 import sys
-import RPi.GPIO as GPIO
 import customtkinter as ctk
 
 from controllers.config_controller import DatabaseController, GpioController
@@ -11,6 +10,7 @@ class MainApp(ctk.CTk):
     def __init__(self, *args, **kwargs):
         ctk.CTk.__init__(self, *args, **kwargs)
         self.attributes('-fullscreen', True)
+        # self.geometry("1024x680")
         self.title("Smart Locker")
         
         self.databaseController = DatabaseController(view=self)
