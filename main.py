@@ -1,5 +1,5 @@
 import sys
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import customtkinter as ctk
 
 from controllers.config_controller import DatabaseController, GpioController
@@ -68,7 +68,7 @@ class MainApp(ctk.CTk):
     def cleanAndExit(self):
         print("Cleaning...")
         self.streamController.close_all_stream()
-        # GPIO.cleanup()
+        GPIO.cleanup()
         print("Exiting program...")
         sys.exit()
         
