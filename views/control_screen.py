@@ -72,7 +72,7 @@ class ControlScreen(ctk.CTkFrame):
             anchor=ctk.CENTER,
             font=button_font,
             text="Check Weight",
-            command=self.check_weight
+            command=self.check_package
         )
 
         self.labelLockStatus = ttk.Entry(
@@ -170,7 +170,7 @@ class ControlScreen(ctk.CTkFrame):
             else:
                 self.switchStatus.set("CLOSE")
 
-    def check_weight(self):
+    def check_package(self):
         if not self.gpioModel:
             self.labelDisplay.configure(
                 text_color="red", text="Please choose a box")
