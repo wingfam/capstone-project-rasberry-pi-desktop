@@ -27,7 +27,6 @@ class DeliveryController():
                 for key, value in fb_booking_code.val().items():
                     # print(value)
                     status = value['status']
-                    
                     validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
                     if status == 0 or currentDate > validDate:
                         error_text = "Mã booking đã hết hạn, vui lòng tạo mã khác"
@@ -41,32 +40,6 @@ class DeliveryController():
                             'status': value['status']
                         })
                         break
-                    
-                    # boxId = firebaseDB.child(
-                    #     "BookingOrder/", value['bookingId'], "/boxId").get(fb_login["idToken"]).val()
-                    
-                    
-                    # cabinetId = self.view.databaseController.get_cabinetId_by_boxId(boxId)
-                    
-                    # if not cabinetId:
-                    #     error_text = "Booking này không đúng với Cabinet, vui lòng kiểm tra lại"
-                    #     return self.view.label_error.configure(
-                    #         text=error_text,
-                    #         foreground="red")
-                    # else:
-                    #     validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
-                    #     if status == 0 or currentDate > validDate:
-                    #         error_text = "Mã booking đã hết hạn, vui lòng tạo mã khác"
-                    #         return self.view.label_error.configure(
-                    #             text=error_text,
-                    #             foreground="red")
-                    #     else:
-                    #         order = ({
-                    #             'bookingCodeId': value['id'],
-                    #             'bookingId': value['bookingId'],
-                    #             'status': value['status']
-                    #         })
-                    #         break
                         
                 return order
             except IndexError:
