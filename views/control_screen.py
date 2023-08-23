@@ -239,7 +239,16 @@ class CabinetListBox(ctk.CTkFrame):
                 self.parent.gpioModel.magSwitch = value['magSwitch']
                 self.parent.gpioModel.loadcell = value['loadcell']
                 break
-       
+        
+        if self.parent.gpioModel.solenoid.value() == 1:
+            self.parent.lockStatus.set("UNLOCK")
+            self.parent.button_on.configure(state=ctk.DISABLED, fg_color="gray99")
+            self.parent.button_off.configure(state=ctk.NORMAL, fg_color="#1F6AA5")
+        else:
+            self.parent.lockStatus.set("LOCK")
+            self.parent.button_on.configure(state=ctk.NORMAL, fg_color="#1F6AA5")
+            self.parent.button_off.configure(state=ctk.DISABLED, fg_color="gray99")
+
     def repopulate(self):
         self.listBox.delete(0, tk.END)
         cabinetId = self.parent.root.cabinetId.get()
