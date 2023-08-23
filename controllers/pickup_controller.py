@@ -26,26 +26,36 @@ class PickupController():
                 for key, value in fb_booking_order.val().items():
                     status = value['status']
                     
-                    boxId = firebaseDB.child(
-                        "BookingOrder/", value['id'], "/boxId").get(fb_login["idToken"]).val()
-                    
-                    cabinetId = self.view.databaseController.get_cabinetId_by_boxId(boxId)
-                    
-                    if not cabinetId:
-                        error_text = "Booking này không đúng với Cabinet, vui lòng kiểm tra lại"
+                    validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
+                    if status == 4 or currentDate > validDate:
+                        error_text = "Booking đã hết hạn"
                         return self.view.label_error.configure(
                             text=error_text,
                             text_color="red")
                     else:
-                        validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
-                        if status == 4 or currentDate > validDate:
-                            error_text = "Booking đã hết hạn"
-                            return self.view.label_error.configure(
-                                text=error_text,
-                                text_color="red")
-                        else:
-                            bookingId = value['id']
-                            break
+                        bookingId = value['id']
+                        break
+                        
+                    # boxId = firebaseDB.child(
+                    #     "BookingOrder/", value['id'], "/boxId").get(fb_login["idToken"]).val()
+                    
+                    # cabinetId = self.view.databaseController.get_cabinetId_by_boxId(boxId)
+                    
+                    # if not cabinetId:
+                    #     error_text = "Booking này không đúng với Cabinet, vui lòng kiểm tra lại"
+                    #     return self.view.label_error.configure(
+                    #         text=error_text,
+                    #         text_color="red")
+                    # else:
+                    #     validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
+                    #     if status == 4 or currentDate > validDate:
+                    #         error_text = "Booking đã hết hạn"
+                    #         return self.view.label_error.configure(
+                    #             text=error_text,
+                    #             text_color="red")
+                    #     else:
+                    #         bookingId = value['id']
+                    #         break
                 
                 return bookingId
             except IndexError:
