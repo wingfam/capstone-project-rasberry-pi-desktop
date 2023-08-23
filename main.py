@@ -68,7 +68,6 @@ class MainApp(ctk.CTk):
     def cleanAndExit(self):
         print("Cleaning...")
         self.streamController.close_all_stream()
-        GPIO.cleanup()
         print("Exiting program...")
         sys.exit()
         
