@@ -42,9 +42,9 @@ class PickupScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=48),
         )
         
-        self.label_error = ctk.CTkLabel(
-            self, 
-            bg_color="white", 
+        self.label_error = ttk.Label(
+            master=self, 
+            background="white", 
             font=ctk.CTkFont(size=16),
             text="", 
         )
@@ -78,7 +78,7 @@ class PickupScreen(ctk.CTkFrame):
         self.keypad.place(relx=.75, rely=.55, anchor=ctk.CENTER)
         self.notice_label1.place(relx=.65, rely=.20, anchor=ctk.CENTER)
         self.notice_label2.place(relx=.28, rely=.45, anchor=ctk.CENTER)
-        self.label_error.grid(padx=45,pady=110)
+        self.label_error.grid(padx=95, pady=110)
         self.button_confirm.place(relx=.28, rely=.75, anchor=ctk.CENTER)
         self.button_back.place(relx=.95, rely=.10, anchor=ctk.CENTER)
         self.entry_code.place(relwidth=.4, relheight=.10, relx=.28, rely=.32, anchor=ctk.CENTER)
@@ -99,7 +99,7 @@ class PickupScreen(ctk.CTkFrame):
         
     def refresh(self):
         self.entry_code.delete(0, "end")
-        self.label_error.grid_remove()
+        self.label_error.configure(text="", foreground="red")
         
     def go_to_main_screen(self):
         self.refresh()

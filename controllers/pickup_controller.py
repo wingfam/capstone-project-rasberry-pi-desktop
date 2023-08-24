@@ -7,11 +7,11 @@ class PickupController():
         self.view = view
 
     def check_unlock_code(self, input_data):
+        isError = False
+        error_text= ""
         if input_data.index("end") == 0:
             error_text = "Trường nhập không được để trống"
-            return self.view.label_error.configure(
-                text=error_text,
-                text_color="red")
+            isError = True
         else:
             try:
                 # Login vào firebase mỗi lần gửi yêu cầu để tránh bị timeout
@@ -28,19 +28,17 @@ class PickupController():
                     validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
                     if status == 4 or currentDate > validDate:
                         error_text = "Booking đã hết hạn"
-                        return self.view.label_error.configure(
-                            text=error_text,
-                            text_color="red")
+                        isError = True
                     else:
                         bookingId = value['id']
-                        break
-                
-                return bookingId
+                        return bookingId
+                    
             except IndexError:
                 error_text = "Mã unlock không đúng, vui lòng nhập lại"
-                return self.view.label_error.configure(
-                    text=error_text,
-                    text_color="red")
+                isError = True
+        
+        if isError:
+            self.view.label_error.configure(text=error_text, foreground="red")
     
     def update_app_data(self, bookingId):
         fb_login = firebase_login()

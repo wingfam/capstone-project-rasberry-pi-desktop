@@ -96,7 +96,7 @@ class InstructionController():
                 nameBox = self.view.root.app_data["nameBox"]
                 
                 notiTitle = "Gửi hàng thàng công!"
-                notiBody = "Bạn có một món hàng ở tủ số: " + nameBox + ". Hãy vào trang Xem booking để lấy mã unlock"
+                notiBody = "Bạn có một món hàng ở tủ số: " + nameBox + " vào ngày: " + currentTime + ". Hãy vào trang Xem booking để lấy mã unlock"
                 
                 bookingLogTitle = "Gửi hàng"
                 bookingLogBody = "Đơn hàng được gửi thành công ở tủ số "+ nameBox + " vào ngày " + currentTime
@@ -172,12 +172,13 @@ class InstructionController():
         fcmToken = ""
         
         for key, value in fb_notification.items():
-            print(value["token"])
+            # print(value["token"])
             fcmToken = value["token"]
         
         result = pushService.push_notification(fcmToken, messageTitle, messageBody)
 
-        print(result)
+        if result:
+            print("Send notification successful")
 
     def save_notification(self, fb_login, customerId, messageTitle, messageBody, currentTime):
         fb_notification = firebaseDB.child("Notification").order_by_child(

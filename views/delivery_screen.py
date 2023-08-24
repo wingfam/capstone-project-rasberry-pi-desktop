@@ -101,7 +101,7 @@ class DeliveryScreen(ctk.CTkFrame):
     
     def refresh(self):
         self.entry_code.delete(0, "end")
-        self.label_error.grid_remove()
+        self.label_error.configure(text="", foreground="red")
         
     def go_to_main_screen(self):
         self.refresh()

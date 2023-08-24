@@ -2,10 +2,10 @@ import time
 import sqlite3 as sqlite3
 import random
 import math
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
-from gpiozero import LED, Button
-from services.hx711 import HX711
+# from gpiozero import LED, Button
+# from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
@@ -86,7 +86,6 @@ class GpioController():
             value['solenoid'].close()
             value['magSwitch'].close()
             
-        GPIO.cleanup()
 
 class AddCabinetController():
     def __init__(self, view):
