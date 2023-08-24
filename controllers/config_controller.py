@@ -2,10 +2,10 @@ import time
 import sqlite3 as sqlite3
 import random
 import math
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
-from gpiozero import LED, Button
-from services.hx711 import HX711
+# from gpiozero import LED, Button
+# from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
@@ -69,12 +69,12 @@ class GpioController():
             boxData = {
                 box['id']: {
                     'id': box['id'],
-                    'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    'loadcell': self.set_loadcell(
-                        box['loadcellDout'], 
-                        box['loadcellSck'],
-                        box['loadcellRf']),
+                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    # 'loadcell': self.set_loadcell(
+                    #     box['loadcellDout'], 
+                    #     box['loadcellSck'],
+                    #     box['loadcellRf']),
                 }
             }
             
