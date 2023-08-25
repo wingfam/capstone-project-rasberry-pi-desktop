@@ -70,7 +70,7 @@ class ConfigScreen(ctk.CTkFrame):
         self.restart_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.80, anchor=ctk.CENTER)
 
     def go_back(self):
-        print(self.root.isRestart.get())
+        # print("Is Restart: ", self.root.isRestart.get())
         if not self.root.isRestart.get():
             self.root.show_frame("ChooseCabinetScreen")
         else:

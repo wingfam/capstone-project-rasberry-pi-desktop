@@ -182,9 +182,18 @@ class EditCabinetScreen(ctk.CTkFrame):
             self.status.set(1)
         elif choice == 'No':
             self.status.set(0)
+            
         self.statusComboboxVar.set(choice)
         choice = self.statusComboboxVar.get()
-        print("status_combobox:", choice)
+        
+        for box in self.boxData.values():
+            if self.status.get():
+                box['status'] = 1
+            else:
+                box['status'] = 0
+            
+        print("Box " + box['nameBox'] + " status is: ", box['status'])
+            
     
     def location_combobox_callback(self, choice):
         self.cabinetLocation.set(choice)
@@ -193,9 +202,6 @@ class EditCabinetScreen(ctk.CTkFrame):
             if value['locationName'] == locationChoice:
                 self.businessId.set(value['businessId'])
                 self.locationId.set(value['locationId'])
-        # print(locationChoice)
-        # print(self.businessId.get())
-        # print(self.locationId.get())
     
     def update(self):
         isCabinetUpdate = self.editController.update_cabinet_data()

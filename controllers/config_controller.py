@@ -274,8 +274,7 @@ class EditCabinetController():
             'locationId': self.view.locationId.get(),
             'id': self.view.cabinetId.get()
         }
-
-        self.view.root.cabinetName.set(cabinetValue['nameCabinet'])
+        
         isUpdate = self.view.databaseController.update_cabinet_to_db(cabinetValue)
         return isUpdate
 
