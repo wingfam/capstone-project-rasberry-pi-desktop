@@ -69,12 +69,12 @@ class GpioController():
             boxData = {
                 box['id']: {
                     'id': box['id'],
-                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    # 'loadcell': self.set_loadcell(
-                    #     box['loadcellDout'], 
-                    #     box['loadcellSck'],
-                    #     box['loadcellRf']),
+                    'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    'loadcell': self.set_loadcell(
+                        box['loadcellDout'], 
+                        box['loadcellSck'],
+                        box['loadcellRf']),
                 }
             }
             
