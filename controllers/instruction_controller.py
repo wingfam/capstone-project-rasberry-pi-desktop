@@ -59,9 +59,9 @@ class InstructionController():
                 weightValue = self.get_weight(model)
             
             # Check if loadcell detect any weight
-            if (task == "delivery" and weightValue > 0):
+            if (task == "delivery" and weightValue > 1):
                 isConfirm = True
-            elif (task == "pickup"and weightValue == 0):
+            elif (task == "pickup"and weightValue < 2):
                 isConfirm = True
         
         return isConfirm
