@@ -25,8 +25,8 @@ class PickupController():
                 
                 for key, value in fb_booking_order.val().items():
                     status = value['status']
-                    if status == 4:
-                        error_text = "Booking đã hết hạn"
+                    if status == 4 or status == 5:
+                        error_text = "Booking không tồn tại"
                         isError = True
                     else:
                         bookingId = value['id']
