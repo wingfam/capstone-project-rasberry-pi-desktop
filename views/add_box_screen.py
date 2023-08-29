@@ -21,8 +21,6 @@ class AddBoxScreen(ctk.CTkFrame):
         self.databaseController = DatabaseController(view=self)
         self.streamController = StreamController(view=self.root)
 
-        self.cabinetId = ""
-
         ctk.CTkButton(
             master=self,
             width=44,
@@ -57,35 +55,19 @@ class AddBoxScreen(ctk.CTkFrame):
 
     def save_box(self):
         tableData = self.boxTable.table.getModel().data
+        cabinetId = self.root.cabinetId.get()
+        tableDataLen = len(tableData)
+        
+        # isSaved = False
+        # isBoxUpload = False
+        # print("Cabinet Id: " + cabinetId + " tableData Len: " + str(tableDataLen))
+        
         isSaved = self.addBoxController.add_more_box(tableData)
-        isBoxUpload = self.addBoxController.upload_more_box(self.cabinetId.get(), len(tableData))
+        isTotalBoxUpdate = self.addBoxController.update_total_box(cabinetId)
         
-        if isSaved and isBoxUpload:
-            self.root.globalBoxData.clear()
-            self.root.boxStream.close()
-            self.root.gpioController.setup_box_data()
-            self.streamController.set_box_stream(self.cabinetId.get())
-            newData = {
-                '01': {
-                    'nameBox': "",
-                    'solenoidGpio': 0,
-                    'switchGpio': 0,
-                    'loadcellDout': 0,
-                    'loadcellSck': 0,
-                    'loadcellRf': 0,
-                }
-            }
-            self.boxTable.table.model.importDict(newData)
-            self.boxTable.table.redrawTable()
-        
-    def restart(self):
-        '''Restarts the current program.
-        Note: this function does not return. Any cleanup action (like
-        saving data) must be done before calling this function.'''
-        # self.root.cleanAndExit()
-        self.root.streamController.close_all_stream()
-        python = sys.executable
-        os.execl(python, python, * sys.argv)
+        if isSaved and isTotalBoxUpdate:
+            self.addBoxController.upload_more_boxes(cabinetId, tableDataLen)
+            self.root.isRestart.set(True)
 
     def go_back(self):
         self.display_label.configure(text='')  # Clear display label

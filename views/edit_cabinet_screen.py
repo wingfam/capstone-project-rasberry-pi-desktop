@@ -1,3 +1,4 @@
+import datetime
 import customtkinter as ctk
 
 from tkinter import IntVar
@@ -206,10 +207,13 @@ class EditCabinetScreen(ctk.CTkFrame):
     def update(self):
         isCabinetUpdate = self.editController.update_cabinet_data()
         isBoxUpdate = self.editController.update_box_data()
+        isLogUpdate = self.editController.save_cabinet_log()
+        
         isCabinetUpload = self.editController.reupload_cabinet()
         isBoxUpload = self.editController.reupload_box()
+        isLogUpload = self.editController.upload_cabinetLog(self.cabinetId.get())
         
-        if isCabinetUpdate and isBoxUpdate and isCabinetUpload and isBoxUpload:
+        if isCabinetUpdate and isBoxUpdate and isLogUpdate and isCabinetUpload and isBoxUpload and isLogUpload:
             self.root.isRestart.set(True)
             self.display_label.configure(text_color='green', text='Update successful')
         else:

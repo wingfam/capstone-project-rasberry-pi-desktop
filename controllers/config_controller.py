@@ -290,7 +290,21 @@ class EditCabinetController():
                     isUpdate = self.view.databaseController.update_box_internal(updateValue)
 
         return isUpdate
-
+    
+    def save_cabinet_log(self):
+        isUpdate = None
+        currentDateTime = datetime.now()
+        currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M")
+        
+        logTitle = "Cập nhật Cabinet"
+        logBody = "" + self.view.cabinetName.get() + " được cập nhật vào ngày: " + currentTime
+        isSave = self.view.databaseController.save_cabinetLog_to_db(logTitle, logBody, self.view.cabinetId.get())
+        
+        if isSave:
+            isUpdate = True
+        
+        return isUpdate
+        
     def reupload_cabinet(self):
         isUpload = None
         try:
@@ -317,7 +331,14 @@ class EditCabinetController():
         isUpload = None
         try:
             boxData = self.view.boxData
-            # print(boxData)
+            tableData = self.view.boxTable.table.getModel().data
+
+            for tableDataKey, tableDataValue in tableData.items():
+                for boxDataKey, boxDataValue in boxData.items():
+                    if tableDataKey == boxDataKey:
+                        boxDataValue['nameBox'] = tableDataValue['nameBox']
+                        boxDataValue['status'] = tableDataValue['status']
+                        
             for box in boxData.values():
                 # print(box['id'])
                 boxId = box['id']
@@ -329,6 +350,32 @@ class EditCabinetController():
                 }
 
                 boxRef.update(newData)
+                isUpload = True
+        except Exception as e:
+            isUpload = False
+            print("An error has occurred: ", e)
+
+        return isUpload
+    
+    def upload_cabinetLog(self, cabinetId):
+        isUpload = None
+        try:
+            data = self.view.databaseController.get_cabinetLog_by_cabinetId(cabinetId)
+            for log in data.values():
+                logRef = firebaseDB.child("CabinetLog")
+
+                newData = {
+                    log['id']: {
+                        'id': log['id'],
+                        'messageTitle': log['messageTitle'],
+                        'messageBody': log['messageBody'],
+                        'messageStatus': log['messageStatus'],
+                        'createDate': log['createDate'],
+                        'cabinetId': log['cabinetId']
+                    }
+                }
+
+                logRef.update(newData)
                 isUpload = True
         except Exception as e:
             isUpload = False
@@ -380,7 +427,7 @@ class AddBoxController():
 
         return isSaved
 
-    def upload_more_box(self, cabinetId, limit):
+    def upload_more_boxes(self, cabinetId, limit):
         isUpload = False
         try:
             results = self.view.databaseController.get_last_box_insert_by_cabinetId(cabinetId, limit)
@@ -396,6 +443,8 @@ class AddBoxController():
                         'cabinetId': data['cabinetId']
                     }
                 }
+                
+                print(newData)
 
                 boxRef.update(newData)
 
@@ -405,6 +454,25 @@ class AddBoxController():
             print("An error has occurred: ", e)
 
         return isUpload
+    
+    def update_total_box(self, cabinetId):
+        isUpdate = None
+        try:
+            cabinetRef = firebaseDB.child("Cabinet/", cabinetId)
+            boxResult = self.view.databaseController.get_box_by_cabinetId(cabinetId)
+            totalBox = len(boxResult)
+            
+            newData = {
+                'totalBox': totalBox
+            }
+            
+            cabinetRef.update(newData)
+            isUpdate = True
+        except Exception as e:
+            isUpdate = False
+            print("An error has occurred: ", e)
+        
+        return isUpdate
 
 
 class DatabaseController():
@@ -835,7 +903,6 @@ class DatabaseController():
             loadcellSck = record['loadcellSck']
             loadcellRf = record['loadcellRf']
             cabinetId = self.view.cabinetId
-            print("Cabinet Id: ", cabinetId)
 
             box = (id, nameBox, status,
                    solenoidGpio, switchGpio, loadcellDout, 

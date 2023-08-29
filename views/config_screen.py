@@ -89,6 +89,7 @@ class ConfigScreen(ctk.CTkFrame):
         if answer:
             cabinetName = self.root.cabinetName.get()
             cabinetId = self.root.cabinetId.get()
+            
             isCabinetDeleted = self.databaseController.delete_cabinet(cabinetName)
             isCabinetLogDeleted = self.databaseController.delete_cabinetLog(cabinetId)
             isBoxDeleted = self.databaseController.delete_boxes(cabinetId)
