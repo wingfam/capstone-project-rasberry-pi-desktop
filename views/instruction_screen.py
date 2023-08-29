@@ -73,6 +73,7 @@ class InstructionScreen(ctk.CTkFrame):
         
         
     def check_package(self):
+        self.button_confirm.configure(state="disabled")
         isConfirm = True
         task = self.task.get()
         

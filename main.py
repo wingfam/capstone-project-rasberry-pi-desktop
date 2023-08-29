@@ -54,6 +54,12 @@ class MainApp(ctk.CTk):
         if page_name == "CompletionScreen":
             frame.event_generate("<<GoBackMainScreen>>")
             frame.bind("<<GoBackMainScreen>>", frame.on_show_frame())
+        elif page_name == "DeliveryScreen":
+            frame.button_confirm.configure(state="normal")
+        elif page_name == "PickupScreen":
+            frame.button_confirm.configure(state="normal")
+        elif page_name == "InstructionScreen":
+            frame.button_confirm.configure(state="normal")
         elif page_name == "ChooseCabinetScreen":
             frame.refresh()
         elif page_name == "AddCabinetScreen":

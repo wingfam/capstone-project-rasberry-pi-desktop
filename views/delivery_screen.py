@@ -86,6 +86,7 @@ class DeliveryScreen(ctk.CTkFrame):
         
     
     def validate(self):
+        self.button_confirm.configure(state="disabled")
         order = self.deliveryController.check_booking_code(input_data=self.entry_code)
         if order:
             self.deliveryController.update_app_data(order)
@@ -97,6 +98,7 @@ class DeliveryScreen(ctk.CTkFrame):
             self.root.frames["InstructionScreen"].boxId.set(boxId)
             self.root.frames["InstructionScreen"].task.set("delivery")
             
+            self.button_confirm.configure(state="normal")
             self.go_to_instruction_screen()
     
     def refresh(self):
