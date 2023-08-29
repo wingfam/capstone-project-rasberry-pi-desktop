@@ -25,8 +25,7 @@ class PickupController():
                 
                 for key, value in fb_booking_order.val().items():
                     status = value['status']
-                    validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
-                    if status == 4 or currentDate > validDate:
+                    if status == 4:
                         error_text = "Booking đã hết hạn"
                         isError = True
                     else:
