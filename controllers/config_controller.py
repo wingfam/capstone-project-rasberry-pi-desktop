@@ -69,12 +69,12 @@ class GpioController():
             boxData = {
                 box['id']: {
                     'id': box['id'],
-                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    # 'loadcell': self.set_loadcell(
-                    #     box['loadcellDout'], 
-                    #     box['loadcellSck'],
-                    #     box['loadcellRf']),
+                    'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    'loadcell': self.set_loadcell(
+                        box['loadcellDout'], 
+                        box['loadcellSck'],
+                        box['loadcellRf']),
                 }
             }
             
@@ -221,8 +221,8 @@ class EditCabinetController():
         self.view.cabinetData = self.view.databaseController.get_cabinet_by_name(
             self.view.root.cabinetName.get())
 
-        self.view.cabinetId.set(self.view.cabinetData['id'])
-        self.view.cabinetName.set(self.view.cabinetData['nameCabinet'])
+        self.view.cabinetId.set(self.view.root.cabinetId.get())
+        self.view.cabinetName.set(self.view.root.cabinetName.get())
         self.view.status.set(self.view.cabinetData['status'])
         self.view.masterCode.set(self.view.cabinetData['masterCode'])
         self.view.businessId.set(self.view.cabinetData['businessId'])

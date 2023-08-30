@@ -92,14 +92,14 @@ class EditCabinetScreen(ctk.CTkFrame):
             text="Location: ",
         )
         
-        self.master_code_label = ctk.CTkLabel(
-            master=self,
-            width=200,
-            anchor="e",
-            text_color="black",
-            font=ctk.CTkFont(size=24),
-            text="Master Code: ",
-        )
+        # self.master_code_label = ctk.CTkLabel(
+        #     master=self,
+        #     width=200,
+        #     anchor="e",
+        #     text_color="black",
+        #     font=ctk.CTkFont(size=24),
+        #     text="Master Code: ",
+        # )
         
         self.display_label = ctk.CTkLabel(
             master=self,
@@ -143,14 +143,14 @@ class EditCabinetScreen(ctk.CTkFrame):
             command=self.location_combobox_callback
         )
     
-        self.master_code_entry = ctk.CTkEntry(
-            master=self,
-            width=200,
-            fg_color="white",
-            text_color="black",
-            font=ctk.CTkFont(size=24),
-            textvariable=self.masterCode,
-        )
+        # self.master_code_entry = ctk.CTkEntry(
+        #     master=self,
+        #     width=200,
+        #     fg_color="white",
+        #     text_color="black",
+        #     font=ctk.CTkFont(size=24),
+        #     textvariable=self.masterCode,
+        # )
         
         self.save_button = ctk.CTkButton(
             master=self,
@@ -169,12 +169,12 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.cabinet_name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
         self.status_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
         self.location_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
-        self.master_code_label.place(relx=.08, rely=.55, anchor=ctk.CENTER)
+        # self.master_code_label.place(relx=.08, rely=.55, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
         self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
         self.location_combobox.place(relwidth=.23, relx=.31, rely=.45, anchor=ctk.CENTER)
-        self.master_code_entry.place(relwidth=.23, relx=.31, rely=.55, anchor=ctk.CENTER)
+        # self.master_code_entry.place(relwidth=.23, relx=.31, rely=.55, anchor=ctk.CENTER)
         self.save_button.place(relwidth=.25, relheight=.10, relx=.70, rely=.85, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
          
@@ -215,6 +215,7 @@ class EditCabinetScreen(ctk.CTkFrame):
         
         if isCabinetUpdate and isBoxUpdate and isLogUpdate and isCabinetUpload and isBoxUpload and isLogUpload:
             self.root.isRestart.set(True)
+            self.root.cabinetName.set(self.cabinetName.get())
             self.display_label.configure(text_color='green', text='Update successful')
         else:
             self.display_label.configure(text_color='red', text='Update unsuccessful')
