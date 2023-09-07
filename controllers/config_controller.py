@@ -16,7 +16,7 @@ from constants.db_table import db_file_name
 check_weight_time = 3
 
 
-class GpioController():
+class SetupController():
     def __init__(self, view):
         self.view = view
 
@@ -63,6 +63,12 @@ class GpioController():
         loadcell.reset()
         print("Loadcell reset done!")
     
+    def setup_cabinet_data(self):
+        results = self.view.databaseController.get_cabinetId_cabinetName()
+        for key, value in results.items():
+            self.view.cabinetId.set(value['id'])
+            self.view.cabinetName.set(value['nameCabinet'])
+    
     def setup_box_data(self):
         results = self.view.databaseController.get_box_gpio()
         for box in results:
@@ -81,7 +87,7 @@ class GpioController():
             self.view.globalBoxData.update(boxData)
             
 
-class AddCabinetController():
+# class AddCabinetController():
     def __init__(self, view):
         self.view = view
 
@@ -384,95 +390,95 @@ class EditCabinetController():
         return isUpload
 
 
-class AddBoxController():
-    def __init__(self, view):
-        self.view = view
+# class AddBoxController():
+#     def __init__(self, view):
+#         self.view = view
 
-    def set_cabinetId(self):
-        self.view.cabinetData = self.view.databaseController.get_cabinet_by_name(
-            self.view.root.cabinetName.get())
+#     def set_cabinetId(self):
+#         self.view.cabinetData = self.view.databaseController.get_cabinet_by_name(
+#             self.view.root.cabinetName.get())
 
-        self.view.cabinetId = self.view.cabinetData['id']
+#         self.view.cabinetId = self.view.cabinetData['id']
 
-    def check_entries(self, value):
-        isCheck = False
-        if (not value['nameBox'] or not value['solenoidGpio'] 
-            or not value['switchGpio']  or not value['loadcellDout'] 
-            or not value['loadcellSck'] or not value['loadcellRf']):
-            # print(value)
-            isCheck = False
-        else:
-            isCheck = True
+#     def check_entries(self, value):
+#         isCheck = False
+#         if (not value['nameBox'] or not value['solenoidGpio'] 
+#             or not value['switchGpio']  or not value['loadcellDout'] 
+#             or not value['loadcellSck'] or not value['loadcellRf']):
+#             # print(value)
+#             isCheck = False
+#         else:
+#             isCheck = True
 
-        return isCheck
+#         return isCheck
 
-    def add_more_box(self, data):
-        isSaved = False
+#     def add_more_box(self, data):
+#         isSaved = False
         
-        for key, value in data.items():
-            isCheck = self.check_entries(value)
-            if not isCheck:
-                self.view.display_label.configure(
-                    text_color="red",
-                    text="Hãy kiểm tra lại các ô điền đúng"
-                )
-                break
-            else:
-                # print("Save box data: ", value)
-                isSaved = self.view.databaseController.save_box_to_db(value)
-                if isSaved:
-                    self.view.display_label.configure(
-                        text_color="green",
-                        text="Hộp tủ được tạo thành công")
+#         for key, value in data.items():
+#             isCheck = self.check_entries(value)
+#             if not isCheck:
+#                 self.view.display_label.configure(
+#                     text_color="red",
+#                     text="Hãy kiểm tra lại các ô điền đúng"
+#                 )
+#                 break
+#             else:
+#                 # print("Save box data: ", value)
+#                 isSaved = self.view.databaseController.save_box_to_db(value)
+#                 if isSaved:
+#                     self.view.display_label.configure(
+#                         text_color="green",
+#                         text="Hộp tủ được tạo thành công")
 
-        return isSaved
+#         return isSaved
 
-    def upload_more_boxes(self, cabinetId, limit):
-        isUpload = False
-        try:
-            results = self.view.databaseController.get_last_box_insert_by_cabinetId(cabinetId, limit)
+#     def upload_more_boxes(self, cabinetId, limit):
+#         isUpload = False
+#         try:
+#             results = self.view.databaseController.get_last_box_insert_by_cabinetId(cabinetId, limit)
 
-            for data in results:
-                boxRef = firebaseDB.child("Box")
+#             for data in results:
+#                 boxRef = firebaseDB.child("Box")
 
-                newData = {
-                    data['id']: {
-                        'id': data['id'],
-                        'nameBox': data['nameBox'],
-                        'status': data['status'],
-                        'cabinetId': data['cabinetId']
-                    }
-                }
+#                 newData = {
+#                     data['id']: {
+#                         'id': data['id'],
+#                         'nameBox': data['nameBox'],
+#                         'status': data['status'],
+#                         'cabinetId': data['cabinetId']
+#                     }
+#                 }
                 
-                print(newData)
+#                 print(newData)
 
-                boxRef.update(newData)
+#                 boxRef.update(newData)
 
-            isUpload = True
-        except Exception as e:
-            isUpload = False
-            print("An error has occurred: ", e)
+#             isUpload = True
+#         except Exception as e:
+#             isUpload = False
+#             print("An error has occurred: ", e)
 
-        return isUpload
+#         return isUpload
     
-    def update_total_box(self, cabinetId):
-        isUpdate = None
-        try:
-            cabinetRef = firebaseDB.child("Cabinet/", cabinetId)
-            boxResult = self.view.databaseController.get_box_by_cabinetId(cabinetId)
-            totalBox = len(boxResult)
+#     def update_total_box(self, cabinetId):
+#         isUpdate = None
+#         try:
+#             cabinetRef = firebaseDB.child("Cabinet/", cabinetId)
+#             boxResult = self.view.databaseController.get_box_by_cabinetId(cabinetId)
+#             totalBox = len(boxResult)
             
-            newData = {
-                'totalBox': totalBox
-            }
+#             newData = {
+#                 'totalBox': totalBox
+#             }
             
-            cabinetRef.update(newData)
-            isUpdate = True
-        except Exception as e:
-            isUpdate = False
-            print("An error has occurred: ", e)
+#             cabinetRef.update(newData)
+#             isUpdate = True
+#         except Exception as e:
+#             isUpdate = False
+#             print("An error has occurred: ", e)
         
-        return isUpdate
+#         return isUpdate
 
 
 class DatabaseController():
@@ -537,100 +543,82 @@ class DatabaseController():
 
         return newData
 
-    def get_last_cabinet(self):
+    # def get_last_cabinet(self):
+    #     conn = self.opendb(db_file_name)
+    #     cabinetDict = {}
+    #     try:
+    #         conn = sqlite3.connect(db_file_name)
+    #         conn.row_factory = dict_factory
+    #         cur = conn.cursor()
+
+    #         results = cur.execute(
+    #             "SELECT * FROM Cabinet ORDER BY id DESC LIMIT 1")
+
+    #         count = 0
+    #         for row in results:
+    #             rowData = {
+    #                 str(count): row
+    #             }
+    #             count += 1
+    #             cabinetDict.update(rowData)
+    #     except conn.DatabaseError as e:
+    #         print("An error has occurred: ", e)
+    #     finally:
+    #         conn.close()
+
+    #     return cabinetDict
+
+    def get_cabinetId_cabinetName(self):
         conn = self.opendb(db_file_name)
         cabinetDict = {}
         try:
             conn = sqlite3.connect(db_file_name)
             conn.row_factory = dict_factory
-            cur = conn.cursor()
-
-            results = cur.execute(
-                "SELECT * FROM Cabinet ORDER BY id DESC LIMIT 1")
-
-            count = 0
-            for row in results:
-                rowData = {
-                    str(count): row
-                }
-                count += 1
-                cabinetDict.update(rowData)
-        except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
-        finally:
-            conn.close()
-
-        return cabinetDict
-
-    def get_all_cabinet(self):
-        conn = self.opendb(db_file_name)
-        cabinetDict = {}
-        try:
-            conn = sqlite3.connect(db_file_name)
-            conn.row_factory = dict_factory
-            cur = conn.cursor()
-
-            results = cur.execute("SELECT * FROM Cabinet")
-
-            count = 0
-            for row in results:
-                rowData = {
-                    str(count): row
-                }
-                count += 1
-                cabinetDict.update(rowData)
-        except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
-        finally:
-            conn.close()
-
-        return cabinetDict
-
-    def get_all_cabinet_id(self):
-        conn = self.opendb(db_file_name)
-        dicts = {}
-        try:
-            conn = sqlite3.connect(db_file_name)
-            conn.row_factory = dict_factory
-            cur = conn.cursor()
-
-            results = cur.execute("SELECT id FROM Cabinet")
-
-            count = 0
-            for row in results:
-                rowData = {
-                    str(count): row
-                }
-                count += 1
-                dicts.update(rowData)
-        except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
-        finally:
-            conn.close()
-
-        return dicts
-
-    def get_cabinetId_by_boxId(self, boxId):
-        conn = self.opendb(db_file_name)
-        result = ""
-        try:
-            conn = sqlite3.connect(db_file_name)
             cur = conn.cursor()
             
             sql = '''
-                SELECT cabinetId 
-                FROM Box
-                WHERE id = ?
+                SELECT id, nameCabinet 
+                FROM Cabinet
             '''
-            cur.execute(sql, (boxId,))
-            result = cur.fetchone()
-            conn.commit()
+            
+            results = cur.execute(sql)
+
+            count = 0
+            for row in results:
+                rowData = {
+                    str(count): row
+                }
+                count += 1
+                cabinetDict.update(rowData)
         except conn.DatabaseError as e:
             print("An error has occurred: ", e)
         finally:
             conn.close()
 
-        return result
+        return cabinetDict
+
+    # def get_cabinetId_by_boxId(self, boxId):
+    #     conn = self.opendb(db_file_name)
+    #     result = ""
+    #     try:
+    #         conn = sqlite3.connect(db_file_name)
+    #         cur = conn.cursor()
+            
+    #         sql = '''
+    #             SELECT cabinetId 
+    #             FROM Box
+    #             WHERE id = ?
+    #         '''
+            
+    #         cur.execute(sql, (boxId,))
+    #         result = cur.fetchone()
+    #         conn.commit()
+    #     except conn.DatabaseError as e:
+    #         print("An error has occurred: ", e)
+    #     finally:
+    #         conn.close()
+
+    #     return result
 
     def get_masterCode(self, input):
         conn = self.opendb(db_file_name)

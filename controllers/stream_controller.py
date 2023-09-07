@@ -57,7 +57,7 @@ class StreamController():
     def set_all_stream(self):
         print('set all stream')
         stream = {}
-        cabinets = self.view.databaseController.get_all_cabinet_id()
+        cabinets = self.view.databaseController.get_cabinetId_cabinetName()
         for key, value in cabinets.items():
             cabinetId = value['id']
             stream = {

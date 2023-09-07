@@ -79,7 +79,7 @@ class PreConfigScreen(ctk.CTkFrame):
         for key, value in foundMasterCode.items():
             masterCodeStatus =  int(value['masterCodeStatus'])
             if masterCodeStatus == 1:
-                self.go_to_choose_screen()
+                self.go_to_config_screen()
             else:
                 error_text = "Mã master không thể dùng vào lúc này"
                 return self.error_label.configure(text=error_text, foreground="red")
@@ -92,6 +92,6 @@ class PreConfigScreen(ctk.CTkFrame):
         self.refresh()
         self.root.show_frame("MainScreen")
         
-    def go_to_choose_screen(self):
+    def go_to_config_screen(self):
         self.refresh()
-        self.root.show_frame("ChooseCabinetScreen")
+        self.root.show_frame("ConfigScreen")

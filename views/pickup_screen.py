@@ -84,18 +84,25 @@ class PickupScreen(ctk.CTkFrame):
         self.entry_code.place(relwidth=.4, relheight=.10, relx=.28, rely=.32, anchor=ctk.CENTER)
     
     def validate(self):
-        bookingId = self.pickupController.check_unlock_code(input_data=self.entry_code)
-        if bookingId:
-            self.pickupController.update_app_data(bookingId)
-            
-            nameBox = self.root.app_data["nameBox"]
-            boxId = self.root.app_data["boxId"]
-            
-            self.root.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
-            self.root.frames["InstructionScreen"].boxId.set(boxId)
-            self.root.frames["InstructionScreen"].task.set("pickup")
-            
-            self.go_to_instruction_screen()
+        try:
+            self.button_confirm.configure(state="disabled")
+            bookingId = self.pickupController.check_unlock_code(input_data=self.entry_code)
+            if bookingId:
+                self.pickupController.update_app_data(bookingId)
+                
+                nameBox = self.root.app_data["nameBox"]
+                boxId = self.root.app_data["boxId"]
+                
+                self.root.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
+                self.root.frames["InstructionScreen"].boxId.set(boxId)
+                self.root.frames["InstructionScreen"].task.set("pickup")
+                
+                self.go_to_instruction_screen()
+        except Exception as e:
+            print(e)
+        finally:
+            print("Enable button after 1.5 seconds")   
+            self.button_confirm.after(1500, self.enable_confirm_button)
         
     def refresh(self):
         self.entry_code.delete(0, "end")
@@ -108,3 +115,6 @@ class PickupScreen(ctk.CTkFrame):
     def go_to_instruction_screen(self):
         self.refresh()
         self.root.show_frame("InstructionScreen")
+        
+    def enable_confirm_button(self):
+        self.button_confirm.configure(state="normal")

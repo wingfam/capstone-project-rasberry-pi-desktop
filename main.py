@@ -1,7 +1,8 @@
 import sys
+from tkinter import Canvas
 import customtkinter as ctk
 
-from controllers.config_controller import DatabaseController, GpioController
+from controllers.config_controller import DatabaseController, SetupController
 from controllers.stream_controller import StreamController
 from constants.screen_views import ScreenView
 
@@ -14,7 +15,7 @@ class MainApp(ctk.CTk):
         self.title("Smart Locker")
         
         self.databaseController = DatabaseController(view=self)
-        self.gpioController = GpioController(view=self)
+        self.setupController = SetupController(view=self)
         self.streamController = StreamController(view=self)
 
         self.globalBoxData = {}
@@ -39,11 +40,11 @@ class MainApp(ctk.CTk):
             self.frames[key] = frame
             frame.grid(row=0, column=0, sticky="nsew")
         
-        self.gpioController.setup_box_data()
+        self.setupController.setup_cabinet_data()
+        self.setupController.setup_box_data()
         self.streamController.set_all_stream()
         
         if not self.globalBoxData:
-            print("Need to add cabinet info first")
             self.show_frame("AddCabinetScreen")
         else:
             self.show_frame("MainScreen")

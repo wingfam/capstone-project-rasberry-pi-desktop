@@ -1,12 +1,16 @@
+import time
 import customtkinter as ctk
 
-from tkinter import ttk
+from tkinter import Canvas, ttk
 from controllers.config_controller import DatabaseController
 from widgets.keypad import Keypad
 from constants.image_imports import back_image
 from constants.string_constants import delivery_notice_label
 from controllers.delivery_controller import DeliveryController
-        
+from PIL import Image, ImageTk
+
+images = []  # to hold the newly created image
+
 class DeliveryScreen(ctk.CTkFrame):
     def __init__(self, parent, root):
         ctk.CTkFrame.__init__(self, parent)
@@ -75,7 +79,7 @@ class DeliveryScreen(ctk.CTkFrame):
         
         self.keypad = Keypad(self)
         self.keypad.target = self.entry_code
-        
+            
         self.keypad.place(relx=.75, rely=.55, anchor=ctk.CENTER)
         self.notice_label1.place(relx=.65, rely=.20, anchor=ctk.CENTER)
         self.notice_label2.place(relx=.28, rely=.45, anchor=ctk.CENTER)
@@ -83,28 +87,28 @@ class DeliveryScreen(ctk.CTkFrame):
         self.button_confirm.place(relx=.28, rely=.75, anchor=ctk.CENTER)
         self.button_back.place(relx=.95, rely=.10, anchor=ctk.CENTER)
         self.entry_code.place(relwidth=.4, relheight=.15, relx=.28, rely=.32, anchor=ctk.CENTER)
-        
     
     def validate(self):
-        self.button_confirm.configure(state="disabled")
-        order = self.deliveryController.check_booking_code(input_data=self.entry_code)
-        if order:
-            self.deliveryController.update_app_data(order)
+        try:
+            self.button_confirm.configure(state="disabled")
+            order = self.deliveryController.check_booking_code(input_data=self.entry_code)
+            if order:
+                self.deliveryController.update_app_data(order)
+                
+                nameBox = self.root.app_data["nameBox"]
+                boxId = self.root.app_data["boxId"]
+                
+                self.root.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
+                self.root.frames["InstructionScreen"].boxId.set(boxId)
+                self.root.frames["InstructionScreen"].task.set("delivery")
+                
+                self.go_to_instruction_screen()
+        except Exception as e:
+            print(e)
+        finally:
+            print("Enable button after 1.5 seconds")   
+            self.button_confirm.after(1500, self.enable_confirm_button)
             
-            nameBox = self.root.app_data["nameBox"]
-            boxId = self.root.app_data["boxId"]
-            
-            self.root.frames["InstructionScreen"].nameBox_label.configure(text=nameBox)
-            self.root.frames["InstructionScreen"].boxId.set(boxId)
-            self.root.frames["InstructionScreen"].task.set("delivery")
-            
-            self.button_confirm.configure(state="normal")
-            self.go_to_instruction_screen()
-    
-    def refresh(self):
-        self.entry_code.delete(0, "end")
-        self.label_error.configure(text="", foreground="red")
-        
     def go_to_main_screen(self):
         self.refresh()
         self.root.show_frame("MainScreen")
@@ -112,3 +116,11 @@ class DeliveryScreen(ctk.CTkFrame):
     def go_to_instruction_screen(self):
         self.refresh()
         self.root.show_frame("InstructionScreen")
+
+    def refresh(self):
+        self.entry_code.delete(0, "end")
+        self.label_error.configure(text="", foreground="red")
+        
+    def enable_confirm_button(self):
+        self.button_confirm.configure(state="normal")
+    
