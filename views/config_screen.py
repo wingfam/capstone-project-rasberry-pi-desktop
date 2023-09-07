@@ -35,7 +35,7 @@ class ConfigScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Edit Info",
+            text="Edit Cabinet",
             command=self.go_to_edit_screen
         )
 
@@ -69,21 +69,6 @@ class ConfigScreen(ctk.CTkFrame):
         self.delete_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.60, anchor=ctk.CENTER)
         self.restart_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.80, anchor=ctk.CENTER)
 
-    def go_back(self):
-        # print("Is Restart: ", self.root.isRestart.get())
-        if not self.root.isRestart.get():
-            self.root.show_frame("ChooseCabinetScreen")
-        else:
-            answer = messagebox.askyesno("Question","Bạn cần restart lại hệ thống trước")
-            if answer:
-                self.restart()
-
-    def go_to_edit_screen(self):
-        self.root.show_frame("EditCabinetScreen")
-
-    def go_to_control_screen(self):
-        self.root.show_frame("ControlScreen")
-
     def delete(self):
         answer = messagebox.askyesno("Question","Xóa Cabinet này?")
         if answer:
@@ -108,7 +93,21 @@ class ConfigScreen(ctk.CTkFrame):
         '''Restarts the current program.
         Note: this function does not return. Any cleanup action (like
         saving data) must be done before calling this function.'''
-        # self.root.cleanAndExit()
         self.root.streamController.close_all_stream()
         python = sys.executable
         os.execl(python, python, * sys.argv)
+        
+    def go_back(self):
+        # print("Is Restart: ", self.root.isRestart.get())
+        if not self.root.isRestart.get():
+            self.root.show_frame("MainScreen")
+        else:
+            answer = messagebox.askyesno("Question", "Bạn cần restart lại hệ thống trước")
+            if answer:
+                self.restart()
+
+    def go_to_edit_screen(self):
+        self.root.show_frame("EditCabinetScreen")
+
+    def go_to_control_screen(self):
+        self.root.show_frame("ControlScreen")

@@ -1,5 +1,4 @@
 import sys
-from tkinter import Canvas
 import customtkinter as ctk
 
 from controllers.config_controller import DatabaseController, SetupController
@@ -45,7 +44,7 @@ class MainApp(ctk.CTk):
         self.streamController.set_all_stream()
         
         if not self.globalBoxData:
-            self.show_frame("AddCabinetScreen")
+            self.show_frame("ChooseCabinetScreen")
         else:
             self.show_frame("MainScreen")
         
@@ -62,9 +61,7 @@ class MainApp(ctk.CTk):
         elif page_name == "InstructionScreen":
             frame.button_confirm.configure(state="normal")
         elif page_name == "ChooseCabinetScreen":
-            frame.refresh()
-        elif page_name == "AddCabinetScreen":
-            frame.set_location_data()
+            frame.set_business_data()
         elif page_name == "EditCabinetScreen":
             frame.editController.get_infos()
         elif page_name == "AddBoxScreen":

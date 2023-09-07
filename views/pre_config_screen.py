@@ -94,4 +94,4 @@ class PreConfigScreen(ctk.CTkFrame):
         
     def go_to_config_screen(self):
         self.refresh()
-        self.root.show_frame("ConfigScreen")
+        self.root.show_frame("ChooseCabinetScreen")

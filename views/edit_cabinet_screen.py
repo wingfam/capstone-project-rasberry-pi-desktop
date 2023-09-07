@@ -192,9 +192,6 @@ class EditCabinetScreen(ctk.CTkFrame):
                 box['status'] = 1
             else:
                 box['status'] = 0
-            
-        print("Box " + box['nameBox'] + " status is: ", box['status'])
-            
     
     def location_combobox_callback(self, choice):
         self.cabinetLocation.set(choice)

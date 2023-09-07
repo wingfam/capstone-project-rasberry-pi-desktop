@@ -2,10 +2,10 @@ import time
 import sqlite3 as sqlite3
 import random
 import math
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
-from gpiozero import LED, Button
-from services.hx711 import HX711
+# from gpiozero import LED, Button
+# from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
@@ -75,19 +75,19 @@ class SetupController():
             boxData = {
                 box['id']: {
                     'id': box['id'],
-                    'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    'loadcell': self.set_loadcell(
-                        box['loadcellDout'], 
-                        box['loadcellSck'],
-                        box['loadcellRf']),
+                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    # 'loadcell': self.set_loadcell(
+                    #     box['loadcellDout'], 
+                    #     box['loadcellSck'],
+                    #     box['loadcellRf']),
                 }
             }
             
             self.view.globalBoxData.update(boxData)
             
 
-# class AddCabinetController():
+class AddCabinetController():
     def __init__(self, view):
         self.view = view
 
@@ -521,15 +521,42 @@ class DatabaseController():
 
         print("New database has been created.")
 
-    def get_location_data(self):
+    def get_business_data(self):
         newData = {}
         try:
-            fb_locations = firebaseDB.child("Location").get()
+            fb_business = firebaseDB.child("Business").get()
+            
+            newKey = 0
+            for business in fb_business.each():
+                businessId = business.val()['id']
+                businessName = business.val()['businessName']
+                businessStatus =  business.val()['status']
+                
+                if businessStatus == 1:
+                    newData.update({
+                        newKey: {
+                            'businessId': businessId, 
+                            'businessName': businessName,
+                        }
+                    })
+                
+                newKey += 1
+        except IndexError:
+            print("Location doesn't exist")
+
+        return newData
+
+    def get_location_by_businessId(self, businessId):
+        newData = {}
+        try:
+            fb_locations = firebaseDB.child("Location").order_by_child("businessId").equal_to(businessId).get()
+            
+            newKey = 0
             for location in fb_locations.each():
-                newKey = firebaseDB.generate_key()
                 businessId = location.val()['businessId']
                 locationName = location.val()['nameLocation']
                 locationId = location.val()['id']
+                
                 newData.update({
                     newKey: {
                         'businessId': businessId, 
@@ -537,6 +564,8 @@ class DatabaseController():
                         'locationName': locationName
                     }
                 })
+                
+                newKey += 1
                 
         except IndexError:
             print("Location doesn't exist")
@@ -597,29 +626,30 @@ class DatabaseController():
 
         return cabinetDict
 
-    # def get_cabinetId_by_boxId(self, boxId):
-    #     conn = self.opendb(db_file_name)
-    #     result = ""
-    #     try:
-    #         conn = sqlite3.connect(db_file_name)
-    #         cur = conn.cursor()
+    def get_cabinet_by_locationId(self, locationId):
+        newData = {}
+        try:
+            fb_cabinets = firebaseDB.child("Cabinet").order_by_child("locationId").equal_to(locationId).get()
             
-    #         sql = '''
-    #             SELECT cabinetId 
-    #             FROM Box
-    #             WHERE id = ?
-    #         '''
-            
-    #         cur.execute(sql, (boxId,))
-    #         result = cur.fetchone()
-    #         conn.commit()
-    #     except conn.DatabaseError as e:
-    #         print("An error has occurred: ", e)
-    #     finally:
-    #         conn.close()
+            newKey = 0
+            for cabinet in fb_cabinets.each():
+                cabinetId = cabinet.val()['id']
+                cabinetName = cabinet.val()['nameCabinet']
+                
+                newData.update({
+                    newKey: {
+                        'cabinetId': cabinetId, 
+                        'cabinetName': cabinetName
+                    }
+                })
+                
+                newKey += 1
+                
+        except IndexError:
+            print("Location doesn't exist")
 
-    #     return result
-
+        return newData
+    
     def get_masterCode(self, input):
         conn = self.opendb(db_file_name)
         dicts = {}

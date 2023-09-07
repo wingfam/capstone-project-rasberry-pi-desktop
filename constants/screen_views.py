@@ -1,6 +1,6 @@
 # from views.add_box_screen import AddBoxScreen
-# from views.add_cabinet_screen import AddCabinetScreen
-# from views.choose_cabinet_screen import ChooseCabinetScreen
+from views.add_cabinet_screen import AddCabinetScreen
+from views.choose_cabinet_screen import ChooseCabinetScreen
 from views.config_screen import ConfigScreen
 from views.control_screen import ControlScreen
 from views.edit_cabinet_screen import EditCabinetScreen
@@ -19,8 +19,8 @@ class ScreenView():
         "InstructionScreen": InstructionScreen,
         "CompletionScreen": CompletionScreen,
         "PreConfigScreen": PreConfigScreen,
-        # "ChooseCabinetScreen": ChooseCabinetScreen,
-        # "AddCabinetScreen": AddCabinetScreen,
+        "ChooseCabinetScreen": ChooseCabinetScreen,
+        "AddCabinetScreen": AddCabinetScreen,
         "ConfigScreen": ConfigScreen,
         "EditCabinetScreen": EditCabinetScreen,
         # "AddBoxScreen": AddBoxScreen,

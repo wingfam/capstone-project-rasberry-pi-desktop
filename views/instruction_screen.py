@@ -73,21 +73,32 @@ class InstructionScreen(ctk.CTkFrame):
         
         
     def check_package(self):
-        self.button_confirm.configure(state="disabled")
-        isConfirm = True
-        task = self.task.get()
-        
-        boxId = self.boxId.get()
-        globalBoxData = self.root.globalBoxData
-        
-        for key, value in globalBoxData.items():
-            if boxId == value['id']:
-                isConfirm = self.instructionController.confirm_task(value, task)
-                
-        if isConfirm:
-            self.instructionController.update_firebase(task)
-            self.root.show_frame("CompletionScreen")
-        else:
-            self.root.show_frame("MainScreen")
-        
-        self.root.app_data.clear()
+        try:
+            self.button_confirm.configure(state="disabled")
+            
+            task = self.task.get()
+            boxId = self.boxId.get()
+            
+            globalBoxData = self.root.globalBoxData
+            
+            isConfirm = True
+            
+            # for key, value in globalBoxData.items():
+            #     if boxId == value['id']:
+            #         isConfirm = self.instructionController.confirm_task(value, task)
+                    
+            if isConfirm:
+                self.instructionController.update_firebase(task)
+                self.root.show_frame("CompletionScreen")
+            else:
+                self.root.show_frame("MainScreen")
+            
+            self.root.app_data.clear()
+        except Exception as e:
+            print(e)
+        finally:
+            print("Enable button after 1.5 seconds")   
+            self.button_confirm.after(1500, self.enable_confirm_button)
+    
+    def enable_confirm_button(self):
+        self.button_confirm.configure(state="normal")
