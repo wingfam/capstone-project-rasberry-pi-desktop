@@ -61,7 +61,7 @@ pyparsing==3.1.0
 python-dotenv==0.21.1
 python-jwt==4.0.0
 requests==2.31.0
-RPi.GPIO==0.7.1
+# RPi.GPIO==0.7.1
 rsa==4.9
 six==1.16.0
 SQLAlchemy==2.0.19

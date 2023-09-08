@@ -4,7 +4,7 @@ import tkinter as tk
 import customtkinter as ctk
 
 from tkinter import StringVar
-from constants.image_imports import home_image
+from constants.image_imports import refresh_image
 from controllers.config_controller import DatabaseController
 
 
@@ -40,8 +40,8 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             bg_color="#FFFFFF",
             fg_color="#FFFFFF",
             text="",
-            image=home_image,
-            command=self.go_back_main_screen
+            image=refresh_image,
+            command=self.reload
         ).place(relx=.10, rely=.10, anchor=ctk.CENTER)
         
         self.business_label = ctk.CTkLabel(
@@ -90,7 +90,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Check cabinet",
+            text="Xem thong tin",
             command=self.go_to_check_cabinet
         )
 
@@ -114,6 +114,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
 
     def business_combobox_callback(self, choice):
         self.locationData.clear()
+        self.locationComboboxValues.clear()
         self.locationName.set("")
         
         self.businessName.set(choice)
@@ -182,7 +183,11 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         self.locationData.clear()
         self.locationComboboxValues.clear()
         self.locationName.set("")
-
+        self.cabinetListBox.listBox.delete(0, tk.END)
+    
+    def reload(self):
+        self.refresh()
+        self.set_business_data()
 
 class CabinetListBox(ctk.CTkFrame):
     def __init__(self, parent):

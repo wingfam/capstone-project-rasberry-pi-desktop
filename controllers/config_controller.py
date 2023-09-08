@@ -136,11 +136,16 @@ class AddCabinetController():
         try:
             fb_boxes = firebaseDB.child("Box").order_by_child("cabinetId").equal_to(cabinetId).get()
             
-            for box in fb_boxes.each():
-                newData.update(box.val())
+            for key, value in fb_boxes.val().items():
+                newData.update({
+                    key: {
+                        'id': value['id'],
+                        'nameBox': value['nameBox'],
+                    }
+                })
         except IndexError:
-            print("Location doesn't exist")
-        print(newData)
+            print("Box doesn't exist")
+        
         return newData
     
     def set_box_data(self, boxResults):
@@ -149,7 +154,11 @@ class AddCabinetController():
             boxData.update({
                 key: {
                     'nameBox': value['nameBox'],
-                    'status': value['status'],
+                    'solenoidGpio': 0,
+                    'switchGpio': 0,
+                    'loadcellDout': 0,
+                    'loadcellSck': 0,
+                    'loadcellRf': 0,
                 }
             })
 

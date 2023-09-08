@@ -159,16 +159,9 @@ class AddCabinetScreen(ctk.CTkFrame):
         os.execl(python, python, * sys.argv)
     
     def refresh(self):
-        self.boxTable.data = {
-            'rec': {
-                'nameBox': "",
-                'solenoidGpio': 0,
-                'switchGpio': 0,
-                'loadcellDout': 0,
-                'loadcellSck': 0,
-                'loadcellRf': 0,
-            }
-        }
+        self.boxTable.data.clear()
+        tableData = self.boxTable.table.getModel().data
+        tableData.clear()
    
     
 class BoxList(ctk.CTkFrame):
@@ -179,16 +172,7 @@ class BoxList(ctk.CTkFrame):
         self.root = root
         self.parent = parent
         
-        self.data = {
-            'rec': {
-                'nameBox': "",
-                'solenoidGpio': 0,
-                'switchGpio': 0,
-                'loadcellDout': 0,
-                'loadcellSck': 0,
-                'loadcellRf': 0,
-            }
-        }
+        self.data = {}
         
         self.table = TableCanvas(
             parent=self,
