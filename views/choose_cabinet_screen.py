@@ -19,8 +19,10 @@ class ChooseCabinetScreen(ctk.CTkFrame):
 
         self.businessComboboxValues = []
         self.locationComboboxValues = []
+        
         self.locationData = {}
         self.businessData = {}
+        self.cabinetData = {}
         
         self.chooseCabinet = StringVar()
         self.businessId = ctk.StringVar()
@@ -89,7 +91,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             anchor=ctk.CENTER,
             font=button_font,
             text="Check cabinet",
-            command=self.go_to_add_screen
+            command=self.go_to_check_cabinet
         )
 
         self.error_label = ctk.CTkLabel(
@@ -114,7 +116,6 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         self.locationData.clear()
         self.locationComboboxValues.clear()
         self.locationName.set("")
-        self.cabinetListBox.listBox.delete(0, tk.END)
         
         self.businessName.set(choice)
         for key, value in self.businessData.items():
@@ -124,6 +125,8 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         self.set_location_data()
     
     def location_combobox_callback(self, choice):
+        self.cabinetListBox.listBox.delete(0, tk.END)
+        
         self.locationName.set(choice)
         for key, value in self.locationData.items():
             if value['locationName'] == choice:
@@ -155,7 +158,10 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         results = self.databaseController.get_cabinet_by_locationId(locationId)
         
         for key, value in results.items():
-            self.cabinetListBox.listBox.insert(key, value['cabinetName'])
+            if value['cabinetStatus']:
+                cabinetDicts = {key: {'cabinetId': value['cabinetId'], 'cabinetName': value['cabinetName']}}
+                self.cabinetData.update(cabinetDicts)
+                self.cabinetListBox.listBox.insert(key, value['cabinetName'])
         
     def go_to_check_cabinet(self):
         cabinetName = self.root.cabinetName.get()
@@ -163,19 +169,14 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             self.error_label.configure(text="Please choose a cabinet")
         else:
             self.refresh()
-            self.root.show_frame("ConfigScreen")
+            self.root.show_frame("AddCabinetScreen")
 
     def go_back_main_screen(self):
         self.refresh()
         self.root.show_frame("MainScreen")
 
-    def go_to_add_screen(self):
-        self.refresh()
-        self.root.show_frame("AddCabinetScreen")
-
     def refresh(self):
         self.error_label.configure(text="")
-        self.cabinetListBox.repopulate()
 
 
 class CabinetListBox(ctk.CTkFrame):
@@ -192,21 +193,19 @@ class CabinetListBox(ctk.CTkFrame):
             background='white',
         )
 
-        # cabinets = self.parent.databaseController.get_cabinetId_cabinetName()
-        # self.insert_list_box(cabinets)
-
         self.listBox.bind("<<ListboxSelect>>", self.set_cabinet_name)
         self.listBox.pack()
         
 
     def set_cabinet_name(self, event):
         selection = event.widget.curselection()
-        if selection:
-            index = selection[0]
-            data = event.widget.get(index)
-            self.parent.root.cabinetName.set(data)
-
-    # def repopulate(self):
-    #     self.listBox.delete(0, tk.END)
-    #     cabinets = self.parent.databaseController.get_cabinetId_cabinetName()
-    #     self.insert_list_box(cabinets)
+        index = selection[0]
+        data = event.widget.get(index)
+        
+        for ckey, cvalue in self.parent.cabinetData.items():
+            for selectkey in self.listBox.curselection():
+                if ckey == selectkey:
+                    self.parent.root.cabinetId.set(cvalue['cabinetId'])
+                    self.parent.root.cabinetName.set(cvalue['cabinetName'])
+                    
+        # print(self.parent.root.cabinetId.get(), self.parent.root.cabinetName.get())

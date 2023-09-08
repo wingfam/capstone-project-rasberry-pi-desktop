@@ -62,6 +62,8 @@ class MainApp(ctk.CTk):
             frame.button_confirm.configure(state="normal")
         elif page_name == "ChooseCabinetScreen":
             frame.set_business_data()
+        elif page_name == "AddCabinetScreen":
+            frame.addCabinetController.get_infos()
         elif page_name == "EditCabinetScreen":
             frame.editController.get_infos()
         elif page_name == "AddBoxScreen":

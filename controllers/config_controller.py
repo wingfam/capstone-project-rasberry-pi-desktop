@@ -121,93 +121,142 @@ class AddCabinetController():
 
         return isSave
     
-    def upload_to_firebase(self, totalBox):
-        cabinetId = self.view.cabinetId
-        isCabinetUpload = self.upload_cabinet(totalBox)
-        isLogUpload = self.upload_cabinetLog(cabinetId)
-        isBoxUpload = self.upload_box(cabinetId)
-        if isCabinetUpload and isLogUpload and isBoxUpload:
-            return True
-
-    def upload_cabinet(self, totalBox):
-        isUpload = None
+    def get_cabinet_by_id(self, cabinetId):
+        newData = {}
         try:
-            data = self.view.databaseController.get_last_cabinet()
-            for value in data.values():
-                cabinetRef = firebaseDB.child("Cabinet")
+            fb_cabinets = firebaseDB.child("Cabinet").child(cabinetId).get()
+            newData.update(fb_cabinets.val())
+        except IndexError:
+            print("Location doesn't exist")
 
-                newData = {
-                    value['id']: {
-                        'id': value['id'],
-                        'nameCabinet': value['nameCabinet'],
-                        'addDate': value['addDate'],
-                        'status': value['status'],
-                        'totalBox': totalBox,
-                        'masterCode': value['masterCode'],
-                        'masterCodeStatus': value['masterCodeStatus'],
-                        'businessId': value['businessId'],
-                        'locationId': value['locationId'],
-                    }
-                }
-
-                cabinetRef.update(newData)
-                self.view.cabinetId = value['id']
-                isUpload = True
-        except Exception as e:
-            isUpload = False
-            print("An error has occurred: ", e)
-
-        return isUpload
-
-    def upload_box(self, cabinetId):
-        isUpload = None
-        try:
-            data = self.view.databaseController.get_box_by_cabinetId(cabinetId)
-            for box in data.values():
-                boxRef = firebaseDB.child("Box")
-
-                newData = {
-                    box['id']: {
-                        'id': box['id'],
-                        'nameBox': box['nameBox'],
-                        'status': box['status'],
-                        'cabinetId': box['cabinetId']
-                    }
-                }
-
-                boxRef.update(newData)
-                isUpload = True
-        except Exception as e:
-            isUpload = False
-            print("An error has occurred: ", e)
-
-        return isUpload
+        return newData
     
-    def upload_cabinetLog(self, cabinetId):
-        isUpload = None
+    def get_box_by_cabinetId(self, cabinetId):
+        newData = {}
         try:
-            data = self.view.databaseController.get_cabinetLog_by_cabinetId(cabinetId)
-            for log in data.values():
-                logRef = firebaseDB.child("CabinetLog")
+            fb_boxes = firebaseDB.child("Box").order_by_child("cabinetId").equal_to(cabinetId).get()
+            for box in fb_boxes.each():
+                print(box.val())
+        except IndexError:
+            print("Location doesn't exist")
 
-                newData = {
-                    log['id']: {
-                        'id': log['id'],
-                        'messageTitle': log['messageTitle'],
-                        'messageBody': log['messageBody'],
-                        'messageStatus': log['messageStatus'],
-                        'createDate': log['createDate'],
-                        'cabinetId': log['cabinetId']
-                    }
+        return newData
+    
+    def set_box_data(self, boxResults):
+        boxData = {}
+        for key, value in boxResults.items():
+            boxData.update({
+                key: {
+                    'nameBox': value['nameBox'],
+                    'status': value['status'],
                 }
+            })
 
-                logRef.update(newData)
-                isUpload = True
-        except Exception as e:
-            isUpload = False
-            print("An error has occurred: ", e)
+        model = self.view.boxTable.table.model
+        model.importDict(boxData)
+        self.view.boxTable.table.redraw()    
+    
+    def get_infos(self):
+        cabinetId = self.view.root.cabinetId.get()
+        self.view.cabinetData = self.get_cabinet_by_id(cabinetId)
 
-        return isUpload
+        self.view.cabinetName.set(self.view.root.cabinetName.get())
+        self.view.totalBox.set(self.view.cabinetData['totalBox'])
+
+        cabinetId = self.view.root.cabinetId.get()
+        boxResults = self.get_box_by_cabinetId(cabinetId)
+
+        # Set data inside table with box results
+        self.set_box_data(boxResults)
+        self.view.boxTable.data.update(boxResults)
+
+    # def upload_to_firebase(self, totalBox):
+    #     cabinetId = self.view.cabinetId
+    #     isCabinetUpload = self.upload_cabinet(totalBox)
+    #     isLogUpload = self.upload_cabinetLog(cabinetId)
+    #     isBoxUpload = self.upload_box(cabinetId)
+    #     if isCabinetUpload and isLogUpload and isBoxUpload:
+    #         return True
+
+    # def upload_cabinet(self, totalBox):
+    #     isUpload = None
+    #     try:
+    #         data = self.view.databaseController.get_last_cabinet()
+    #         for value in data.values():
+    #             cabinetRef = firebaseDB.child("Cabinet")
+
+    #             newData = {
+    #                 value['id']: {
+    #                     'id': value['id'],
+    #                     'nameCabinet': value['nameCabinet'],
+    #                     'addDate': value['addDate'],
+    #                     'status': value['status'],
+    #                     'totalBox': totalBox,
+    #                     'masterCode': value['masterCode'],
+    #                     'masterCodeStatus': value['masterCodeStatus'],
+    #                     'businessId': value['businessId'],
+    #                     'locationId': value['locationId'],
+    #                 }
+    #             }
+
+    #             cabinetRef.update(newData)
+    #             self.view.cabinetId = value['id']
+    #             isUpload = True
+    #     except Exception as e:
+    #         isUpload = False
+    #         print("An error has occurred: ", e)
+
+    #     return isUpload
+
+    # def upload_box(self, cabinetId):
+    #     isUpload = None
+    #     try:
+    #         data = self.view.databaseController.get_box_by_cabinetId(cabinetId)
+    #         for box in data.values():
+    #             boxRef = firebaseDB.child("Box")
+
+    #             newData = {
+    #                 box['id']: {
+    #                     'id': box['id'],
+    #                     'nameBox': box['nameBox'],
+    #                     'status': box['status'],
+    #                     'cabinetId': box['cabinetId']
+    #                 }
+    #             }
+
+    #             boxRef.update(newData)
+    #             isUpload = True
+    #     except Exception as e:
+    #         isUpload = False
+    #         print("An error has occurred: ", e)
+
+    #     return isUpload
+    
+    # def upload_cabinetLog(self, cabinetId):
+    #     isUpload = None
+    #     try:
+    #         data = self.view.databaseController.get_cabinetLog_by_cabinetId(cabinetId)
+    #         for log in data.values():
+    #             logRef = firebaseDB.child("CabinetLog")
+
+    #             newData = {
+    #                 log['id']: {
+    #                     'id': log['id'],
+    #                     'messageTitle': log['messageTitle'],
+    #                     'messageBody': log['messageBody'],
+    #                     'messageStatus': log['messageStatus'],
+    #                     'createDate': log['createDate'],
+    #                     'cabinetId': log['cabinetId']
+    #                 }
+    #             }
+
+    #             logRef.update(newData)
+    #             isUpload = True
+    #     except Exception as e:
+    #         isUpload = False
+    #         print("An error has occurred: ", e)
+
+    #     return isUpload
 
 
 class EditCabinetController():
@@ -222,6 +271,25 @@ class EditCabinetController():
             self.view.locationComboboxValues.append(value['locationName'])
         
         self.view.location_combobox.configure(values=self.view.locationComboboxValues)
+
+    def set_box_data(self, boxResults):
+        boxData = {}
+        for key, value in boxResults.items():
+            boxData.update({
+                key: {
+                    'nameBox': value['nameBox'],
+                    'status': value['status'],
+                    'solenoidGpio': value['solenoidGpio'],
+                    'switchGpio': value['switchGpio'],
+                    'loadcellDout': value['loadcellDout'],
+                    'loadcellSck': value['loadcellSck'],
+                    'loadcellRf': value['loadcellRf'],
+                }
+            })
+
+        model = self.view.boxTable.table.model
+        model.importDict(boxData)
+        self.view.boxTable.table.redraw()
 
     def get_infos(self):
         self.view.cabinetData = self.view.databaseController.get_cabinet_by_name(
@@ -250,25 +318,6 @@ class EditCabinetController():
         # Set data inside table with box results
         self.set_box_data(boxResults)
         self.view.boxData.update(boxResults)
-
-    def set_box_data(self, boxResults):
-        boxData = {}
-        for key, value in boxResults.items():
-            boxData.update({
-                key: {
-                    'nameBox': value['nameBox'],
-                    'status': value['status'],
-                    'solenoidGpio': value['solenoidGpio'],
-                    'switchGpio': value['switchGpio'],
-                    'loadcellDout': value['loadcellDout'],
-                    'loadcellSck': value['loadcellSck'],
-                    'loadcellRf': value['loadcellRf'],
-                }
-            })
-
-        model = self.view.boxTable.table.model
-        model.importDict(boxData)
-        self.view.boxTable.table.redraw()
 
     def update_cabinet_data(self):
         cabinetValue = {
@@ -572,31 +621,6 @@ class DatabaseController():
 
         return newData
 
-    # def get_last_cabinet(self):
-    #     conn = self.opendb(db_file_name)
-    #     cabinetDict = {}
-    #     try:
-    #         conn = sqlite3.connect(db_file_name)
-    #         conn.row_factory = dict_factory
-    #         cur = conn.cursor()
-
-    #         results = cur.execute(
-    #             "SELECT * FROM Cabinet ORDER BY id DESC LIMIT 1")
-
-    #         count = 0
-    #         for row in results:
-    #             rowData = {
-    #                 str(count): row
-    #             }
-    #             count += 1
-    #             cabinetDict.update(rowData)
-    #     except conn.DatabaseError as e:
-    #         print("An error has occurred: ", e)
-    #     finally:
-    #         conn.close()
-
-    #     return cabinetDict
-
     def get_cabinetId_cabinetName(self):
         conn = self.opendb(db_file_name)
         cabinetDict = {}
@@ -633,13 +657,15 @@ class DatabaseController():
             
             newKey = 0
             for cabinet in fb_cabinets.each():
-                cabinetId = cabinet.val()['id']
-                cabinetName = cabinet.val()['nameCabinet']
+                id = cabinet.val()['id']
+                name = cabinet.val()['nameCabinet']
+                status = cabinet.val()['status']
                 
                 newData.update({
                     newKey: {
-                        'cabinetId': cabinetId, 
-                        'cabinetName': cabinetName
+                        'cabinetId': id, 
+                        'cabinetName': name,
+                        'cabinetStatus': status
                     }
                 })
                 

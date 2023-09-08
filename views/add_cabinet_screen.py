@@ -19,20 +19,17 @@ class AddCabinetScreen(ctk.CTkFrame):
         
         self.databaseController = DatabaseController(view=self)
         self.addCabinetController = AddCabinetController(view=self)
-        self.streamController = StreamController(view=self)
-        
-        self.statusComboboxValues = ["Yes", "No"]
-        self.locationComboboxValues = []
-        self.locationData = {}
         
         self.isRestart = False
-        self.statusComboboxVar = ctk.StringVar()
+        
+        self.cabinetData = {}
+        
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
-        self.cabinetStatus = IntVar()
-        self.cabinetLocation = ctk.StringVar()
+        self.totalBox = ctk.StringVar()
         self.businessId = ctk.StringVar()
         self.locationId = ctk.StringVar()
+        self.locationName = ctk.StringVar()
         
         label_font = ctk.CTkFont(size=24)
         
@@ -56,33 +53,6 @@ class AddCabinetScreen(ctk.CTkFrame):
             text="Box list: ",
         )
         
-        self.cabinet_name_label = ctk.CTkLabel(
-            master=self,
-            width=200,
-            anchor="e",
-            text_color="black",
-            font=label_font,
-            text="Cabinet name: ",
-        )
-        
-        self.status_label = ctk.CTkLabel(
-            master=self,
-            width=200,
-            anchor="e",
-            text_color="black",
-            font=label_font,
-            text="Is Available: ",
-        )
-        
-        self.location_label = ctk.CTkLabel(
-            master=self,
-            width=200,
-            anchor="e",
-            text_color="black",
-            font=label_font,
-            text="Location: ",
-        )
-        
         self.display_label = ctk.CTkLabel(
             master=self,
             width=200,
@@ -91,38 +61,40 @@ class AddCabinetScreen(ctk.CTkFrame):
             text="",
         )
         
-        self.name_entry = ctk.CTkEntry(
+        self.cabinet_name_label = ctk.CTkLabel(
             master=self,
             width=200,
-            fg_color="white",
+            anchor="e",
             text_color="black",
             font=label_font,
-            textvariable=self.cabinetName,
+            text="Tên tủ: ",
         )
         
-        self.status_combobox = ctk.CTkComboBox(
+        self.total_box_label = ctk.CTkLabel(
             master=self,
-            fg_color="white",
+            width=200,
+            anchor="e",
             text_color="black",
-            dropdown_text_color="black",
-            dropdown_fg_color="white",
             font=label_font,
-            state="readonly",
-            values=self.statusComboboxValues,
-            variable=self.statusComboboxVar,
-            command=self.status_combobox_callback
+            text="Số hộp tủ: ",
         )
         
-        self.location_combobox = ctk.CTkComboBox(
+        self.cabinetName_entry = ctk.CTkLabel(
             master=self,
-            fg_color="white",
+            width=200,
+            anchor="e",
             text_color="black",
-            dropdown_text_color="black",
-            dropdown_fg_color="white",
-            state="readonly",
             font=label_font,
-            variable=self.cabinetLocation,
-            command=self.location_combobox_callback
+            text=self.cabinetName.get(),
+        )
+        
+        self.total_box_entry = ctk.CTkLabel(
+            master=self,
+            width=200,
+            anchor="e",
+            text_color="black",
+            font=label_font,
+            text=self.totalBox.get(),
         )
         
         self.save_button = ctk.CTkButton(
@@ -146,62 +118,29 @@ class AddCabinetScreen(ctk.CTkFrame):
         
         self.go_back_btn.place(relx=.05, rely=.10, anchor=ctk.CENTER)
         self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
-        self.cabinet_name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
-        self.status_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
-        self.location_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
-        self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
-        self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
-        self.location_combobox.place(relwidth=.23, relx=.31, rely=.45, anchor=ctk.CENTER)
-        self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
+        self.cabinet_name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
+        self.total_box_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
+        self.cabinetName_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
+        self.total_box_entry.place(relwidth=.23, relx=.31, rely=.45, anchor=ctk.CENTER)
         self.save_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.72, anchor=ctk.CENTER)
+        self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
     
     def save_data(self):
         tableData = self.boxTable.table.getModel().data
         isSave = self.addCabinetController.save_to_database()
         isUpload = self.addCabinetController.upload_to_firebase(len(tableData))
         self.restart_button.configure(state="normal")
+        answer = None
+        
         if isSave and isUpload:
             self.isRestart = True
             self.display_label.configure(text_color="green", text="Thông tin cabinet và box được tạo thành công")
             answer = messagebox.askyesno("Question","Cần restart lại hệ thống khi đã thêm thông tin")
-            if answer:
-                self.restart()
-    
-    def set_location_data(self):
-        results = self.databaseController.get_location_data()
-        self.locationData.update(results)
         
-        for key, value in self.locationData.items():
-            self.locationComboboxValues.append(value['locationName'])
-        
-        return self.location_combobox.configure(require_redraw=True, values=self.locationComboboxValues,)
-
-    def refresh(self):
-        self.locationData.clear()
-        self.locationComboboxValues.clear()
-        self.cabinetName.set("")
-        self.statusComboboxVar.set("")
-        self.cabinetLocation.set("")
-        self.display_label.configure(text="")
-        self.location_combobox.set('')
-      
-    def status_combobox_callback(self, choice):
-        if choice == 'Yes':
-            self.cabinetStatus.set(1)
-        elif choice == 'No':
-            self.cabinetStatus.set(0)
-        self.statusComboboxVar.set(choice)
-        choice = self.statusComboboxVar.get()
+        if answer:
+            self.restart()
     
-    def location_combobox_callback(self, choice):
-        self.cabinetLocation.set(choice)
-        locationChoice = self.cabinetLocation.get()
-        for key, value in self.locationData.items():
-            if value['locationName'] == locationChoice:
-                self.businessId.set(value['businessId'])
-                self.locationId.set(value['locationId'])
-   
     def go_back_prev_screen(self):
         if not self.isRestart:
             self.refresh()
@@ -213,11 +152,22 @@ class AddCabinetScreen(ctk.CTkFrame):
         '''Restarts the current program.
         Note: this function does not return. Any cleanup action (like
         saving data) must be done before calling this function.'''
-        # self.root.cleanAndExit()
         self.root.streamController.close_all_stream()
         python = sys.executable
         os.execl(python, python, * sys.argv)
     
+    def refresh(self):
+        self.boxTable.data = {
+            'rec': {
+                'nameBox': "",
+                'solenoidGpio': 0,
+                'switchGpio': 0,
+                'loadcellDout': 0,
+                'loadcellSck': 0,
+                'loadcellRf': 0,
+            }
+        }
+   
     
 class BoxList(ctk.CTkFrame):
     def __init__ (self, parent, root):
