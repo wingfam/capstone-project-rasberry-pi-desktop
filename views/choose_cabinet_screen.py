@@ -114,7 +114,6 @@ class ChooseCabinetScreen(ctk.CTkFrame):
 
     def business_combobox_callback(self, choice):
         self.locationData.clear()
-        self.locationComboboxValues.clear()
         self.locationName.set("")
         
         self.businessName.set(choice)
@@ -177,6 +176,12 @@ class ChooseCabinetScreen(ctk.CTkFrame):
 
     def refresh(self):
         self.error_label.configure(text="")
+        self.businessData.clear()
+        self.businessComboboxValues.clear()
+        self.businessName.set("")
+        self.locationData.clear()
+        self.locationComboboxValues.clear()
+        self.locationName.set("")
 
 
 class CabinetListBox(ctk.CTkFrame):

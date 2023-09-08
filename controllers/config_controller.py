@@ -135,11 +135,12 @@ class AddCabinetController():
         newData = {}
         try:
             fb_boxes = firebaseDB.child("Box").order_by_child("cabinetId").equal_to(cabinetId).get()
+            
             for box in fb_boxes.each():
-                print(box.val())
+                newData.update(box.val())
         except IndexError:
             print("Location doesn't exist")
-
+        print(newData)
         return newData
     
     def set_box_data(self, boxResults):
@@ -162,7 +163,7 @@ class AddCabinetController():
 
         self.view.cabinetName.set(self.view.root.cabinetName.get())
         self.view.totalBox.set(self.view.cabinetData['totalBox'])
-
+        
         cabinetId = self.view.root.cabinetId.get()
         boxResults = self.get_box_by_cabinetId(cabinetId)
 

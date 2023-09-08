@@ -79,22 +79,24 @@ class AddCabinetScreen(ctk.CTkFrame):
             text="Số hộp tủ: ",
         )
         
-        self.cabinetName_entry = ctk.CTkLabel(
+        self.cabinetName_entry = ctk.CTkEntry(
             master=self,
-            width=200,
-            anchor="e",
+            width=100,
+            fg_color="white",
             text_color="black",
-            font=label_font,
-            text=self.cabinetName.get(),
+            state="disabled",
+            font=ctk.CTkFont(size=24),
+            textvariable=self.cabinetName,
         )
         
-        self.total_box_entry = ctk.CTkLabel(
+        self.total_box_entry = ctk.CTkEntry(
             master=self,
-            width=200,
-            anchor="e",
+            width=100,
+            fg_color="white",
             text_color="black",
-            font=label_font,
-            text=self.totalBox.get(),
+            state="disabled",
+            font=ctk.CTkFont(size=24),
+            textvariable=self.totalBox,
         )
         
         self.save_button = ctk.CTkButton(
@@ -120,9 +122,9 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         self.cabinet_name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
-        self.total_box_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
-        self.cabinetName_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
-        self.total_box_entry.place(relwidth=.23, relx=.31, rely=.45, anchor=ctk.CENTER)
+        self.total_box_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
+        self.cabinetName_entry.place(relwidth=.20, relx=.31, rely=.25, anchor=ctk.CENTER)
+        self.total_box_entry.place(relwidth=.20, relx=.31, rely=.35, anchor=ctk.CENTER)
         self.save_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.72, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
     
