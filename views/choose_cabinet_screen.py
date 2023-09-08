@@ -90,7 +90,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Xem thong tin",
+            text="Xem thông tin",
             command=self.go_to_check_cabinet
         )
 

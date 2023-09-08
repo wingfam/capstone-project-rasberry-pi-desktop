@@ -23,6 +23,8 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.isRestart = False
         
         self.cabinetData = {}
+        self.cabinetLogData = {}
+        self.boxData = {}
         
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
@@ -103,17 +105,17 @@ class AddCabinetScreen(ctk.CTkFrame):
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="Save Data",
-            command=self.save_data
+            text="1. Lưu thông tin",
+            command=self.save_data_to_db
         )
         
         self.restart_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
-            text="Restart System",
+            text="2. Khởi động lại",
             state="disabled",
-            command=self.save_data
+            command=self.save_data_to_db
         )
         
         self.boxTable = BoxList(self, root=self.root)
@@ -125,20 +127,27 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.total_box_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
         self.cabinetName_entry.place(relwidth=.20, relx=.31, rely=.25, anchor=ctk.CENTER)
         self.total_box_entry.place(relwidth=.20, relx=.31, rely=.35, anchor=ctk.CENTER)
-        self.save_button.place(relwidth=.35, relheight=.10, relx=.22, rely=.72, anchor=ctk.CENTER)
+        self.save_button.place(relwidth=.30, relheight=.10, relx=.22, rely=.65, anchor=ctk.CENTER)
+        self.restart_button.place(relwidth=.30, relheight=.10, relx=.22, rely=.80, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
     
-    def save_data(self):
-        tableData = self.boxTable.table.getModel().data
-        isSave = self.addCabinetController.save_to_database()
-        isUpload = self.addCabinetController.upload_to_firebase(len(tableData))
-        self.restart_button.configure(state="normal")
+    def save_data_to_db(self):
         answer = None
         
-        if isSave and isUpload:
+        cabinetData = self.cabinetData
+        boxData = self.boxData
+        cabinetLogData = self.cabinetLogData
+        tableModel = self.boxTable.table.getModel().data
+        
+        isCabinetSaved = self.addCabinetController.save_cabinet(cabinetData)
+        isBoxSaved = self.addCabinetController.save_boxes(boxData, tableModel)
+        isLogSaved = self.addCabinetController.save_cabinet_log(cabinetLogData)
+        
+        if isCabinetSaved and isBoxSaved and isLogSaved:
             self.isRestart = True
-            self.display_label.configure(text_color="green", text="Thông tin cabinet và box được tạo thành công")
-            answer = messagebox.askyesno("Question","Cần restart lại hệ thống khi đã thêm thông tin")
+            self.restart_button.configure(state="normal")
+            self.display_label.configure(text_color="green", text="Thông tin được lưu thành công")
+            answer = messagebox.askyesno("Question","Khởi động lại hệ thống?")
         
         if answer:
             self.restart()

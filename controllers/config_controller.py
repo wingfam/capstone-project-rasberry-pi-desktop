@@ -9,6 +9,7 @@ import math
 from datetime import datetime
 from urllib.request import pathname2url
 from constants.db_table import DbTable, db_file_name
+from models.models import Box, Cabinet, CabinetLog
 from services.firebase_config import firebaseDB
 from services.sqlite3 import dict_factory
 from constants.db_table import db_file_name
@@ -91,35 +92,57 @@ class AddCabinetController():
     def __init__(self, view):
         self.view = view
 
-    def save_to_database(self):
-        tableModel = self.view.boxTable.table.getModel()
-        records = tableModel.data
-        isSave = False
+    def save_cabinet(self, cabinetData):
+        isSaved = False
+        
+        model = Cabinet
+        model.id = cabinetData['id']
+        model.nameCabinet = cabinetData['nameCabinet']
+        model.status = cabinetData['status']
+        model.addDate = cabinetData['addDate']
+        model.masterCode = cabinetData['masterCode']
+        model.masterCodeStatus = cabinetData['masterCodeStatus']
+        model.businessId = cabinetData['businessId']
+        model.locationId = cabinetData['locationId']
+        
+        isSaved = self.view.databaseController.save_cabinet_to_db(model)
 
-        result = self.view.databaseController.get_cabinet_by_name(self.view.cabinetName.get())
-
-        if result is not None:
-            return self.view.display_label.configure(text_color="red", text="Tên cabinet đã tồn tại")
-        else:
-            # Save cabinet entries
-            cabinetSave = self.view.databaseController.save_cabinet_to_db()
-
-            if not cabinetSave:
-                return self.view.display_label.configure(text_color="red", text="Thông tin cabinet không thể lưu")
-            else:
-                # Save cabinet log
-                logTitle = "Tạo cabinet"
-                logMessage = "Cabinet mới được tạo"
-                self.view.databaseController.save_cabinetLog_to_db(logTitle, logMessage, self.view.cabinetId)
-                for record in records.values():
-                    # Save box entries
-                    boxSave = self.view.databaseController.save_box_to_db(record)
-                    if not boxSave:
-                        return self.view.display_label.configure(
-                            text_color="red", text="Kiểm tra lại các ô điền đúng và không để trống")
-                isSave = True
-
-        return isSave
+        return isSaved
+    
+    def save_boxes(self, boxData, tableModel):
+        isSaved = False
+        for tableDataKey, tableDataValue in tableModel.items():
+            model = Box
+            for boxDataKey, boxDataValue in boxData.items():
+                if tableDataKey == boxDataKey:
+                    model.id = boxDataValue['id']
+                    model.nameBox = boxDataValue['nameBox']
+                    model.status = boxDataValue['status']
+                    model.solenoidGpio = tableDataValue['solenoidGpio']
+                    model.switchGpio = tableDataValue['switchGpio']
+                    model.loadcellDout = tableDataValue['loadcellDout']
+                    model.loadcellSck = tableDataValue['loadcellSck']
+                    model.loadcellRf = tableDataValue['loadcellRf']
+                    model.cabinetId = boxDataValue['cabinetId']
+                    
+                    isSaved = self.view.databaseController.save_box_to_db(model)
+        
+        return isSaved
+    
+    def save_cabinet_log(self, cabinetLogData):
+        isSaved = False
+        for key, value in cabinetLogData.items():
+            model = CabinetLog
+            model.id = value['id']
+            model.cabinetId = value['cabinetId']
+            model.messageTitle = value['messageTitle']
+            model.messageBody = value['messageBody']
+            model.messageStatus = value['messageStatus']
+            model.createDate = value['createDate']
+            
+            isSaved = self.view.databaseController.save_cabinetLog_to_db(model)
+        
+        return isSaved
     
     def get_cabinet_by_id(self, cabinetId):
         newData = {}
@@ -127,7 +150,7 @@ class AddCabinetController():
             fb_cabinets = firebaseDB.child("Cabinet").child(cabinetId).get()
             newData.update(fb_cabinets.val())
         except IndexError:
-            print("Location doesn't exist")
+            print("Cabinet doesn't exist")
 
         return newData
     
@@ -135,17 +158,20 @@ class AddCabinetController():
         newData = {}
         try:
             fb_boxes = firebaseDB.child("Box").order_by_child("cabinetId").equal_to(cabinetId).get()
-            
-            for key, value in fb_boxes.val().items():
-                newData.update({
-                    key: {
-                        'id': value['id'],
-                        'nameBox': value['nameBox'],
-                    }
-                })
+            newData.update(fb_boxes.val())
         except IndexError:
             print("Box doesn't exist")
         
+        return newData
+    
+    def get_cabinetLog_by_cabinetId(self, cabinetId):
+        newData = {}
+        try:
+            fb_cabinetLog = firebaseDB.child("CabinetLog").order_by_child("cabinetId").equal_to(cabinetId).get()
+            newData.update(fb_cabinetLog.val())
+        except IndexError:
+            print("CabinetLog doesn't exist")
+
         return newData
     
     def set_box_data(self, boxResults):
@@ -168,17 +194,16 @@ class AddCabinetController():
     
     def get_infos(self):
         cabinetId = self.view.root.cabinetId.get()
-        self.view.cabinetData = self.get_cabinet_by_id(cabinetId)
-
+        self.view.cabinetData = self.get_cabinet_by_id(cabinetId)        
+        self.view.boxData = self.get_box_by_cabinetId(cabinetId)
+        self.view.cabinetLogData = self.get_cabinetLog_by_cabinetId(cabinetId)
+        
         self.view.cabinetName.set(self.view.root.cabinetName.get())
         self.view.totalBox.set(self.view.cabinetData['totalBox'])
-        
-        cabinetId = self.view.root.cabinetId.get()
-        boxResults = self.get_box_by_cabinetId(cabinetId)
 
         # Set data inside table with box results
-        self.set_box_data(boxResults)
-        self.view.boxTable.data.update(boxResults)
+        self.set_box_data(self.view.boxData)
+        self.view.boxTable.data.update(self.view.boxData)
         
 
 class EditCabinetController():
@@ -760,52 +785,36 @@ class DatabaseController():
         
         return results
 
-    def save_cabinet_to_db(self):
+    def save_cabinet_to_db(self, model):
         isSave = False
         conn = self.opendb(db_file_name)
-        currentDateTime = datetime.now()
-        currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M")
         
         try:
             conn = sqlite3.connect(db_file_name)
             cur = conn.cursor()
+
+            cabinet = (
+                model.id, 
+                model.nameCabinet, 
+                model.addDate, 
+                model.status, 
+                model.masterCode, 
+                model.masterCodeStatus, 
+                model.businessId,
+                model.locationId
+            )
             
-            # generate random 6 digits
-            digits = [i for i in range(0, 10)]
-            randomDigits = ""
-            for i in range(6):
-                index = math.floor(random.random() * 10)
-                randomDigits += str(digits[index])
+            sql = '''
+                INSERT INTO Cabinet (
+                    id, nameCabinet, addDate, status, 
+                    masterCode, masterCodeStatus, 
+                    businessId, locationId)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            '''
 
-            id = firebaseDB.generate_key()
-            nameCabinet = self.view.cabinetName.get()
-            addDate = currentTime
-            status = self.view.cabinetStatus.get()
-            masterCode = randomDigits
-            masterCodeStatus = 1
-            businessId = self.view.businessId.get()
-            locationId = self.view.locationId.get()
-
-            if not nameCabinet or not status or not locationId:
-                return self.view.display_label.configure(text="Cabinet entries can't be empty")
-            else:
-                self.view.cabinetId = id
-                
-                cabinet = (id, nameCabinet, addDate, 
-                           status, masterCode, masterCodeStatus, 
-                           businessId, locationId)
-                
-                sql = '''
-                    INSERT INTO Cabinet (
-                        id, nameCabinet, addDate, status, 
-                        masterCode, masterCodeStatus, 
-                        businessId, locationId)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                '''
-
-                cur.execute(sql, cabinet)
-                conn.commit()
-                isSave = True
+            cur.execute(sql, cabinet)
+            conn.commit()
+            isSave = True
         except conn.DatabaseError as e:
             print("An error has occurred: ", e)
             isSave = False
@@ -814,26 +823,21 @@ class DatabaseController():
 
         return isSave
 
-    def save_cabinetLog_to_db(self, title, body, cabinetId):
+    def save_cabinetLog_to_db(self, model):
         isSave = False
         conn = self.opendb(db_file_name)
-        currentDateTime = datetime.now()
-        currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M")
-        
         try:
             conn = sqlite3.connect(db_file_name)
             cur = conn.cursor()
 
-            id = firebaseDB.generate_key()
-            messageTitle = title
-            messageBody = body
-            messageStatus = 1
-            createDate = currentTime
-            cabinetId = cabinetId
-            
-            cabinetLog = (id, messageTitle, 
-                          messageBody, messageStatus, 
-                          createDate, cabinetId)
+            cabinetLog = (
+                model.id, 
+                model.messageTitle, 
+                model.messageBody, 
+                model.messageStatus, 
+                model.createDate, 
+                model.cabinetId
+            )
             
             sql = '''
                 INSERT INTO CabinetLog (
@@ -854,25 +858,23 @@ class DatabaseController():
 
         return isSave
     
-    def save_box_to_db(self, record):
+    def save_box_to_db(self, model):
         conn = self.opendb(db_file_name)
         try:
             conn = sqlite3.connect(db_file_name)
             cur = conn.cursor()
 
-            id = firebaseDB.generate_key()
-            nameBox = record['nameBox']
-            status = 1
-            solenoidGpio = record['solenoidGpio']
-            switchGpio = record['switchGpio']
-            loadcellDout = record['loadcellDout']
-            loadcellSck = record['loadcellSck']
-            loadcellRf = record['loadcellRf']
-            cabinetId = self.view.cabinetId
-
-            box = (id, nameBox, status,
-                   solenoidGpio, switchGpio, loadcellDout, 
-                   loadcellSck, loadcellRf, cabinetId)
+            box = (
+                model.id, 
+                model.nameBox, 
+                model.status,
+                model.solenoidGpio, 
+                model.switchGpio, 
+                model.loadcellDout, 
+                model.loadcellSck, 
+                model.loadcellRf,
+                model.cabinetId
+            )
 
             sql = '''
                 INSERT INTO Box (id, nameBox, status, 
