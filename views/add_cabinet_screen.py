@@ -1,12 +1,13 @@
 import os
 import sys
-import customtkinter as ctk
+from tkinter import messagebox
 
-from tkinter import IntVar, messagebox
-from constants.image_imports import back_image
+import customtkinter as ctk
 from tkintertable import TableCanvas
-from controllers.config_controller import AddCabinetController, DatabaseController, SetupController
-from controllers.stream_controller import StreamController
+
+from constants.image_imports import back_image
+from controllers.config_controller import (AddCabinetController,
+                                           DatabaseController)
 
 
 class AddCabinetScreen(ctk.CTkFrame):
@@ -28,7 +29,8 @@ class AddCabinetScreen(ctk.CTkFrame):
         
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
-        self.totalBox = ctk.StringVar()
+        self.status = ctk.StringVar()
+        self.masterCode = ctk.StringVar()
         self.businessId = ctk.StringVar()
         self.locationId = ctk.StringVar()
         self.locationName = ctk.StringVar()
@@ -52,7 +54,7 @@ class AddCabinetScreen(ctk.CTkFrame):
             anchor="w",
             text_color="black",
             font=label_font,
-            text="Box list: ",
+            text="Hộp tủ: ",
         )
         
         self.display_label = ctk.CTkLabel(
@@ -63,7 +65,7 @@ class AddCabinetScreen(ctk.CTkFrame):
             text="",
         )
         
-        self.cabinet_name_label = ctk.CTkLabel(
+        self.name_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
@@ -72,16 +74,25 @@ class AddCabinetScreen(ctk.CTkFrame):
             text="Tên tủ: ",
         )
         
-        self.total_box_label = ctk.CTkLabel(
+        self.status_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=label_font,
-            text="Số hộp tủ: ",
+            text="Trạng thái: ",
         )
         
-        self.cabinetName_entry = ctk.CTkEntry(
+        self.master_code_label = ctk.CTkLabel(
+            master=self,
+            width=200,
+            anchor="e",
+            text_color="black",
+            font=label_font,
+            text="Mã master: ",
+        )
+        
+        self.name_entry = ctk.CTkEntry(
             master=self,
             width=100,
             fg_color="white",
@@ -91,14 +102,24 @@ class AddCabinetScreen(ctk.CTkFrame):
             textvariable=self.cabinetName,
         )
         
-        self.total_box_entry = ctk.CTkEntry(
+        self.status_entry = ctk.CTkEntry(
             master=self,
             width=100,
             fg_color="white",
             text_color="black",
             state="disabled",
             font=ctk.CTkFont(size=24),
-            textvariable=self.totalBox,
+            textvariable=self.status,
+        )
+        
+        self.master_code_entry = ctk.CTkEntry(
+            master=self,
+            width=100,
+            fg_color="white",
+            text_color="black",
+            state="disabled",
+            font=ctk.CTkFont(size=24),
+            textvariable=self.masterCode,
         )
         
         self.save_button = ctk.CTkButton(
@@ -115,7 +136,7 @@ class AddCabinetScreen(ctk.CTkFrame):
             font=ctk.CTkFont(size=28, weight="bold"),
             text="2. Khởi động lại",
             state="disabled",
-            command=self.save_data_to_db
+            command=self.restart
         )
         
         self.boxTable = BoxList(self, root=self.root)
@@ -123,28 +144,34 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.go_back_btn.place(relx=.05, rely=.10, anchor=ctk.CENTER)
         self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
-        self.cabinet_name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
-        self.total_box_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
-        self.cabinetName_entry.place(relwidth=.20, relx=.31, rely=.25, anchor=ctk.CENTER)
-        self.total_box_entry.place(relwidth=.20, relx=.31, rely=.35, anchor=ctk.CENTER)
+        self.name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
+        self.status_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
+        self.master_code_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
+        self.name_entry.place(relwidth=.20, relx=.31, rely=.25, anchor=ctk.CENTER)
+        self.status_entry.place(relwidth=.20, relx=.31, rely=.35, anchor=ctk.CENTER)
+        self.master_code_entry.place(relwidth=.20, relx=.31, rely=.45, anchor=ctk.CENTER)
         self.save_button.place(relwidth=.30, relheight=.10, relx=.22, rely=.65, anchor=ctk.CENTER)
-        self.restart_button.place(relwidth=.30, relheight=.10, relx=.22, rely=.80, anchor=ctk.CENTER)
+        self.restart_button.place(relwidth=.30, relheight=.10, relx=.22, rely=.78, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
     
     def save_data_to_db(self):
         answer = None
         
+        cabinetId = self.cabinetId.get()
         cabinetData = self.cabinetData
         boxData = self.boxData
         cabinetLogData = self.cabinetLogData
         tableModel = self.boxTable.table.getModel().data
         
         isCabinetSaved = self.addCabinetController.save_cabinet(cabinetData)
-        isBoxSaved = self.addCabinetController.save_boxes(boxData, tableModel)
+        isBoxSaved = self.addCabinetController.save_boxes(tableModel, cabinetId)
         isLogSaved = self.addCabinetController.save_cabinet_log(cabinetLogData)
         
         if isCabinetSaved and isBoxSaved and isLogSaved:
             self.isRestart = True
+            self.addCabinetController.upload_boxes(cabinetId)
+            self.addCabinetController.update_cabinet_status_totalBox(cabinetId)
+            
             self.restart_button.configure(state="normal")
             self.display_label.configure(text_color="green", text="Thông tin được lưu thành công")
             answer = messagebox.askyesno("Question","Khởi động lại hệ thống?")
@@ -169,8 +196,8 @@ class AddCabinetScreen(ctk.CTkFrame):
     
     def refresh(self):
         self.boxTable.data.clear()
-        tableData = self.boxTable.table.getModel().data
-        tableData.clear()
+        self.boxData.clear()
+        self.boxTable.table.getModel().data.clear()
    
     
 class BoxList(ctk.CTkFrame):

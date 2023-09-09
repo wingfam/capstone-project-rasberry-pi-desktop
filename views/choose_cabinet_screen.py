@@ -1,9 +1,8 @@
-import sys
-import os
 import tkinter as tk
+from tkinter import StringVar
+
 import customtkinter as ctk
 
-from tkinter import StringVar
 from constants.image_imports import refresh_image
 from controllers.config_controller import DatabaseController
 
@@ -158,10 +157,11 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         results = self.databaseController.get_cabinet_by_locationId(locationId)
         
         for key, value in results.items():
-            if value['cabinetStatus']:
-                cabinetDicts = {key: {'cabinetId': value['cabinetId'], 'cabinetName': value['cabinetName']}}
-                self.cabinetData.update(cabinetDicts)
-                self.cabinetListBox.listBox.insert(key, value['cabinetName'])
+            cabinetDicts = {key: {'cabinetId': value['cabinetId'], 'cabinetName': value['cabinetName']}}
+            self.cabinetData.update(cabinetDicts)
+            self.cabinetListBox.listBox.insert(key, value['cabinetName'])
+        
+        return self.cabinetListBox.listBox.configure(background='white')
         
     def go_to_check_cabinet(self):
         cabinetName = self.root.cabinetName.get()
@@ -200,7 +200,7 @@ class CabinetListBox(ctk.CTkFrame):
             master=self,
             font=ctk.CTkFont(size=24),
             justify=ctk.CENTER,
-            background='white',
+            background='grey',
         )
 
         self.listBox.bind("<<ListboxSelect>>", self.set_cabinet_name)

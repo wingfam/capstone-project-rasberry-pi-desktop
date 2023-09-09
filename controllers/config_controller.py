@@ -1,18 +1,18 @@
-import time
 import sqlite3 as sqlite3
-import random
-import math
-# import RPi.GPIO as GPIO
-
+import time
 # from gpiozero import LED, Button
 # from services.hx711 import HX711
 from datetime import datetime
+from tkinter import messagebox
 from urllib.request import pathname2url
+
 from constants.db_table import DbTable, db_file_name
 from models.models import Box, Cabinet, CabinetLog
 from services.firebase_config import firebaseDB
 from services.sqlite3 import dict_factory
-from constants.db_table import db_file_name
+
+# import RPi.GPIO as GPIO
+
 
 check_weight_time = 3
 
@@ -92,58 +92,40 @@ class AddCabinetController():
     def __init__(self, view):
         self.view = view
 
-    def save_cabinet(self, cabinetData):
-        isSaved = False
+    def get_infos(self):
+        cabinetId = self.view.root.cabinetId.get()
+        self.view.cabinetData = self.get_cabinet_by_id(cabinetId)        
+        self.view.boxData = self.get_box_by_cabinetId(cabinetId)
+        self.view.cabinetLogData = self.get_cabinetLog_by_cabinetId(cabinetId)
         
-        model = Cabinet
-        model.id = cabinetData['id']
-        model.nameCabinet = cabinetData['nameCabinet']
-        model.status = cabinetData['status']
-        model.addDate = cabinetData['addDate']
-        model.masterCode = cabinetData['masterCode']
-        model.masterCodeStatus = cabinetData['masterCodeStatus']
-        model.businessId = cabinetData['businessId']
-        model.locationId = cabinetData['locationId']
+        self.view.cabinetName.set(self.view.root.cabinetName.get())
+        self.view.masterCode.set(self.view.cabinetData['masterCode'])
         
-        isSaved = self.view.databaseController.save_cabinet_to_db(model)
+        if self.view.cabinetData['status']:
+            self.view.status.set('Đã kích hoạt')
+        else:
+            self.view.status.set('Chưa kích hoạt')
 
-        return isSaved
-    
-    def save_boxes(self, boxData, tableModel):
-        isSaved = False
-        for tableDataKey, tableDataValue in tableModel.items():
-            model = Box
-            for boxDataKey, boxDataValue in boxData.items():
-                if tableDataKey == boxDataKey:
-                    model.id = boxDataValue['id']
-                    model.nameBox = boxDataValue['nameBox']
-                    model.status = boxDataValue['status']
-                    model.solenoidGpio = tableDataValue['solenoidGpio']
-                    model.switchGpio = tableDataValue['switchGpio']
-                    model.loadcellDout = tableDataValue['loadcellDout']
-                    model.loadcellSck = tableDataValue['loadcellSck']
-                    model.loadcellRf = tableDataValue['loadcellRf']
-                    model.cabinetId = boxDataValue['cabinetId']
-                    
-                    isSaved = self.view.databaseController.save_box_to_db(model)
+        # Set data inside table with box results
+        if self.view.boxData:
+            self.set_box_data(self.view.boxData)
+            self.view.boxTable.data.update(self.view.boxData)
+        else:
+            emptyData = {
+                0: {
+                'nameBox': "",
+                'solenoidGpio': 0,
+                'switchGpio': 0,
+                'loadcellDout': 0,
+                'loadcellSck': 0,
+                'loadcellRf': 0,
+                }
+            }
+            model = self.view.boxTable.table.model
+            model.importDict(emptyData)
+            self.view.boxTable.table.redraw()
+            self.view.boxTable.data.update(emptyData)
         
-        return isSaved
-    
-    def save_cabinet_log(self, cabinetLogData):
-        isSaved = False
-        for key, value in cabinetLogData.items():
-            model = CabinetLog
-            model.id = value['id']
-            model.cabinetId = value['cabinetId']
-            model.messageTitle = value['messageTitle']
-            model.messageBody = value['messageBody']
-            model.messageStatus = value['messageStatus']
-            model.createDate = value['createDate']
-            
-            isSaved = self.view.databaseController.save_cabinetLog_to_db(model)
-        
-        return isSaved
-    
     def get_cabinet_by_id(self, cabinetId):
         newData = {}
         try:
@@ -192,19 +174,100 @@ class AddCabinetController():
         model.importDict(boxData)
         self.view.boxTable.table.redraw()    
     
-    def get_infos(self):
-        cabinetId = self.view.root.cabinetId.get()
-        self.view.cabinetData = self.get_cabinet_by_id(cabinetId)        
-        self.view.boxData = self.get_box_by_cabinetId(cabinetId)
-        self.view.cabinetLogData = self.get_cabinetLog_by_cabinetId(cabinetId)
+    def save_cabinet(self, cabinetData):
+        model = Cabinet
+        model.id = cabinetData['id']
+        model.nameCabinet = cabinetData['nameCabinet']
+        model.status = 1
+        model.addDate = cabinetData['addDate']
+        model.masterCode = cabinetData['masterCode']
+        model.masterCodeStatus = cabinetData['masterCodeStatus']
+        model.businessId = cabinetData['businessId']
+        model.locationId = cabinetData['locationId']
         
-        self.view.cabinetName.set(self.view.root.cabinetName.get())
-        self.view.totalBox.set(self.view.cabinetData['totalBox'])
+        isSaved = self.view.databaseController.save_cabinet_to_db(model)
 
-        # Set data inside table with box results
-        self.set_box_data(self.view.boxData)
-        self.view.boxTable.data.update(self.view.boxData)
+        return isSaved
+    
+    def save_boxes(self, tableModel, cabinetId):
+        isSaved = False
+        for tableDataKey, tableDataValue in tableModel.items():
+            model = Box
+            model.id = firebaseDB.generate_key()
+            model.nameBox = tableDataValue['nameBox']
+            model.status = 1
+            model.solenoidGpio = tableDataValue['solenoidGpio']
+            model.switchGpio = tableDataValue['switchGpio']
+            model.loadcellDout = tableDataValue['loadcellDout']
+            model.loadcellSck = tableDataValue['loadcellSck']
+            model.loadcellRf = tableDataValue['loadcellRf']
+            model.cabinetId = cabinetId
+            
+            isSaved = self.view.databaseController.save_box_to_db(model)
         
+        return isSaved
+    
+    def save_cabinet_log(self, cabinetLogData):
+        isSaved = False
+        for key, value in cabinetLogData.items():
+            model = CabinetLog
+            model.id = value['id']
+            model.cabinetId = value['cabinetId']
+            model.messageTitle = value['messageTitle']
+            model.messageBody = value['messageBody']
+            model.messageStatus = value['messageStatus']
+            model.createDate = value['createDate']
+            
+            isSaved = self.view.databaseController.save_cabinetLog_to_db(model)
+        
+        return isSaved
+    
+    def upload_boxes(self, cabinetId):
+        isUpload = False
+        try:
+            results = self.view.databaseController.get_box_by_cabinetId(cabinetId)
+
+            for data in results:
+                boxRef = firebaseDB.child("Box")
+
+                newData = {
+                    data['id']: {
+                        'id': data['id'],
+                        'nameBox': data['nameBox'],
+                        'status': data['status'],
+                        'cabinetId': data['cabinetId']
+                    }
+                }
+                
+                boxRef.update(newData)
+
+            isUpload = True
+        except Exception as e:
+            isUpload = False
+            print("An error has occurred: ", e)
+
+        return isUpload
+    
+    def update_cabinet_status_totalBox(self, cabinetId):
+        isUpdate = None
+        try:
+            cabinetRef = firebaseDB.child("Cabinet/", cabinetId)
+            boxResult = self.view.databaseController.get_box_by_cabinetId(cabinetId)
+            totalBox = len(boxResult)
+            
+            newData = {
+                'status': 1,
+                'totalBox': totalBox
+            }
+            
+            cabinetRef.update(newData)
+            isUpdate = True
+        except Exception as e:
+            isUpdate = False
+            print("An error has occurred: ", e)
+        
+        return isUpdate
+
 
 class EditCabinetController():
     def __init__(self, view):

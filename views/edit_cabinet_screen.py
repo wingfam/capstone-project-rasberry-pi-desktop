@@ -51,7 +51,7 @@ class EditCabinetScreen(ctk.CTkFrame):
             anchor="w",
             text_color="black",
             font=ctk.CTkFont(size=24),
-            text="Box list: ",
+            text="Hộp tủ: ",
         )
         
         self.cabinet_name_label = ctk.CTkLabel(
@@ -60,7 +60,7 @@ class EditCabinetScreen(ctk.CTkFrame):
             anchor="e",
             text_color="black",
             font=ctk.CTkFont(size=24),
-            text="Cabinet name: ",
+            text="Tên tủ: ",
         )
         
         self.status_label = ctk.CTkLabel(
@@ -69,7 +69,7 @@ class EditCabinetScreen(ctk.CTkFrame):
             anchor="e",
             text_color="black",
             font=ctk.CTkFont(size=24),
-            text="Is Available: ",
+            text="Trạng thái: ",
         )
         
         self.location_label = ctk.CTkLabel(
@@ -78,7 +78,7 @@ class EditCabinetScreen(ctk.CTkFrame):
             anchor="e",
             text_color="black",
             font=ctk.CTkFont(size=24),
-            text="Location: ",
+            text="Địa điểm: ",
         )
         
         self.display_label = ctk.CTkLabel(

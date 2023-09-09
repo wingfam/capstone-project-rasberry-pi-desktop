@@ -58,10 +58,6 @@ class AddBoxScreen(ctk.CTkFrame):
         cabinetId = self.root.cabinetId.get()
         tableDataLen = len(tableData)
         
-        # isSaved = False
-        # isBoxUpload = False
-        # print("Cabinet Id: " + cabinetId + " tableData Len: " + str(tableDataLen))
-        
         isSaved = self.addBoxController.add_more_box(tableData)
         isTotalBoxUpdate = self.addBoxController.update_total_box(cabinetId)
         
