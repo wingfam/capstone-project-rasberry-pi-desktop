@@ -47,14 +47,6 @@ class ConfigScreen(ctk.CTkFrame):
             command=self.go_to_control_screen
         )
         
-        self.delete_btn = ctk.CTkButton(
-            master=self,
-            anchor=ctk.CENTER,
-            font=button_font,
-            text="Xóa Cabinet",
-            command=self.delete
-        )
-        
         self.restart_btn = ctk.CTkButton(
             master=self,
             anchor=ctk.CENTER,
@@ -66,29 +58,8 @@ class ConfigScreen(ctk.CTkFrame):
         self.go_back_btn.place(relx=.10, rely=.10, anchor=ctk.CENTER)
         self.edit_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.20, anchor=ctk.CENTER)
         self.manual_control_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.40, anchor=ctk.CENTER)
-        self.delete_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.60, anchor=ctk.CENTER)
         self.restart_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.80, anchor=ctk.CENTER)
 
-    def delete(self):
-        answer = messagebox.askyesno("Question","Xóa Cabinet này?")
-        if answer:
-            cabinetName = self.root.cabinetName.get()
-            cabinetId = self.root.cabinetId.get()
-            
-            isCabinetDeleted = self.databaseController.delete_cabinet(cabinetName)
-            isCabinetLogDeleted = self.databaseController.delete_cabinetLog(cabinetId)
-            isBoxDeleted = self.databaseController.delete_boxes(cabinetId)
-        
-            if not isCabinetDeleted and not isCabinetLogDeleted and not isBoxDeleted:
-                return self.display_label.configure(text="Không thể xóa cabinet")
-            else:
-                self.root.isRestart = True
-        
-        if self.root.isRestart:
-            answer = messagebox.askyesno("Question","Bạn cần restart lại hệ thống trước")
-            if answer:
-                self.restart()
-    
     def restart(self):
         '''Restarts the current program.
         Note: this function does not return. Any cleanup action (like

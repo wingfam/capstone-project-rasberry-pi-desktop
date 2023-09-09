@@ -21,6 +21,7 @@ class MainApp(ctk.CTk):
         self.globalStreams = {}
         self.app_data = {}
         
+        self.createBox = ctk.BooleanVar()
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
         self.isRestart = ctk.BooleanVar()
@@ -66,8 +67,6 @@ class MainApp(ctk.CTk):
             frame.addCabinetController.get_infos()
         elif page_name == "EditCabinetScreen":
             frame.editController.get_infos()
-        elif page_name == "AddBoxScreen":
-            frame.addBoxController.set_cabinetId()
         elif page_name == "ControlScreen":
             frame.cabinetListBox.set_list_box()
 

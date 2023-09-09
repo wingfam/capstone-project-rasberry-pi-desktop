@@ -1,7 +1,9 @@
 import datetime
+import os
+import sys
 import customtkinter as ctk
 
-from tkinter import IntVar
+from tkinter import IntVar, messagebox
 from constants.image_imports import back_image
 from tkintertable import TableCanvas
 from controllers.config_controller import DatabaseController, EditCabinetController
@@ -19,20 +21,17 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.databaseController = DatabaseController(view=self)
         self.streamController = StreamController(view=self.root)
         
-        self.statusComboboxValues = ["Yes", "No"]
-        self.locationComboboxValues = []
-        self.locationData = {}
+        self.statusComboboxValues = ["Đã kích hoạt", "Chưa kích hoạt"]
         self.cabinetData = {}
         self.boxData = {}
         
-        self.statusComboboxVar = ctk.StringVar()
+        self.status = IntVar()
+        
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
-        self.masterCode = ctk.StringVar()
-        self.status = IntVar()
-        self.cabinetLocation = ctk.StringVar()
-        self.businessId = ctk.StringVar()
         self.locationId = ctk.StringVar()
+        self.locationName = ctk.StringVar()
+        self.statusComboboxVar = ctk.StringVar()
         
         self.go_back_btn = ctk.CTkButton(
             master=self,
@@ -70,6 +69,15 @@ class EditCabinetScreen(ctk.CTkFrame):
             text_color="black",
             font=ctk.CTkFont(size=24),
             text="Trạng thái: ",
+        )
+        
+        self.business_label = ctk.CTkLabel(
+            master=self,
+            width=200,
+            anchor="e",
+            text_color="black",
+            font=ctk.CTkFont(size=24),
+            text="Doanh nghiệp: ",
         )
         
         self.location_label = ctk.CTkLabel(
@@ -110,25 +118,38 @@ class EditCabinetScreen(ctk.CTkFrame):
             command=self.status_combobox_callback
         )
         
-        self.location_combobox = ctk.CTkComboBox(
+        self.business_name_label = ctk.CTkLabel(
             master=self,
-            fg_color="white",
+            width=200,
+            anchor="e",
             text_color="black",
-            dropdown_text_color="black",
-            dropdown_fg_color="white",
-            state="readonly",
-            font=ctk.CTkFont(size=16),
-            values=self.locationComboboxValues,
-            variable=self.cabinetLocation,
-            command=self.location_combobox_callback
+            font=ctk.CTkFont(size=20),
+            text="",
+        )
+        
+        self.location_name_label = ctk.CTkLabel(
+            master=self,
+            width=200,
+            anchor="e",
+            text_color="black",
+            font=ctk.CTkFont(size=20),
+            text="",
         )
     
         self.save_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
-            font=ctk.CTkFont(size=28, weight="bold"),
-            text="Update Data",
+            font=ctk.CTkFont(size=30, weight="bold"),
+            text="Cập nhật",
             command=self.update
+        )
+        
+        self.delete_btn = ctk.CTkButton(
+            master=self,
+            corner_radius=15.0,
+            font=ctk.CTkFont(size=30, weight="bold"),
+            text="Xóa Cabinet",
+            command=self.delete
         )
         
         self.boxTable = BoxList(self, root=self.root)
@@ -138,12 +159,15 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
         self.cabinet_name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
         self.status_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
-        self.location_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
+        self.business_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
+        self.location_label.place(relx=.08, rely=.55, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
         self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
-        self.location_combobox.place(relwidth=.23, relx=.31, rely=.45, anchor=ctk.CENTER)
-        self.save_button.place(relwidth=.25, relheight=.10, relx=.70, rely=.85, anchor=ctk.CENTER)
+        self.business_name_label.place(relx=.31, rely=.45, anchor=ctk.CENTER)
+        self.location_name_label.place(relx=.31, rely=.55, anchor=ctk.CENTER)
+        self.save_button.place(relwidth=.30, relheight=.10, relx=.25, rely=.73, anchor=ctk.CENTER)
+        self.delete_btn.place(relwidth=.30, relheight=.10, relx=.25, rely=.85, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
          
     def status_combobox_callback(self, choice):
@@ -160,22 +184,14 @@ class EditCabinetScreen(ctk.CTkFrame):
                 box['status'] = 1
             else:
                 box['status'] = 0
-    
-    def location_combobox_callback(self, choice):
-        self.cabinetLocation.set(choice)
-        locationChoice = self.cabinetLocation.get()
-        for value in self.locationData.values():
-            if value['locationName'] == locationChoice:
-                self.businessId.set(value['businessId'])
-                self.locationId.set(value['locationId'])
-    
+
     def update(self):
-        isCabinetUpdate = self.editController.update_cabinet_data()
+        isCabinetUpdate = self.editController.update_cabinet_data(self.cabinetData)
         isBoxUpdate = self.editController.update_box_data()
         isLogUpdate = self.editController.save_cabinet_log()
         
-        isCabinetUpload = self.editController.reupload_cabinet()
-        isBoxUpload = self.editController.reupload_box()
+        isCabinetUpload = self.editController.upload_cabinet(self.cabinetId.get())
+        isBoxUpload = self.editController.upload_box()
         isLogUpload = self.editController.upload_cabinetLog(self.cabinetId.get())
         
         if isCabinetUpdate and isBoxUpdate and isLogUpdate and isCabinetUpload and isBoxUpload and isLogUpload:
@@ -185,12 +201,40 @@ class EditCabinetScreen(ctk.CTkFrame):
         else:
             self.display_label.configure(text_color='red', text='Update unsuccessful')
     
+    def delete(self):
+        answer = messagebox.askyesno("Question","Xóa Cabinet này?")
+        if answer:
+            cabinetName = self.cabinetName.get()
+            cabinetId = self.cabinetId.get()
+            boxData = self.boxData
+            
+            isCabinetDeleted = self.databaseController.delete_cabinet(cabinetName)
+            isCabinetLogDeleted = self.databaseController.delete_cabinetLog(cabinetId)
+            isBoxDeleted = self.databaseController.delete_boxes(cabinetId)
+            
+            if isCabinetDeleted and isCabinetLogDeleted and isBoxDeleted:
+                self.editController.updateFb_cabinet_status(cabinetId)
+                self.editController.updateFb_box_status(boxData)
+                self.root.isRestart.set(True)
+            else:
+                return self.display_label.configure(text="Không thể xóa cabinet")
+        
+        if self.root.isRestart.get():
+            answer = messagebox.askyesno("Question","Bạn cần restart lại hệ thống trước")
+            if answer:
+                self.restart()
+    
+    def restart(self):
+        '''Restarts the current program.
+        Note: this function does not return. Any cleanup action (like
+        saving data) must be done before calling this function.'''
+        self.root.streamController.close_all_stream()
+        python = sys.executable
+        os.execl(python, python, * sys.argv)
+    
     def refresh(self):
-        self.locationData.clear()
-        self.locationComboboxValues.clear()
         self.cabinetName.set("")
         self.statusComboboxVar.set("")
-        self.location_combobox.set("")
         self.display_label.configure(text="") 
         self.boxTable.data.clear()
         tableData = self.boxTable.table.getModel().data
