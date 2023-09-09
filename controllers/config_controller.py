@@ -66,7 +66,7 @@ class SetupController():
     
     def setup_cabinet_data(self):
         results = self.view.databaseController.get_cabinetId_cabinetName()
-        for key, value in results.items():
+        for value in results.values():
             self.view.cabinetId.set(value['id'])
             self.view.cabinetName.set(value['nameCabinet'])
     
@@ -98,6 +98,7 @@ class AddCabinetController():
         self.view.boxData = self.get_box_by_cabinetId(cabinetId)
         self.view.cabinetLogData = self.get_cabinetLog_by_cabinetId(cabinetId)
         
+        self.view.cabinetId.set(self.view.root.cabinetId.get())
         self.view.cabinetName.set(self.view.root.cabinetName.get())
         self.view.masterCode.set(self.view.cabinetData['masterCode'])
         
@@ -186,7 +187,7 @@ class AddCabinetController():
         model.locationId = cabinetData['locationId']
         
         isSaved = self.view.databaseController.save_cabinet_to_db(model)
-
+        
         return isSaved
     
     def save_boxes(self, tableModel, cabinetId):
@@ -209,7 +210,7 @@ class AddCabinetController():
     
     def save_cabinet_log(self, cabinetLogData):
         isSaved = False
-        for key, value in cabinetLogData.items():
+        for value in cabinetLogData.values():
             model = CabinetLog
             model.id = value['id']
             model.cabinetId = value['cabinetId']
@@ -226,16 +227,16 @@ class AddCabinetController():
         isUpload = False
         try:
             results = self.view.databaseController.get_box_by_cabinetId(cabinetId)
-
-            for data in results:
+            
+            for value in results.values():
                 boxRef = firebaseDB.child("Box")
 
                 newData = {
-                    data['id']: {
-                        'id': data['id'],
-                        'nameBox': data['nameBox'],
-                        'status': data['status'],
-                        'cabinetId': data['cabinetId']
+                    value['id']: {
+                        'id': value['id'],
+                        'nameBox': value['nameBox'],
+                        'status': value['status'],
+                        'cabinetId': value['cabinetId']
                     }
                 }
                 
@@ -245,15 +246,13 @@ class AddCabinetController():
         except Exception as e:
             isUpload = False
             print("An error has occurred: ", e)
-
+        
         return isUpload
     
-    def update_cabinet_status_totalBox(self, cabinetId):
+    def update_cabinet_status_totalBox(self, cabinetId, totalBox):
         isUpdate = None
         try:
             cabinetRef = firebaseDB.child("Cabinet/", cabinetId)
-            boxResult = self.view.databaseController.get_box_by_cabinetId(cabinetId)
-            totalBox = len(boxResult)
             
             newData = {
                 'status': 1,
@@ -277,7 +276,7 @@ class EditCabinetController():
         results = self.view.databaseController.get_location_data()
         self.view.locationData.update(results)
 
-        for key, value in self.view.locationData.items():
+        for value in self.view.locationData.values():
             self.view.locationComboboxValues.append(value['locationName'])
         
         self.view.location_combobox.configure(values=self.view.locationComboboxValues)
@@ -319,7 +318,7 @@ class EditCabinetController():
 
         self.set_location_data()
 
-        for key, value in self.view.locationData.items():
+        for value in self.view.locationData.values():
             if value['locationId'] == self.view.cabinetData['locationId']:
                 self.view.cabinetLocation.set(value['locationName'])
         
@@ -474,7 +473,7 @@ class EditCabinetController():
 #     def add_more_box(self, data):
 #         isSaved = False
         
-#         for key, value in data.items():
+#         for value in data.values():
 #             isCheck = self.check_entries(value)
 #             if not isCheck:
 #                 self.view.display_label.configure(

@@ -23,8 +23,7 @@ class DeliveryController():
                 fb_booking_code = firebaseDB.child("BookingCode").order_by_child(
                     "bcode").equal_to(inputCode).get(fb_login["idToken"])
                 
-                for key, value in fb_booking_code.val().items():
-                    # print(value)
+                for value in fb_booking_code.val().values():
                     status = value['status']
                     validDate = datetime.strptime(value['validDate'], "%Y-%m-%d %H:%M")
                     if status == 0 or currentDate > validDate:

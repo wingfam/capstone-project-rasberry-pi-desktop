@@ -18,7 +18,7 @@ class StreamController():
                 cabinetId = path[1: len(path)]
                 snapshot = firebaseDB.child("Cabinet").order_by_key().equal_to(cabinetId).get().val()
                 
-                for key, value in snapshot.items():
+                for value in snapshot.values():
                     self.view.databaseController.update_cabinet_to_db(value)
                     
         except Exception as e:
@@ -35,7 +35,7 @@ class StreamController():
                 boxId = path[1: len(path)]
                 snapshot = firebaseDB.child("Box").order_by_key().equal_to(boxId).get().val()
                 
-                for key, value in snapshot.items():
+                for value in snapshot.values():
                     self.view.databaseController.update_box_patch_event(value)
                     
         except Exception as e:
@@ -58,7 +58,7 @@ class StreamController():
         print('set all stream')
         stream = {}
         cabinets = self.view.databaseController.get_cabinetId_cabinetName()
-        for key, value in cabinets.items():
+        for value in cabinets.values():
             cabinetId = value['id']
             stream = {
                 cabinetId : {
@@ -71,7 +71,7 @@ class StreamController():
             
     def close_all_stream(self):
         streams = self.view.globalStreams
-        for key, value in streams.items():
+        for value in streams.values():
             value['cabinetStream'].close()
             value['boxStream'].close()
         print("All stream has close")

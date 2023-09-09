@@ -117,7 +117,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         self.locationName.set("")
         
         self.businessName.set(choice)
-        for key, value in self.businessData.items():
+        for value in self.businessData.values():
             if value['businessName'] == choice:
                 self.businessId.set(value['businessId'])
                 
@@ -127,7 +127,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         self.cabinetListBox.listBox.delete(0, tk.END)
         
         self.locationName.set(choice)
-        for key, value in self.locationData.items():
+        for value in self.locationData.values():
             if value['locationName'] == choice:
                 self.locationId.set(value['locationId'])
         
@@ -137,7 +137,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         results = self.databaseController.get_business_data()
         self.businessData.update(results)
        
-        for key, value in self.businessData.items():
+        for value in self.businessData.values():
             self.businessComboboxValues.append(value['businessName'])
         
         return self.business_combobox.configure(require_redraw=True, values=self.businessComboboxValues,)
@@ -147,7 +147,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         results = self.databaseController.get_location_by_businessId(businessId)
         self.locationData.update(results)
         
-        for key, value in self.locationData.items():
+        for value in self.locationData.values():
             self.locationComboboxValues.append(value['locationName'])
         
         return self.location_combobox.configure(require_redraw=True, values=self.locationComboboxValues,)

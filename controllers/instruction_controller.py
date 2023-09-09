@@ -171,8 +171,7 @@ class InstructionController():
         
         fcmToken = ""
         
-        for key, value in fb_notification.items():
-            # print(value["token"])
+        for value in fb_notification.values():
             fcmToken = value["token"]
         
         result = pushService.push_notification(fcmToken, messageTitle, messageBody)

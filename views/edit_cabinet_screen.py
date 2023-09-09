@@ -164,7 +164,7 @@ class EditCabinetScreen(ctk.CTkFrame):
     def location_combobox_callback(self, choice):
         self.cabinetLocation.set(choice)
         locationChoice = self.cabinetLocation.get()
-        for key, value in self.locationData.items():
+        for value in self.locationData.values():
             if value['locationName'] == locationChoice:
                 self.businessId.set(value['businessId'])
                 self.locationId.set(value['locationId'])

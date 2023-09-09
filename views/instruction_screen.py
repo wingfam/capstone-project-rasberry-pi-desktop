@@ -83,7 +83,7 @@ class InstructionScreen(ctk.CTkFrame):
             
             isConfirm = True
             
-            # for key, value in globalBoxData.items():
+            # for value in globalBoxData.values():
             #     if boxId == value['id']:
             #         isConfirm = self.instructionController.confirm_task(value, task)
                     

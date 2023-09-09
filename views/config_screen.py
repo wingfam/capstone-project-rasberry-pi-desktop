@@ -35,7 +35,7 @@ class ConfigScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Edit Cabinet",
+            text="Chỉnh sửa Cabinet",
             command=self.go_to_edit_screen
         )
 
@@ -43,7 +43,7 @@ class ConfigScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Manual Control",
+            text="Điều khiển thiết bị",
             command=self.go_to_control_screen
         )
         
@@ -51,7 +51,7 @@ class ConfigScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Delete Cabinet",
+            text="Xóa Cabinet",
             command=self.delete
         )
         
@@ -59,7 +59,7 @@ class ConfigScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Restart System",
+            text="Khởi động lại",
             command=self.restart
         )
         

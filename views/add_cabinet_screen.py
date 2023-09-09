@@ -33,7 +33,7 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.masterCode = ctk.StringVar()
         self.businessId = ctk.StringVar()
         self.locationId = ctk.StringVar()
-        self.locationName = ctk.StringVar()
+        # self.locationName = ctk.StringVar()
         
         label_font = ctk.CTkFont(size=24)
         
@@ -159,18 +159,18 @@ class AddCabinetScreen(ctk.CTkFrame):
         
         cabinetId = self.cabinetId.get()
         cabinetData = self.cabinetData
-        boxData = self.boxData
         cabinetLogData = self.cabinetLogData
-        tableModel = self.boxTable.table.getModel().data
+        tableData = self.boxTable.table.getModel().data
+        totalBox = len(tableData)
         
         isCabinetSaved = self.addCabinetController.save_cabinet(cabinetData)
-        isBoxSaved = self.addCabinetController.save_boxes(tableModel, cabinetId)
+        isBoxSaved = self.addCabinetController.save_boxes(tableData, cabinetId)
         isLogSaved = self.addCabinetController.save_cabinet_log(cabinetLogData)
         
-        if isCabinetSaved and isBoxSaved and isLogSaved:
+        if isCabinetSaved and isBoxSaved:
             self.isRestart = True
             self.addCabinetController.upload_boxes(cabinetId)
-            self.addCabinetController.update_cabinet_status_totalBox(cabinetId)
+            self.addCabinetController.update_cabinet_status_totalBox(cabinetId, totalBox)
             
             self.restart_button.configure(state="normal")
             self.display_label.configure(text_color="green", text="Thông tin được lưu thành công")

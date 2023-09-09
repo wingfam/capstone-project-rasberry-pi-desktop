@@ -22,7 +22,7 @@ class ControlScreen(ctk.CTkFrame):
         self.boxInfo = {}
 
         self.chooseBoxName = ctk.StringVar()
-        self.lockStatus = ctk.StringVar(value="LOCK")
+        self.lockStatus = ctk.StringVar(value="KHÓA")
         self.switchStatus = ctk.StringVar()
         self.weightValue = ctk.StringVar()
 
@@ -45,7 +45,7 @@ class ControlScreen(ctk.CTkFrame):
             font=button_font,
             fg_color="#1F6AA5",
             state=ctk.NORMAL,
-            text="Unlock",
+            text="Mở",
             command=self.unlock_door
         )
 
@@ -55,7 +55,7 @@ class ControlScreen(ctk.CTkFrame):
             font=button_font,
             fg_color="gray99",
             state=ctk.DISABLED,
-            text="Lock",
+            text="Đóng",
             command=self.lock_door
         )
 
@@ -63,7 +63,7 @@ class ControlScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Check Door",
+            text="Cửa tủ",
             command=self.check_magnetic_switch
         )
 
@@ -71,7 +71,7 @@ class ControlScreen(ctk.CTkFrame):
             master=self,
             anchor=ctk.CENTER,
             font=button_font,
-            text="Check Weight",
+            text="Cân nặng",
             command=self.check_package
         )
 
@@ -114,30 +114,22 @@ class ControlScreen(ctk.CTkFrame):
 
         self.cabinetListBox = CabinetListBox(parent=self)
 
-        self.button_on.place(relwidth=.10, relheight=.10,
-                             relx=.10, rely=.32, anchor=ctk.CENTER)
-        self.button_off.place(relwidth=.10, relheight=.10,
-                              relx=.20, rely=.32, anchor=ctk.CENTER)
-        self.button_switch.place(
-            relwidth=.20, relheight=.10, relx=.15, rely=.47, anchor=ctk.CENTER)
-        self.button_weight.place(
-            relwidth=.20, relheight=.10, relx=.15, rely=.62, anchor=ctk.CENTER)
-        self.labelLockStatus.place(
-            relwidth=.15, relheight=.10, relx=.40, rely=.32, anchor=ctk.CENTER)
-        self.labelSwitchStatus.place(
-            relwidth=.15, relheight=.10, relx=.40, rely=.47, anchor=ctk.CENTER)
-        self.labelWeightValue.place(
-            relwidth=.15, relheight=.10, relx=.40, rely=.62, anchor=ctk.CENTER)
-        self.labelDisplay.place(
-            relwidth=.20, relheight=.10, rely=.15, relx=.82, anchor="e")
+        self.button_on.place(relwidth=.10, relheight=.10, relx=.10, rely=.32, anchor=ctk.CENTER)
+        self.button_off.place(relwidth=.10, relheight=.10, relx=.20, rely=.32, anchor=ctk.CENTER)
+        self.button_switch.place(relwidth=.20, relheight=.10, relx=.15, rely=.47, anchor=ctk.CENTER)
+        self.button_weight.place(relwidth=.20, relheight=.10, relx=.15, rely=.62, anchor=ctk.CENTER)
+        self.labelLockStatus.place(relwidth=.15, relheight=.10, relx=.40, rely=.32, anchor=ctk.CENTER)
+        self.labelSwitchStatus.place(relwidth=.15, relheight=.10, relx=.40, rely=.47, anchor=ctk.CENTER)
+        self.labelWeightValue.place(relwidth=.15, relheight=.10, relx=.40, rely=.62, anchor=ctk.CENTER)
+        self.labelDisplay.place(relwidth=.20, relheight=.10, rely=.15, relx=.82, anchor="e")
         self.cabinetListBox.place(rely=.45, relx=.75, anchor=ctk.CENTER)
 
     def unlock_door(self):
         if not self.gpioModel:
             self.labelDisplay.configure(
-                text_color="red", text="Please choose a box")
+                text_color="red", text="Cần chọn hộp tủ trước")
         else:
-            self.lockStatus.set("UNLOCK")
+            self.lockStatus.set("MỞ")
             self.labelLockStatus.configure(foreground="green")
             self.labelDisplay.configure(text="")
             self.button_on.configure(state=ctk.DISABLED, fg_color="gray99")
@@ -148,9 +140,9 @@ class ControlScreen(ctk.CTkFrame):
     def lock_door(self):
         if not self.gpioModel:
             self.labelDisplay.configure(
-                text_color="red", text="Please choose a box")
+                text_color="red", text="Cần chọn hộp tủ trước")
         else:
-            self.lockStatus.set("LOCK")
+            self.lockStatus.set("KHÓA")
             self.labelLockStatus.configure(foreground="red")
             self.labelDisplay.configure(text="")
             self.button_on.configure(state=ctk.NORMAL, fg_color="#1F6AA5")
@@ -161,19 +153,19 @@ class ControlScreen(ctk.CTkFrame):
     def check_magnetic_switch(self):
         if not self.gpioModel:
             self.labelDisplay.configure(
-                text_color="red", text="Please choose a box")
+                text_color="red", text="Cần chọn hộp tủ trước")
         else:
             self.labelDisplay.configure(text="")
             value = self.manualController.check_door(self.gpioModel.magSwitch)
             if not value:
-                self.switchStatus.set("OPEN")
+                self.switchStatus.set("MỞ")
             else:
-                self.switchStatus.set("CLOSE")
+                self.switchStatus.set("ĐÓNG")
 
     def check_package(self):
         if not self.gpioModel:
             self.labelDisplay.configure(
-                text_color="red", text="Please choose a box")
+                text_color="red", text="Cần chọn hộp tủ trước")
         else:
             self.labelDisplay.configure(text="")
             weight = self.manualController.check_weight(self.gpioModel.loadcell)
@@ -228,12 +220,12 @@ class CabinetListBox(ctk.CTkFrame):
             data = event.widget.get(index)
             self.parent.chooseBoxName.set(data)
         
-        for key, value in self.parent.boxInfo.items():
+        for value in self.parent.boxInfo.values():
             if value['nameBox'] == self.parent.chooseBoxName.get():
                 boxId = value['id']
                 break
                 
-        for key, value in self.parent.root.globalBoxData.items():
+        for value in self.parent.root.globalBoxData.values():
             if value['id'] == boxId:
                 self.parent.gpioModel.solenoid = value['solenoid']
                 self.parent.gpioModel.magSwitch = value['magSwitch']

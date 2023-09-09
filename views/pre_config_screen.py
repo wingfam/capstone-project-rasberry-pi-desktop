@@ -76,7 +76,7 @@ class PreConfigScreen(ctk.CTkFrame):
             error_text = "Mã master không đúng"
             return self.error_label.configure(text=error_text, foreground="red")
             
-        for key, value in foundMasterCode.items():
+        for value in foundMasterCode.values():
             masterCodeStatus =  int(value['masterCodeStatus'])
             if masterCodeStatus == 1:
                 self.go_to_config_screen()

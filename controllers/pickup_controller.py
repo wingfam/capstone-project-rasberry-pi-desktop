@@ -23,7 +23,7 @@ class PickupController():
                 fb_booking_order = firebaseDB.child("BookingOrder").order_by_child(
                     "unlockCode").equal_to(inputCode).get(fb_login["idToken"])
                 
-                for key, value in fb_booking_order.val().items():
+                for value in fb_booking_order.val().values():
                     status = value['status']
                     if status == 4 or status == 5:
                         error_text = "Booking không tồn tại"
