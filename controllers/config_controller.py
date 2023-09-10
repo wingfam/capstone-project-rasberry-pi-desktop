@@ -204,7 +204,7 @@ class AddCabinetController():
                 if boxKey == tableKey:
                     model.id = boxValue['id']
                     model.nameBox = boxValue['nameBox']
-                    model.status = boxValue['status']
+                    model.status = 1
                     model.solenoidGpio = tableValue['solenoidGpio']
                     model.switchGpio = tableValue['switchGpio']
                     model.loadcellDout = tableValue['loadcellDout']
