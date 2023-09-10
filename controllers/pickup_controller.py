@@ -1,6 +1,6 @@
 from datetime import datetime
 from services.auth import firebase_login
-from services.firebase_config import firebaseDB
+from services.firebase_config import firebaseApp
 
 class PickupController():
     def __init__(self, view):
@@ -15,6 +15,7 @@ class PickupController():
         else:
             try:
                 # Login vào firebase mỗi lần gửi yêu cầu để tránh bị timeout
+                firebaseDB = firebaseApp.database()
                 fb_login = firebase_login()
                 currentDate = datetime.now()
                 inputCode = input_data.get()
@@ -40,6 +41,7 @@ class PickupController():
             self.view.label_error.configure(text=error_text, foreground="red")
     
     def update_app_data(self, bookingId):
+        firebaseDB = firebaseApp.database()
         fb_login = firebase_login()
         
         customerId = firebaseDB.child(

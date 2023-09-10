@@ -8,7 +8,7 @@ from urllib.request import pathname2url
 
 from constants.db_table import DbTable, db_file_name
 from models.models import Box, Cabinet, CabinetLog
-from services.firebase_config import firebaseDB
+from services.firebase_config import firebaseApp
 from services.sqlite3 import dict_factory
 
 # import RPi.GPIO as GPIO
@@ -133,6 +133,7 @@ class AddCabinetController():
     def get_cabinet_by_id(self, cabinetId):
         newData = {}
         try:
+            firebaseDB = firebaseApp.database()
             fb_cabinets = firebaseDB.child("Cabinet").child(cabinetId).get()
             newData.update(fb_cabinets.val())
         except IndexError:
@@ -143,6 +144,7 @@ class AddCabinetController():
     def get_box_by_cabinetId(self, cabinetId):
         newData = {}
         try:
+            firebaseDB = firebaseApp.database()
             fb_boxes = firebaseDB.child("Box").order_by_child("cabinetId").equal_to(cabinetId).get()
             newData.update(fb_boxes.val())
         except IndexError:
@@ -153,6 +155,7 @@ class AddCabinetController():
     def get_cabinetLog_by_cabinetId(self, cabinetId):
         newData = {}
         try:
+            firebaseDB = firebaseApp.database()
             fb_cabinetLog = firebaseDB.child("CabinetLog").order_by_child("cabinetId").equal_to(cabinetId).get()
             newData.update(fb_cabinetLog.val())
         except IndexError:
@@ -214,6 +217,7 @@ class AddCabinetController():
     
     def create_boxes(self, tableModel, cabinetId):
         isSaved = False
+        firebaseDB = firebaseApp.database()
         for value in tableModel.values():
             model = Box
             model.id = firebaseDB.generate_key()
@@ -251,6 +255,7 @@ class AddCabinetController():
             results = self.view.databaseController.get_box_by_cabinetId(cabinetId)
             
             for value in results.values():
+                firebaseDB = firebaseApp.database()
                 boxRef = firebaseDB.child("Box")
 
                 newData = {
@@ -274,6 +279,7 @@ class AddCabinetController():
     def update_cabinet_status_totalBox(self, cabinetId, totalBox):
         isUpdate = None
         try:
+            firebaseDB = firebaseApp.database()
             cabinetRef = firebaseDB.child("Cabinet/", cabinetId)
             
             newData = {
@@ -297,6 +303,7 @@ class EditCabinetController():
     def get_location_by_id(self, locationId):
         location = ""
         try:
+            firebaseDB = firebaseApp.database()
             fb_location = firebaseDB.child("Location").order_by_child("id").equal_to(locationId).get().val()
             for value in fb_location.values():
                 location = value['nameLocation']
@@ -308,6 +315,7 @@ class EditCabinetController():
     def get_business_by_id(self, businessId):
         business = ""
         try:
+            firebaseDB = firebaseApp.database()
             fb_location = firebaseDB.child("Business").order_by_child("id").equal_to(businessId).get().val()
             for value in fb_location.values():
                 business = value['businessName']
@@ -391,6 +399,7 @@ class EditCabinetController():
         isUpdate = None
         currentDateTime = datetime.now()
         currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M")
+        firebaseDB = firebaseApp.database()
         
         model = CabinetLog
         model.id = firebaseDB.generate_key()
@@ -407,9 +416,10 @@ class EditCabinetController():
         
         return isUpdate
         
-    def upload_cabinet(self):
+    def upload_cabinet(self, cabinetId):
         isUpload = None
         try:
+            firebaseDB = firebaseApp.database()
             cabinetId = self.view.cabinetId.get()
             cabinetRef = firebaseDB.child("Cabinet").child(cabinetId)
             
@@ -417,8 +427,6 @@ class EditCabinetController():
                 'id': self.view.cabinetId.get(),
                 'nameCabinet': self.view.cabinetName.get(),
                 'status': self.view.status.get(),
-                'businessId': self.view.businessId.get(),
-                'locationId': self.view.locationId.get()
             }
 
             cabinetRef.update(newData)
@@ -443,6 +451,7 @@ class EditCabinetController():
                         
             for box in boxData.values():
                 boxId = box['id']
+                firebaseDB = firebaseApp.database()
                 boxRef = firebaseDB.child("Box").child(boxId)
 
                 newData = {
@@ -463,6 +472,7 @@ class EditCabinetController():
         try:
             data = self.view.databaseController.get_cabinetLog_by_cabinetId(cabinetId)
             for log in data.values():
+                firebaseDB = firebaseApp.database()
                 logRef = firebaseDB.child("CabinetLog")
 
                 newData = {
@@ -487,6 +497,7 @@ class EditCabinetController():
     def updateFb_cabinet_status(self, cabinetId):
         isUpdated = None
         try:
+            firebaseDB = firebaseApp.database()
             cabinetRef = firebaseDB.child("Cabinet").child(cabinetId)
             
             newData = {
@@ -506,6 +517,7 @@ class EditCabinetController():
         try:
             for value in boxData.values():
                 boxId = value['id']
+                firebaseDB = firebaseApp.database()
                 boxRef = firebaseDB.child("Box").child(boxId)
 
                 newData = {
@@ -538,6 +550,7 @@ class AddBoxController():
 
     def add_more_box(self, data, cabinetId):
         isSaved = False
+        firebaseDB = firebaseApp.database()
         
         for value in data.values():
             model = Box
@@ -566,6 +579,7 @@ class AddBoxController():
             results = self.view.databaseController.get_last_box_insert_by_cabinetId(cabinetId, limit)
 
             for data in results:
+                firebaseDB = firebaseApp.database()
                 boxRef = firebaseDB.child("Box")
 
                 newData = {
@@ -589,6 +603,7 @@ class AddBoxController():
     def update_total_box(self, cabinetId):
         isUpdate = None
         try:
+            firebaseDB = firebaseApp.database()
             cabinetRef = firebaseDB.child("Cabinet/", cabinetId)
             boxResult = self.view.databaseController.get_box_by_cabinetId(cabinetId)
             totalBox = len(boxResult)
@@ -649,6 +664,7 @@ class DatabaseController():
     def get_business_data(self):
         newData = {}
         try:
+            firebaseDB = firebaseApp.database()
             fb_business = firebaseDB.child("Business").get()
             
             newKey = 0
@@ -674,6 +690,7 @@ class DatabaseController():
     def get_location_by_businessId(self, businessId):
         newData = {}
         try:
+            firebaseDB = firebaseApp.database()
             fb_locations = firebaseDB.child("Location").order_by_child("businessId").equal_to(businessId).get()
             
             newKey = 0
@@ -729,6 +746,7 @@ class DatabaseController():
     def get_cabinet_by_locationId(self, locationId):
         newData = {}
         try:
+            firebaseDB = firebaseApp.database()
             fb_cabinets = firebaseDB.child("Cabinet").order_by_child("locationId").equal_to(locationId).get()
             
             newKey = 0

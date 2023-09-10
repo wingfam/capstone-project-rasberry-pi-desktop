@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 from services.auth import firebase_login
-from services.firebase_config import firebaseDB
+from services.firebase_config import firebaseApp
 from services.push_notification import PushNotificationService
 
 class InstructionController():
@@ -71,6 +71,7 @@ class InstructionController():
         currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M")
         
         try:
+            firebaseDB = firebaseApp.database()
             fb_login = firebase_login()
             isCompleted = False
             
@@ -148,6 +149,7 @@ class InstructionController():
         return isCompleted
 
     def add_booking_log(self, fb_login, logTitle, logBody, bookingId, currentTime):
+        firebaseDB = firebaseApp.database()
         newKey = firebaseDB.generate_key()
         
         data = {
@@ -164,6 +166,7 @@ class InstructionController():
         print("Save notification successful")
     
     def send_notification(self, fb_login, customerId, messageTitle, messageBody):
+        firebaseDB = firebaseApp.database()
         pushService = PushNotificationService()
         
         fb_notification = firebaseDB.child("Notification").order_by_child(
@@ -180,6 +183,7 @@ class InstructionController():
             print("Send notification successful")
 
     def save_notification(self, fb_login, customerId, messageTitle, messageBody, currentTime):
+        firebaseDB = firebaseApp.database()
         fb_notification = firebaseDB.child("Notification").order_by_child(
             "customerId").equal_to(customerId).get(fb_login["idToken"])
         

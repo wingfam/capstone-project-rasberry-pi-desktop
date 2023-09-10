@@ -16,7 +16,7 @@ config = {
 firebaseApp = firebase.initialize_app(config)
 
 # Firebase Realtime Database
-firebaseDB = firebaseApp.database()
+# firebaseDB = firebaseApp.database()
 
 # Identification
 identity = {
