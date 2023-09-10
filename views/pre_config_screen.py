@@ -47,6 +47,7 @@ class PreConfigScreen(ctk.CTkFrame):
             master=self,
             justify="center",
             font=text_font,
+            show="*",
             textvariable=self.input_master_code,
         )
         
