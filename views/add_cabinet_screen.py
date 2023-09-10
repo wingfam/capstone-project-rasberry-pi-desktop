@@ -195,7 +195,7 @@ class AddCabinetScreen(ctk.CTkFrame):
         '''Restarts the current program.
         Note: this function does not return. Any cleanup action (like
         saving data) must be done before calling this function.'''
-        self.root.streamController.close_all_stream()
+        # self.root.streamController.close_all_stream()
         python = sys.executable
         os.execl(python, python, * sys.argv)
     
