@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
 from tkinter import ttk, CENTER
-from constants.image_imports import back_image
+from constants.image_imports import back_image, show_pass_image, hide_pass_image
 from controllers.config_controller import DatabaseController
 from widgets.keypad import Keypad
 
@@ -15,6 +15,7 @@ class PreConfigScreen(ctk.CTkFrame):
         self.databaseController = DatabaseController(self)
         
         self.input_master_code = ctk.StringVar()
+        self.is_show_master_code = ctk.BooleanVar(False)
         
         text_font = ctk.CTkFont(size=38, weight="bold")
         
@@ -28,6 +29,17 @@ class PreConfigScreen(ctk.CTkFrame):
             image=back_image,
             command=self.go_to_main_screen,
         ).place(relx=.95, rely=.10, anchor=ctk.CENTER)
+        
+        self.show_hide_code_btn = ctk.CTkButton(
+            master=self,
+            width=44,
+            height=44,
+            bg_color="#FFFFFF",
+            fg_color="#FFFFFF",
+            text= "",
+            image=hide_pass_image,
+            command=self.show_hide_master_code,
+        )
         
         self.error_label = ttk.Label(
             master=self,
@@ -48,6 +60,7 @@ class PreConfigScreen(ctk.CTkFrame):
             justify="center",
             font=text_font,
             show="*",
+            
             textvariable=self.input_master_code,
         )
         
@@ -63,11 +76,13 @@ class PreConfigScreen(ctk.CTkFrame):
         
         self.keypad = Keypad(self)
         self.keypad.target = self.master_code_entry
+        
         self.keypad.place(relx=.78, rely=.5, anchor=CENTER)
         self.error_label.place(relx=.26, rely=.15, anchor=CENTER)
         self.master_code_label.place(relx=.26, rely=.45, anchor=CENTER)
         self.master_code_entry.place(relwidth=.4, relheight=.15, relx=.28, rely=.30, anchor=CENTER)
-    
+        self.show_hide_code_btn.place(relx=.50, rely=.35, anchor=ctk.CENTER)
+        
     def check_master_code(self):
         inputCode = self.input_master_code.get()
         
@@ -84,6 +99,16 @@ class PreConfigScreen(ctk.CTkFrame):
             else:
                 error_text = "Mã master không thể dùng vào lúc này"
                 return self.error_label.configure(text=error_text, foreground="red")
+    
+    def show_hide_master_code(self):
+        if not self.is_show_master_code.get():
+            self.is_show_master_code.set(True)
+            self.master_code_entry.configure(show="")
+            self.show_hide_code_btn.configure(require_redraw=True, image=show_pass_image)
+        else:
+            self.is_show_master_code.set(False)
+            self.master_code_entry.configure(show="*")
+            self.show_hide_code_btn.configure(require_redraw=True, image=hide_pass_image)
     
     def refresh(self):
         self.input_master_code.set("")

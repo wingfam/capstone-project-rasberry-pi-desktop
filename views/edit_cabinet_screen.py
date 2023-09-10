@@ -171,11 +171,11 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
          
     def status_combobox_callback(self, choice):
-        if choice == 'Yes':
+        if choice == 'Đã kích hoạt':
             self.status.set(1)
-        elif choice == 'No':
+        elif choice == 'Chưa kích hoạt':
             self.status.set(0)
-            
+        
         self.statusComboboxVar.set(choice)
         choice = self.statusComboboxVar.get()
         

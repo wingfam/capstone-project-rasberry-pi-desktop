@@ -10,3 +10,5 @@ config_image = ctk.CTkImage(light_image=Image.open("assets/images/button_config.
 add_image = ctk.CTkImage(light_image=Image.open("assets/images/button_add.png"), size=[44, 44])
 refresh_image = ctk.CTkImage(light_image=Image.open("assets/images/button_refresh.png"), size=[44, 44])
 cabinet_image = ctk.CTkImage(light_image=Image.open("assets/images/cabinet.png"), size=[320, 440])
+show_pass_image = ctk.CTkImage(light_image=Image.open("assets/images/show_pass.png"), size=[44, 44])
+hide_pass_image = ctk.CTkImage(light_image=Image.open("assets/images/hide_pass.png"), size=[44, 44])
