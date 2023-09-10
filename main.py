@@ -42,7 +42,7 @@ class MainApp(ctk.CTk):
         
         self.setupController.setup_cabinet_data()
         self.setupController.setup_box_data()
-        self.streamController.set_all_stream()
+        # self.streamController.set_all_stream()
         
         if not self.globalBoxData:
             self.show_frame("ChooseCabinetScreen")

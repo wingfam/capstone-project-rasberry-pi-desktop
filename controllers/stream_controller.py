@@ -2,7 +2,7 @@ import sqlite3 as sqlite3
 import time
 
 from controllers.config_controller import DatabaseController
-from services.firebase_config import firebaseApp
+from services.firebase_config import firebaseDB
 
 class StreamController():
     def __init__(self, view):
@@ -10,7 +10,6 @@ class StreamController():
     
     def cabinet_stream_handler(self, stream):
         try:
-            firebaseDB = firebaseApp.database()
             if stream['event'] == 'put':
                 print("Cabinet stream Put event happened")
             elif stream['event'] == 'patch':
@@ -28,7 +27,6 @@ class StreamController():
        
     def box_stream_handler(self, stream):
         try:
-            firebaseDB = firebaseApp.database()
             if stream['event'] == 'put':
                 print("Box stream Put event happened")
             elif stream['event'] == 'patch':
@@ -45,14 +43,12 @@ class StreamController():
             pass
     
     def set_cabinet_stream(self, cabinetId):
-        firebaseDB = firebaseApp.database()
         cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
                 self.cabinet_stream_handler, stream_id='cabinet_stream')
         time.sleep(0.01)
         return cabinetStream
      
     def set_box_stream(self, cabinetId):
-        firebaseDB = firebaseApp.database()
         boxStream = firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
                 self.box_stream_handler, stream_id='box_stream')
         time.sleep(0.01)
