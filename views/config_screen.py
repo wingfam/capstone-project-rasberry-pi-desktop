@@ -5,8 +5,6 @@ import customtkinter as ctk
 from tkinter import messagebox
 from constants.image_imports import back_image
 from controllers.config_controller import DatabaseController
-from views.control_screen import ControlScreen
-from views.edit_cabinet_screen import EditCabinetScreen
 
 
 class ConfigScreen(ctk.CTkFrame):
@@ -39,6 +37,14 @@ class ConfigScreen(ctk.CTkFrame):
             command=self.go_to_edit_screen
         )
 
+        self.add_box_btn = ctk.CTkButton(
+            master=self,
+            anchor=ctk.CENTER,
+            font=button_font,
+            text="Thêm hộp tủ",
+            command=self.go_to_add_box_screen
+        )
+        
         self.manual_control_btn = ctk.CTkButton(
             master=self,
             anchor=ctk.CENTER,
@@ -57,7 +63,8 @@ class ConfigScreen(ctk.CTkFrame):
         
         self.go_back_btn.place(relx=.10, rely=.10, anchor=ctk.CENTER)
         self.edit_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.20, anchor=ctk.CENTER)
-        self.manual_control_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.40, anchor=ctk.CENTER)
+        self.add_box_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.40, anchor=ctk.CENTER)
+        self.manual_control_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.60, anchor=ctk.CENTER)
         self.restart_btn.place(relwidth=.45, relheight=.15, relx=.5, rely=.80, anchor=ctk.CENTER)
 
     def restart(self):
@@ -67,6 +74,15 @@ class ConfigScreen(ctk.CTkFrame):
         self.root.streamController.close_all_stream()
         python = sys.executable
         os.execl(python, python, * sys.argv)
+
+    def go_to_edit_screen(self):
+        self.root.show_frame("EditCabinetScreen")
+
+    def go_to_add_box_screen(self):
+        self.root.show_frame("AddBoxScreen")
+    
+    def go_to_control_screen(self):
+        self.root.show_frame("ControlScreen")
         
     def go_back(self):
         # print("Is Restart: ", self.root.isRestart.get())
@@ -76,9 +92,3 @@ class ConfigScreen(ctk.CTkFrame):
             answer = messagebox.askyesno("Question", "Bạn cần restart lại hệ thống trước")
             if answer:
                 self.restart()
-
-    def go_to_edit_screen(self):
-        self.root.show_frame("EditCabinetScreen")
-
-    def go_to_control_screen(self):
-        self.root.show_frame("ControlScreen")

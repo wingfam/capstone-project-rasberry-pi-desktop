@@ -1,7 +1,7 @@
 import sqlite3 as sqlite3
 import time
-from gpiozero import LED, Button
-from services.hx711 import HX711
+# from gpiozero import LED, Button
+# from services.hx711 import HX711
 from datetime import datetime
 from tkinter import messagebox
 from urllib.request import pathname2url
@@ -11,7 +11,7 @@ from models.models import Box, Cabinet, CabinetLog
 from services.firebase_config import firebaseDB
 from services.sqlite3 import dict_factory
 
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
 
 check_weight_time = 3
@@ -76,12 +76,12 @@ class SetupController():
             boxData = {
                 box['id']: {
                     'id': box['id'],
-                    'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    'loadcell': self.set_loadcell(
-                        box['loadcellDout'], 
-                        box['loadcellSck'],
-                        box['loadcellRf']),
+                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    # 'loadcell': self.set_loadcell(
+                    #     box['loadcellDout'], 
+                    #     box['loadcellSck'],
+                    #     box['loadcellRf']),
                 }
             }
             
@@ -536,24 +536,27 @@ class AddBoxController():
 
         return isCheck
 
-    def add_more_box(self, data):
+    def add_more_box(self, data, cabinetId):
         isSaved = False
         
         for value in data.values():
-            isCheck = self.check_entries(value)
-            if not isCheck:
+            model = Box
+            model.id = firebaseDB.generate_key()
+            model.nameBox = value['nameBox']
+            model.status = 1
+            model.solenoidGpio = value['solenoidGpio']
+            model.switchGpio = value['switchGpio']
+            model.loadcellDout = value['loadcellDout']
+            model.loadcellSck = value['loadcellSck']
+            model.loadcellRf = value['loadcellRf']
+            model.cabinetId = cabinetId
+            
+            isSaved = self.view.databaseController.save_box_to_db(model)
+            
+            if isSaved:
                 self.view.display_label.configure(
-                    text_color="red",
-                    text="Hãy kiểm tra lại các ô điền đúng"
-                )
-                break
-            else:
-                # print("Save box data: ", value)
-                isSaved = self.view.databaseController.save_box_to_db(value)
-                if isSaved:
-                    self.view.display_label.configure(
-                        text_color="green",
-                        text="Hộp tủ được tạo thành công")
+                    text_color="green",
+                    text="Hộp tủ được tạo thành công")
 
         return isSaved
 
@@ -574,8 +577,6 @@ class AddBoxController():
                     }
                 }
                 
-                print(newData)
-
                 boxRef.update(newData)
 
             isUpload = True
