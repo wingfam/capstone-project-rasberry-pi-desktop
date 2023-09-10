@@ -198,20 +198,21 @@ class AddCabinetController():
     
     def save_boxes(self, tableData, boxData, cabinetId):
         isSaved = False
-        for tableValue in tableData.values():
+        for boxKey, boxValue in boxData.items():
             model = Box
-            for boxValue in boxData.values():
-                model.id = boxValue['id']
-                model.nameBox = boxValue['nameBox']
-                model.status = boxValue['status']
-                model.solenoidGpio = tableValue['solenoidGpio']
-                model.switchGpio = tableValue['switchGpio']
-                model.loadcellDout = tableValue['loadcellDout']
-                model.loadcellSck = tableValue['loadcellSck']
-                model.loadcellRf = tableValue['loadcellRf']
-                model.cabinetId = cabinetId
-            
-                isSaved = self.view.databaseController.save_box_to_db(model)
+            for tableKey, tableValue in tableData.items():
+                if boxKey == tableKey:
+                    model.id = boxValue['id']
+                    model.nameBox = boxValue['nameBox']
+                    model.status = boxValue['status']
+                    model.solenoidGpio = tableValue['solenoidGpio']
+                    model.switchGpio = tableValue['switchGpio']
+                    model.loadcellDout = tableValue['loadcellDout']
+                    model.loadcellSck = tableValue['loadcellSck']
+                    model.loadcellRf = tableValue['loadcellRf']
+                    model.cabinetId = cabinetId
+                
+                    isSaved = self.view.databaseController.save_box_to_db(model)
         
         return isSaved
     
@@ -1033,6 +1034,7 @@ class DatabaseController():
             cur.execute(sql, box)
             conn.commit()
         except Exception as e:
+            print("save box error")
             print("An error has occurred: ", e)
             return False
         finally:
