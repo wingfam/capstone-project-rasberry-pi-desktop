@@ -6,10 +6,11 @@ class PickupController():
     def __init__(self, view):
         self.view = view
 
-    def check_unlock_code(self, input_data):
+    def check_unlock_code(self, inputCode):
         isError = False
         error_text= ""
-        if input_data.index("end") == 0:
+        bookingId = ""
+        if not inputCode:
             error_text = "Trường nhập không được để trống"
             isError = True
         else:
@@ -17,9 +18,6 @@ class PickupController():
                 # Login vào firebase mỗi lần gửi yêu cầu để tránh bị timeout
                 firebaseDB = firebaseApp.database()
                 fb_login = firebase_login()
-                currentDate = datetime.now()
-                inputCode = input_data.get()
-                bookingId = ""
                 
                 fb_booking_order = firebaseDB.child("BookingOrder").order_by_child(
                     "unlockCode").equal_to(inputCode).get(fb_login["idToken"])

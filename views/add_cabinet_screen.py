@@ -29,11 +29,10 @@ class AddCabinetScreen(ctk.CTkFrame):
         
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
-        self.status = ctk.StringVar()
+        self.totalBox = ctk.StringVar()
         self.masterCode = ctk.StringVar()
         self.businessId = ctk.StringVar()
         self.locationId = ctk.StringVar()
-        # self.locationName = ctk.StringVar()
         
         label_font = ctk.CTkFont(size=24)
         
@@ -74,13 +73,13 @@ class AddCabinetScreen(ctk.CTkFrame):
             text="Tên tủ: ",
         )
         
-        self.status_label = ctk.CTkLabel(
+        self.total_box_label = ctk.CTkLabel(
             master=self,
             width=200,
             anchor="e",
             text_color="black",
             font=label_font,
-            text="Trạng thái: ",
+            text="Số tủ: ",
         )
         
         self.master_code_label = ctk.CTkLabel(
@@ -102,14 +101,14 @@ class AddCabinetScreen(ctk.CTkFrame):
             textvariable=self.cabinetName,
         )
         
-        self.status_entry = ctk.CTkEntry(
+        self.total_box_entry = ctk.CTkEntry(
             master=self,
             width=100,
             fg_color="white",
             text_color="black",
             state="disabled",
             font=ctk.CTkFont(size=24),
-            textvariable=self.status,
+            textvariable=self.totalBox,
         )
         
         self.master_code_entry = ctk.CTkEntry(
@@ -145,10 +144,10 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         self.name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
-        self.status_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
+        self.total_box_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
         self.master_code_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
         self.name_entry.place(relwidth=.20, relx=.31, rely=.25, anchor=ctk.CENTER)
-        self.status_entry.place(relwidth=.20, relx=.31, rely=.35, anchor=ctk.CENTER)
+        self.total_box_entry.place(relwidth=.20, relx=.31, rely=.35, anchor=ctk.CENTER)
         self.master_code_entry.place(relwidth=.20, relx=.31, rely=.45, anchor=ctk.CENTER)
         self.save_button.place(relwidth=.30, relheight=.10, relx=.22, rely=.65, anchor=ctk.CENTER)
         self.restart_button.place(relwidth=.30, relheight=.10, relx=.22, rely=.78, anchor=ctk.CENTER)
@@ -178,10 +177,12 @@ class AddCabinetScreen(ctk.CTkFrame):
             self.addCabinetController.update_cabinet_status_totalBox(cabinetId, totalBox)
             
             self.restart_button.configure(state="normal")
+            self.save_button.configure(state='disabled')
             self.display_label.configure(text_color="green", text="Thông tin được lưu thành công")
             answer = messagebox.askyesno("Question","Khởi động lại hệ thống?")
         
         if answer:
+            self.refresh()
             self.restart()
     
     def go_back_prev_screen(self):
@@ -195,13 +196,15 @@ class AddCabinetScreen(ctk.CTkFrame):
         '''Restarts the current program.
         Note: this function does not return. Any cleanup action (like
         saving data) must be done before calling this function.'''
-        # self.root.streamController.close_all_stream()
+        self.root.streamController.close_all_stream()
         python = sys.executable
         os.execl(python, python, * sys.argv)
     
     def refresh(self):
         self.boxTable.data.clear()
         self.boxData.clear()
+        self.restart_button.configure(state="disabled")
+        self.save_button.configure(state='normal')
         self.boxTable.table.getModel().data.clear()
    
     

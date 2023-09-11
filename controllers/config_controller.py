@@ -8,7 +8,7 @@ from urllib.request import pathname2url
 
 from constants.db_table import DbTable, db_file_name
 from models.models import Box, Cabinet, CabinetLog
-from services.firebase_config import firebaseApp
+from services.firebase_config import firebaseApp, firebaseDB
 from services.sqlite3 import dict_factory
 
 # import RPi.GPIO as GPIO
@@ -100,12 +100,8 @@ class AddCabinetController():
         
         self.view.cabinetId.set(self.view.root.cabinetId.get())
         self.view.cabinetName.set(self.view.root.cabinetName.get())
+        self.view.totalBox.set(self.view.cabinetData['totalBox'])
         self.view.masterCode.set(self.view.cabinetData['masterCode'])
-        
-        if self.view.cabinetData['status']:
-            self.view.status.set('Đã kích hoạt')
-        else:
-            self.view.status.set('Chưa kích hoạt')
 
         # Set data inside table with box results
         if self.view.boxData:
@@ -420,7 +416,7 @@ class EditCabinetController():
     def upload_cabinet(self, cabinetId):
         isUpload = None
         try:
-            firebaseDB = firebaseApp.database()
+            # firebaseDB = firebaseApp.database()
             cabinetId = self.view.cabinetId.get()
             cabinetRef = firebaseDB.child("Cabinet").child(cabinetId)
             
@@ -452,7 +448,7 @@ class EditCabinetController():
                         
             for box in boxData.values():
                 boxId = box['id']
-                firebaseDB = firebaseApp.database()
+                # firebaseDB = firebaseApp.database()
                 boxRef = firebaseDB.child("Box").child(boxId)
 
                 newData = {
@@ -473,7 +469,7 @@ class EditCabinetController():
         try:
             data = self.view.databaseController.get_cabinetLog_by_cabinetId(cabinetId)
             for log in data.values():
-                firebaseDB = firebaseApp.database()
+                # firebaseDB = firebaseApp.database()
                 logRef = firebaseDB.child("CabinetLog")
 
                 newData = {
@@ -498,7 +494,7 @@ class EditCabinetController():
     def updateFb_cabinet_status(self, cabinetId):
         isUpdated = None
         try:
-            firebaseDB = firebaseApp.database()
+            # firebaseDB = firebaseApp.database()
             cabinetRef = firebaseDB.child("Cabinet").child(cabinetId)
             
             newData = {
@@ -518,7 +514,7 @@ class EditCabinetController():
         try:
             for value in boxData.values():
                 boxId = value['id']
-                firebaseDB = firebaseApp.database()
+                # firebaseDB = firebaseApp.database()
                 boxRef = firebaseDB.child("Box").child(boxId)
 
                 newData = {
@@ -620,6 +616,53 @@ class AddBoxController():
             print("An error has occurred: ", e)
         
         return isUpdate
+
+
+class ManualControlController():
+    def __init__(self, view):
+        self.view = view
+
+    # This gets called whenever the UNLOCK button is pressed
+    def unlock_door(self, solenoid):
+        solenoid.off()
+
+    # This gets called whenever the LOCK button is pressed
+    def lock_door(self, solenoid):
+        solenoid.on()
+
+    # Check magnetic switch value and return it
+    def check_door(self, switch):
+        switchValue = switch.value
+        return switchValue
+
+    def check_weight(self, loadcell):
+        weight_value = 0
+        loadcell.power_up()
+        time.sleep(0.01)
+        # Loop check loadcell weight value every 3 seconds
+        weight_value = max(0, int(loadcell.get_weight(5)))
+
+        loadcell.power_down()
+        print("Check weight done!")
+        
+        time.sleep(0.01)
+        return weight_value
+
+    def confirm(self):
+        # Unlock box's door. Add wait for release event to magnetic switch
+        # and check its state after 3 seconds
+        self.unlock_door()
+        isReleased = self.model.magSwitch.wait_for_release(3.0)
+
+        if not isReleased:
+            print('Magnetic switch is released: ', isReleased)
+            self.lock_door()
+        else:
+            # Add when held event to the switch. If the switch is held for
+            # a hold_time seconds, activate lock_door function (check pin
+            # declare for hold_time)
+            print("Add event to magnetic switch")
+            self.model.magSwitch.when_held = self.lock_door
 
 
 class DatabaseController():
@@ -1254,49 +1297,3 @@ class DatabaseController():
 
         return isDelete
     
-
-class ManualControlController():
-    def __init__(self, view):
-        self.view = view
-
-    # This gets called whenever the UNLOCK button is pressed
-    def unlock_door(self, solenoid):
-        solenoid.off()
-
-    # This gets called whenever the LOCK button is pressed
-    def lock_door(self, solenoid):
-        solenoid.on()
-
-    # Check magnetic switch value and return it
-    def check_door(self, switch):
-        switchValue = switch.value
-        return switchValue
-
-    def check_weight(self, loadcell):
-        weight_value = 0
-        loadcell.power_up()
-        time.sleep(0.01)
-        # Loop check loadcell weight value every 3 seconds
-        weight_value = max(0, int(loadcell.get_weight(5)))
-
-        loadcell.power_down()
-        print("Check weight done!")
-        
-        time.sleep(0.01)
-        return weight_value
-
-    def confirm(self):
-        # Unlock box's door. Add wait for release event to magnetic switch
-        # and check its state after 3 seconds
-        self.unlock_door()
-        isReleased = self.model.magSwitch.wait_for_release(3.0)
-
-        if not isReleased:
-            print('Magnetic switch is released: ', isReleased)
-            self.lock_door()
-        else:
-            # Add when held event to the switch. If the switch is held for
-            # a hold_time seconds, activate lock_door function (check pin
-            # declare for hold_time)
-            print("Add event to magnetic switch")
-            self.model.magSwitch.when_held = self.lock_door

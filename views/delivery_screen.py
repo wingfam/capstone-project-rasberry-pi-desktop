@@ -23,6 +23,10 @@ class DeliveryScreen(ctk.CTkFrame):
         self.databaseController = DatabaseController(self)
         self.deliveryController = DeliveryController(self)
         
+        self.inputBookingCode = ctk.StringVar()
+        
+        self.inputBookingCode.trace("w", self.limitSizeCode)
+        
         self.notice_label1 = ctk.CTkLabel(
             master=self,
             font=ctk.CTkFont(size=20),
@@ -44,6 +48,7 @@ class DeliveryScreen(ctk.CTkFrame):
             master=self,
             justify="center",
             font=ctk.CTkFont(size=48),
+            textvariable=self.inputBookingCode
         )
         
         self.label_error = ttk.Label(
@@ -108,7 +113,16 @@ class DeliveryScreen(ctk.CTkFrame):
         finally:
             print("Enable button after 1.5 seconds")   
             self.button_confirm.after(1500, self.enable_confirm_button)
-            
+    
+    def limitSizeCode(self, *args):
+        # limit the size of master code entry
+        value = self.inputBookingCode.get()
+        if len(value) > 6: self.inputBookingCode.set(value[:6])
+        
+    def refresh(self):
+        self.entry_code.delete(0, "end")
+        self.label_error.configure(text="", foreground="red")
+        
     def go_to_main_screen(self):
         self.refresh()
         self.root.show_frame("MainScreen")
@@ -117,10 +131,6 @@ class DeliveryScreen(ctk.CTkFrame):
         self.refresh()
         self.root.show_frame("InstructionScreen")
 
-    def refresh(self):
-        self.entry_code.delete(0, "end")
-        self.label_error.configure(text="", foreground="red")
-        
     def enable_confirm_button(self):
         self.button_confirm.configure(state="normal")
     

@@ -14,8 +14,11 @@ class PreConfigScreen(ctk.CTkFrame):
         
         self.databaseController = DatabaseController(self)
         
-        self.input_master_code = ctk.StringVar()
-        self.is_show_master_code = ctk.BooleanVar(False)
+        self.inputMasterCode = ctk.StringVar()
+        self.isShowCode = ctk.BooleanVar()
+        
+        # Add limitSizeCode callback to input_master_code
+        self.inputMasterCode.trace("w", self.limitSizeCode)
         
         text_font = ctk.CTkFont(size=38, weight="bold")
         
@@ -29,17 +32,6 @@ class PreConfigScreen(ctk.CTkFrame):
             image=back_image,
             command=self.go_to_main_screen,
         ).place(relx=.95, rely=.10, anchor=ctk.CENTER)
-        
-        self.show_hide_code_btn = ctk.CTkButton(
-            master=self,
-            width=44,
-            height=44,
-            bg_color="#FFFFFF",
-            fg_color="#FFFFFF",
-            text= "",
-            image=hide_pass_image,
-            command=self.show_hide_master_code,
-        )
         
         self.error_label = ttk.Label(
             master=self,
@@ -60,8 +52,7 @@ class PreConfigScreen(ctk.CTkFrame):
             justify="center",
             font=text_font,
             show="*",
-            
-            textvariable=self.input_master_code,
+            textvariable=self.inputMasterCode,
         )
         
         self.check_code_button = ctk.CTkButton(
@@ -72,7 +63,18 @@ class PreConfigScreen(ctk.CTkFrame):
             font=text_font,
             text="Xác Nhận",
             command=self.check_master_code
-        ).place(relwidth=.4, relx=.28, rely=.71, anchor=ctk.CENTER)
+        )
+        
+        self.show_hide_code_btn = ctk.CTkButton(
+            master=self,
+            width=44,
+            height=44,
+            bg_color="#FFFFFF",
+            fg_color="#FFFFFF",
+            text= "",
+            image=hide_pass_image,
+            command=self.show_hide_master_code,
+        )
         
         self.keypad = Keypad(self)
         self.keypad.target = self.master_code_entry
@@ -81,10 +83,11 @@ class PreConfigScreen(ctk.CTkFrame):
         self.error_label.place(relx=.26, rely=.15, anchor=CENTER)
         self.master_code_label.place(relx=.26, rely=.45, anchor=CENTER)
         self.master_code_entry.place(relwidth=.4, relheight=.15, relx=.28, rely=.30, anchor=CENTER)
-        self.show_hide_code_btn.place(relx=.50, rely=.35, anchor=ctk.CENTER)
+        self.check_code_button.place(relwidth=.4, relx=.28, rely=.71, anchor=ctk.CENTER)
+        self.show_hide_code_btn.place(relx=.45, rely=.30, anchor=ctk.CENTER)
         
     def check_master_code(self):
-        inputCode = self.input_master_code.get()
+        inputCode = self.inputMasterCode.get()
         
         foundMasterCode = self.databaseController.get_masterCode(inputCode)
         
@@ -101,18 +104,25 @@ class PreConfigScreen(ctk.CTkFrame):
                 return self.error_label.configure(text=error_text, foreground="red")
     
     def show_hide_master_code(self):
-        if not self.is_show_master_code.get():
-            self.is_show_master_code.set(True)
+        if not self.isShowCode.get():
+            self.isShowCode.set(True)
             self.master_code_entry.configure(show="")
             self.show_hide_code_btn.configure(require_redraw=True, image=show_pass_image)
         else:
-            self.is_show_master_code.set(False)
+            self.isShowCode.set(False)
             self.master_code_entry.configure(show="*")
             self.show_hide_code_btn.configure(require_redraw=True, image=hide_pass_image)
     
+    def limitSizeCode(self, *args):
+        # limit the size of master code entry
+        value = self.inputMasterCode.get()
+        if len(value) > 6: self.inputMasterCode.set(value[:6])
+    
     def refresh(self):
-        self.input_master_code.set("")
+        self.inputMasterCode.set("")
         self.error_label.configure(text="")
+        self.master_code_entry.configure(show="*")
+        self.show_hide_code_btn.configure(require_redraw=True, image=hide_pass_image)
         
     def go_to_main_screen(self):
         self.refresh()

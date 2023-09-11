@@ -1,13 +1,15 @@
-import datetime
 import os
 import sys
+import tkinter as tk
 import customtkinter as ctk
 
 from tkinter import IntVar, messagebox
 from constants.image_imports import back_image
 from tkintertable import TableCanvas
+from widgets.loading_window import LoadingWindow
 from controllers.config_controller import DatabaseController, EditCabinetController
 from controllers.stream_controller import StreamController
+
 
 class EditCabinetScreen(ctk.CTkFrame):
     def __init__(self, parent, root):
@@ -24,6 +26,9 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.statusComboboxValues = ["Đã kích hoạt", "Chưa kích hoạt"]
         self.cabinetData = {}
         self.boxData = {}
+        
+        self.x = root.winfo_x()
+        self.y = root.winfo_y()
         
         self.status = IntVar()
         
@@ -141,7 +146,7 @@ class EditCabinetScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=ctk.CTkFont(size=30, weight="bold"),
             text="Cập nhật",
-            command=self.update
+            command=self.show_loading_window
         )
         
         self.delete_btn = ctk.CTkButton(
@@ -152,8 +157,9 @@ class EditCabinetScreen(ctk.CTkFrame):
             command=self.delete
         )
         
-        self.boxTable = BoxList(self, root=self.root)
+        self.boxTable = BoxList(self)
         
+        self.new_canvas = tk.Canvas(self)
         
         self.go_back_btn.place(relx=.05, rely=.10, anchor=ctk.CENTER)
         self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
@@ -169,6 +175,7 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.save_button.place(relwidth=.30, relheight=.10, relx=.25, rely=.73, anchor=ctk.CENTER)
         self.delete_btn.place(relwidth=.30, relheight=.10, relx=.25, rely=.85, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
+        
          
     def status_combobox_callback(self, choice):
         if choice == 'Đã kích hoạt':
@@ -179,30 +186,40 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.statusComboboxVar.set(choice)
         choice = self.statusComboboxVar.get()
         
-        for box in self.boxData.values():
+        tableData = self.boxTable.table.getModel().data
+        
+        for value in tableData.values():
             if self.status.get():
-                box['status'] = 1
+                value['status'] = 1
             else:
-                box['status'] = 0
+                value['status'] = 0
 
     def update(self):
         isCabinetUpdate = self.editController.update_cabinet_data(self.cabinetData)
         isBoxUpdate = self.editController.update_box_data()
         isLogUpdate = self.editController.save_cabinet_log()
         
-        isCabinetUpload = self.editController.upload_cabinet(self.cabinetId.get())
-        isBoxUpload = self.editController.upload_box()
-        isLogUpload = self.editController.upload_cabinetLog(self.cabinetId.get())
-        
-        if isCabinetUpdate and isBoxUpdate and isLogUpdate and isCabinetUpload and isBoxUpload and isLogUpload:
+        if isCabinetUpdate and isBoxUpdate and isLogUpdate:
             self.root.isRestart.set(True)
             self.root.cabinetName.set(self.cabinetName.get())
-            self.display_label.configure(text_color='green', text='Update successful')
+            self.editController.upload_box()
+            self.editController.upload_cabinet(self.cabinetId.get())
+            self.editController.upload_cabinetLog(self.cabinetId.get())
+            self.display_label.configure(text_color='green', text='Thông tin được cập nhật thành công')
         else:
-            self.display_label.configure(text_color='red', text='Update unsuccessful')
+            self.display_label.configure(text_color='red', text='Thông tin không cập nhật thành công')
+        
+        self.loadingWindow.destroy()
+    
+    def show_loading_window(self):
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.after(1000, self.update)
     
     def delete(self):
-        answer = messagebox.askyesno("Question","Xóa Cabinet này?")
+        title = "Xóa cabinet"
+        message = "Bạn có muốn xóa cabinet này?"
+        answer = messagebox.askyesno(title, message)
+        
         if answer:
             cabinetName = self.cabinetName.get()
             cabinetId = self.cabinetId.get()
@@ -245,11 +262,10 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.root.show_frame("ConfigScreen")
    
 class BoxList(ctk.CTkFrame):
-    def __init__ (self, parent, root):
+    def __init__ (self, parent):
         ctk.CTkFrame.__init__(self, parent)
         ctk.CTkFrame.configure(self, fg_color="white", require_redraw=True)
         
-        self.root = root
         self.parent = parent
         
         self.data = {}

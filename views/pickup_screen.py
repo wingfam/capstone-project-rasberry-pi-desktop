@@ -19,6 +19,10 @@ class PickupScreen(ctk.CTkFrame):
         self.databaseController = DatabaseController(self)
         self.pickupController = PickupController(self)
         
+        self.inputUnlockCode = ctk.StringVar()
+        
+        self.inputUnlockCode.trace("w", self.limitSizeCode)
+        
         self.notice_label1 = ctk.CTkLabel(
             master=self,
             font=ctk.CTkFont(size=20),
@@ -40,6 +44,7 @@ class PickupScreen(ctk.CTkFrame):
             master=self,
             justify="center",
             font=ctk.CTkFont(size=48),
+            textvariable=self.inputUnlockCode,
         )
         
         self.label_error = ttk.Label(
@@ -85,8 +90,10 @@ class PickupScreen(ctk.CTkFrame):
     
     def validate(self):
         try:
+            unlockCode = self.inputUnlockCode.get()
             self.button_confirm.configure(state="disabled")
-            bookingId = self.pickupController.check_unlock_code(input_data=self.entry_code)
+            bookingId = self.pickupController.check_unlock_code(unlockCode)
+            
             if bookingId:
                 self.pickupController.update_app_data(bookingId)
                 
@@ -103,6 +110,11 @@ class PickupScreen(ctk.CTkFrame):
         finally:
             print("Enable button after 1.5 seconds")   
             self.button_confirm.after(1500, self.enable_confirm_button)
+    
+    def limitSizeCode(self, *args):
+        # limit the size of master code entry
+        value = self.inputUnlockCode.get()
+        if len(value) > 6: self.inputUnlockCode.set(value[:6])
         
     def refresh(self):
         self.entry_code.delete(0, "end")
