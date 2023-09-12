@@ -4,7 +4,6 @@ import customtkinter as ctk
 from controllers.config_controller import DatabaseController, SetupController
 from controllers.stream_controller import StreamController
 from constants.screen_views import ScreenView
-from widgets.loading_window import ImageLabel
 
 
 class MainApp(ctk.CTk):

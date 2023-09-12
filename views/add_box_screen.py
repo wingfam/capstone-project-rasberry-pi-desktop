@@ -1,6 +1,3 @@
-import os
-import sys
-import time
 import customtkinter as ctk
 
 from constants.image_imports import back_image
@@ -54,17 +51,26 @@ class AddBoxScreen(ctk.CTkFrame):
         self.add_button.place(relwidth=.55, relheight=.10, relx=.50, rely=.85, anchor=ctk.CENTER)
 
     def save_box(self):
-        tableData = self.boxTable.table.getModel().data
-        cabinetId = self.root.cabinetId.get()
-        tableDataLen = len(tableData)
-        cabinetId = self.root.cabinetId.get()
-        
-        isSaved = self.addBoxController.add_more_box(tableData, cabinetId)
-        isTotalBoxUpdate = self.addBoxController.update_total_box(cabinetId)
-        
-        if isSaved and isTotalBoxUpdate:
-            self.addBoxController.upload_more_boxes(cabinetId, tableDataLen)
-            self.root.isRestart.set(True)
+        try:
+            self.add_button.configure(state="disabled")
+            tableData = self.boxTable.table.getModel().data
+            cabinetId = self.root.cabinetId.get()
+            tableDataLen = len(tableData)
+            cabinetId = self.root.cabinetId.get()
+            
+            isSaved = self.addBoxController.add_more_box(tableData, cabinetId)
+            isTotalBoxUpdate = self.addBoxController.update_total_box(cabinetId)
+            
+            if isSaved and isTotalBoxUpdate:
+                self.addBoxController.upload_more_boxes(cabinetId, tableDataLen)
+                self.root.isRestart.set(True)
+        except Exception as e:
+            print("Add box error: ", e)
+        finally:
+            self.add_button.after(1500, self.enable_save_button)
+    
+    def enable_save_button(self):
+        self.add_button.configure(state="normal")
 
     def go_back(self):
         self.display_label.configure(text='')  # Clear display label

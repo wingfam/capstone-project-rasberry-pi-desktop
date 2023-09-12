@@ -95,9 +95,8 @@ class InstructionScreen(ctk.CTkFrame):
             
             self.root.app_data.clear()
         except Exception as e:
-            print(e)
-        finally:
-            print("Enable button after 1.5 seconds")   
+            print("Check package error: ", e)
+        finally:  
             self.button_confirm.after(1500, self.enable_confirm_button)
     
     def enable_confirm_button(self):

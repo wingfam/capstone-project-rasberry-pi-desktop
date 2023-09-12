@@ -6,7 +6,6 @@ import customtkinter as ctk
 from tkinter import IntVar, messagebox
 from constants.image_imports import back_image
 from tkintertable import TableCanvas
-from widgets.loading_window import LoadingWindow
 from controllers.config_controller import DatabaseController, EditCabinetController
 from controllers.stream_controller import StreamController
 
@@ -146,7 +145,7 @@ class EditCabinetScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=ctk.CTkFont(size=30, weight="bold"),
             text="Cập nhật",
-            command=self.show_loading_window
+            command=self.update
         )
         
         self.delete_btn = ctk.CTkButton(
@@ -176,44 +175,28 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.delete_btn.place(relwidth=.30, relheight=.10, relx=.25, rely=.85, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
         
-         
-    def status_combobox_callback(self, choice):
-        if choice == 'Đã kích hoạt':
-            self.status.set(1)
-        elif choice == 'Chưa kích hoạt':
-            self.status.set(0)
-        
-        self.statusComboboxVar.set(choice)
-        choice = self.statusComboboxVar.get()
-        
-        tableData = self.boxTable.table.getModel().data
-        
-        for value in tableData.values():
-            if self.status.get():
-                value['status'] = 1
-            else:
-                value['status'] = 0
-
+      
     def update(self):
-        isCabinetUpdate = self.editController.update_cabinet_data(self.cabinetData)
-        isBoxUpdate = self.editController.update_box_data()
-        isLogUpdate = self.editController.save_cabinet_log()
-        
-        if isCabinetUpdate and isBoxUpdate and isLogUpdate:
-            self.root.isRestart.set(True)
-            self.root.cabinetName.set(self.cabinetName.get())
-            self.editController.upload_box()
-            self.editController.upload_cabinet(self.cabinetId.get())
-            self.editController.upload_cabinetLog(self.cabinetId.get())
-            self.display_label.configure(text_color='green', text='Thông tin được cập nhật thành công')
-        else:
-            self.display_label.configure(text_color='red', text='Thông tin không cập nhật thành công')
-        
-        self.loadingWindow.destroy()
-    
-    def show_loading_window(self):
-        self.loadingWindow = LoadingWindow(self, self.root)
-        self.after(1000, self.update)
+        try:
+            self.save_button.configure(state="disabled")
+            
+            isCabinetUpdate = self.editController.update_cabinet_data(self.cabinetData)
+            isBoxUpdate = self.editController.update_box_data()
+            isLogUpdate = self.editController.save_cabinet_log()
+            
+            if isCabinetUpdate and isBoxUpdate and isLogUpdate:
+                self.root.isRestart.set(True)
+                self.root.cabinetName.set(self.cabinetName.get())
+                self.editController.upload_box()
+                self.editController.upload_cabinet(self.cabinetId.get())
+                self.editController.upload_cabinetLog(self.cabinetId.get())
+                self.display_label.configure(text_color='green', text='Thông tin được cập nhật thành công')
+            else:
+                self.display_label.configure(text_color='red', text='Thông tin không cập nhật thành công')
+        except Exception as e:
+            print("Update error: ", e)
+        finally:
+            self.save_button.after(1500, self.enable_save_button)
     
     def delete(self):
         title = "Xóa cabinet"
@@ -248,6 +231,26 @@ class EditCabinetScreen(ctk.CTkFrame):
         # self.root.streamController.close_all_stream()
         python = sys.executable
         os.execl(python, python, * sys.argv)
+       
+    def status_combobox_callback(self, choice):
+        if choice == 'Đã kích hoạt':
+            self.status.set(1)
+        elif choice == 'Chưa kích hoạt':
+            self.status.set(0)
+        
+        self.statusComboboxVar.set(choice)
+        choice = self.statusComboboxVar.get()
+        
+        tableData = self.boxTable.table.getModel().data
+        
+        for value in tableData.values():
+            if self.status.get():
+                value['status'] = 1
+            else:
+                value['status'] = 0
+
+    def enable_save_button(self):
+        self.save_button.configure(state="normal")
     
     def refresh(self):
         self.cabinetName.set("")

@@ -154,37 +154,46 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
     
     def save_data_to_db(self):
-        answer = None
-        
-        cabinetId = self.cabinetId.get()
-        cabinetData = self.cabinetData
-        cabinetLogData = self.cabinetLogData
-        boxData = self.boxData
-        tableData = self.boxTable.table.getModel().data
-        totalBox = len(tableData)
-        
-        if self.root.createBox.get():
-            isBoxSaved = self.addCabinetController.create_boxes(tableData, cabinetId)
-            self.addCabinetController.upload_boxes(cabinetId)
-        else:
-            isBoxSaved = self.addCabinetController.save_boxes(tableData, boxData, cabinetId)    
-        
-        isCabinetSaved = self.addCabinetController.save_cabinet(cabinetData)
-        isLogSaved = self.addCabinetController.save_cabinet_log(cabinetLogData)
-        
-        if isCabinetSaved and isBoxSaved and isLogSaved:
-            self.isRestart = True
-            self.addCabinetController.update_cabinet_status_totalBox(cabinetId, totalBox)
+        try:
+            self.save_button.configure(state="disabled")
+            answer = None
             
-            self.restart_button.configure(state="normal")
-            self.save_button.configure(state='disabled')
-            self.display_label.configure(text_color="green", text="Thông tin được lưu thành công")
-            answer = messagebox.askyesno("Question","Khởi động lại hệ thống?")
-        
-        if answer:
-            self.refresh()
-            self.restart()
+            cabinetId = self.cabinetId.get()
+            cabinetData = self.cabinetData
+            cabinetLogData = self.cabinetLogData
+            boxData = self.boxData
+            tableData = self.boxTable.table.getModel().data
+            totalBox = len(tableData)
+            
+            if self.root.createBox.get():
+                isBoxSaved = self.addCabinetController.create_boxes(tableData, cabinetId)
+                self.addCabinetController.upload_boxes(cabinetId)
+            else:
+                isBoxSaved = self.addCabinetController.save_boxes(tableData, boxData, cabinetId)    
+            
+            isCabinetSaved = self.addCabinetController.save_cabinet(cabinetData)
+            isLogSaved = self.addCabinetController.save_cabinet_log(cabinetLogData)
+            
+            if isCabinetSaved and isBoxSaved and isLogSaved:
+                self.isRestart = True
+                self.addCabinetController.update_cabinet_status_totalBox(cabinetId, totalBox)
+                
+                self.restart_button.configure(state="normal")
+                self.save_button.configure(state='disabled')
+                self.display_label.configure(text_color="green", text="Thông tin được lưu thành công")
+                answer = messagebox.askyesno("Question","Khởi động lại hệ thống?")
+        except Exception as e:
+            print("Add cabinet error: ", e)
+        finally:
+            self.save_button.after(1500, self.enable_save_button)
+            
+            if answer:
+                self.refresh()
+                self.restart()
     
+    def enable_save_button(self):
+        self.save_button.configure(state="normal")
+
     def go_back_prev_screen(self):
         if not self.isRestart:
             self.refresh()

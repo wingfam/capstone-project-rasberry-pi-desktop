@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 from constants.image_imports import back_image
 from controllers.config_controller import DatabaseController, ManualControlController
-from models.models import Box, Gpio
+from models.models import Gpio
 
 
 class ControlScreen(ctk.CTkFrame):

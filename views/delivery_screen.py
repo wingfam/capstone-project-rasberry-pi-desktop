@@ -1,7 +1,6 @@
-import time
 import customtkinter as ctk
 
-from tkinter import Canvas, ttk
+from tkinter import ttk
 from controllers.config_controller import DatabaseController
 from widgets.keypad import Keypad
 from constants.image_imports import back_image
@@ -109,9 +108,8 @@ class DeliveryScreen(ctk.CTkFrame):
                 
                 self.go_to_instruction_screen()
         except Exception as e:
-            print(e)
-        finally:
-            print("Enable button after 1.5 seconds")   
+            print("validate error: ", e)
+        finally:  
             self.button_confirm.after(1500, self.enable_confirm_button)
     
     def limitSizeCode(self, *args):
