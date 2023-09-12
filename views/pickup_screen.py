@@ -85,7 +85,7 @@ class PickupScreen(ctk.CTkFrame):
         self.notice_label2.place(relx=.28, rely=.45, anchor=ctk.CENTER)
         self.label_error.grid(padx=95, pady=110)
         self.button_confirm.place(relx=.28, rely=.75, anchor=ctk.CENTER)
-        self.button_back.place(relx=.95, rely=.10, anchor=ctk.CENTER)
+        self.button_back.place(relx=.10, rely=.10, anchor=ctk.CENTER)
         self.entry_code.place(relwidth=.4, relheight=.10, relx=.28, rely=.32, anchor=ctk.CENTER)
     
     def validate(self):

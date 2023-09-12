@@ -27,7 +27,7 @@ class AddBoxScreen(ctk.CTkFrame):
             text="",
             image=back_image,
             command=self.go_back,
-        ).place(relx=.05, rely=.05, anchor=ctk.CENTER)
+        ).place(relx=.10, rely=.10, anchor=ctk.CENTER)
 
         self.display_label = ctk.CTkLabel(
             master=self,

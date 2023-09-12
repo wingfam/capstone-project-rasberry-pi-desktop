@@ -31,7 +31,7 @@ class PreConfigScreen(ctk.CTkFrame):
             text= "",
             image=back_image,
             command=self.go_to_main_screen,
-        ).place(relx=.95, rely=.10, anchor=ctk.CENTER)
+        ).place(relx=.10, rely=.10, anchor=ctk.CENTER)
         
         self.error_label = ttk.Label(
             master=self,

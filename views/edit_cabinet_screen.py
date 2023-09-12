@@ -160,7 +160,7 @@ class EditCabinetScreen(ctk.CTkFrame):
         
         self.new_canvas = tk.Canvas(self)
         
-        self.go_back_btn.place(relx=.05, rely=.10, anchor=ctk.CENTER)
+        self.go_back_btn.place(relx=.10, rely=.10, anchor=ctk.CENTER)
         self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
         self.cabinet_name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
         self.status_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)

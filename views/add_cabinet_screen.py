@@ -140,7 +140,7 @@ class AddCabinetScreen(ctk.CTkFrame):
         
         self.boxTable = BoxList(self, root=self.root)
         
-        self.go_back_btn.place(relx=.05, rely=.10, anchor=ctk.CENTER)
+        self.go_back_btn.place(relx=.10, rely=.10, anchor=ctk.CENTER)
         self.box_list_label.place(relx=.60, rely=.08, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
         self.name_label.place(relx=.08, rely=.25, anchor=ctk.CENTER)
