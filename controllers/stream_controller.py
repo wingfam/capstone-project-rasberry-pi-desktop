@@ -45,13 +45,13 @@ class StreamController():
     def set_cabinet_stream(self, cabinetId):
         cabinetStream = firebaseDB.child('Cabinet').order_by_key().equal_to(cabinetId).stream(
                 self.cabinet_stream_handler, stream_id='cabinet_stream')
-        time.sleep(0.01)
+        
         return cabinetStream
      
     def set_box_stream(self, cabinetId):
         boxStream = firebaseDB.child('Box').order_by_child('cabinetId').equal_to(cabinetId).stream(
                 self.box_stream_handler, stream_id='box_stream')
-        time.sleep(0.01)
+        
         return boxStream
     
     def set_all_stream(self):
