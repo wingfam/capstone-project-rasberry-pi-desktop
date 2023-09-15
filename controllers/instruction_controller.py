@@ -93,7 +93,7 @@ class InstructionController():
                 firebaseDB.child("Box", boxId).update(
                     {"status": newBoxStatus}, fb_login["idToken"])
                 
-                customerId = self.view.root.app_data["customerId"]
+                deviceId = self.view.root.app_data["deviceId"]
                 nameBox = self.view.root.app_data["nameBox"]
                 
                 notiTitle = "Gửi hàng thàng công!"
@@ -104,9 +104,9 @@ class InstructionController():
                 
                 self.add_booking_log(fb_login, bookingLogTitle, bookingLogBody, bookingId, currentTime)
                 
-                self.send_notification(fb_login, customerId, notiTitle, notiBody)
+                self.send_notification(fb_login, deviceId, notiTitle, notiBody)
                 
-                self.save_notification(fb_login, customerId, notiTitle, notiBody, currentTime)
+                self.save_notification(fb_login, deviceId, notiTitle, notiBody, currentTime)
                 
                 isCompleted = True
                 print("Delivery completed!")
@@ -116,7 +116,7 @@ class InstructionController():
                 newBoxStatus = 1 # status "Available"
                 
                 bookingId = self.view.root.app_data["bookingId"]
-                customerId = self.view.root.app_data["customerId"]
+                deviceId = self.view.root.app_data["deviceId"]
                 boxId = self.view.root.app_data["boxId"]
                 
                 firebaseDB.child("BookingOrder", bookingId).update(
@@ -125,7 +125,7 @@ class InstructionController():
                 firebaseDB.child("Box", boxId).update(
                     {"status": newBoxStatus}, fb_login["idToken"])
                 
-                customerId = self.view.root.app_data["customerId"]
+                deviceId = self.view.root.app_data["deviceId"]
                 nameBox = self.view.root.app_data["nameBox"]
                 
                 notiTitle = "Lấy hàng thành công!"
@@ -136,9 +136,9 @@ class InstructionController():
                 
                 self.add_booking_log(fb_login, bookingLogTitle, bookingLogBody, bookingId, currentTime)
                 
-                self.send_notification(fb_login, customerId, notiTitle, notiBody)
+                self.send_notification(fb_login, deviceId, notiTitle, notiBody)
                 
-                self.save_notification(fb_login, customerId, notiTitle, notiBody, currentTime)
+                self.save_notification(fb_login, deviceId, notiTitle, notiBody, currentTime)
                 
                 isCompleted = True
                 print("Pickup completed!")
@@ -165,12 +165,12 @@ class InstructionController():
         
         print("Save notification successful")
     
-    def send_notification(self, fb_login, customerId, messageTitle, messageBody):
+    def send_notification(self, fb_login, deviceId, messageTitle, messageBody):
         firebaseDB = firebaseApp.database()
         pushService = PushNotificationService()
         
         fb_notification = firebaseDB.child("Notification").order_by_child(
-            "customerId").equal_to(customerId).get(fb_login["idToken"]).val()
+            "deviceId").equal_to(deviceId).get(fb_login["idToken"]).val()
         
         fcmToken = ""
         
@@ -182,10 +182,10 @@ class InstructionController():
         if result:
             print("Send notification successful")
 
-    def save_notification(self, fb_login, customerId, messageTitle, messageBody, currentTime):
+    def save_notification(self, fb_login, deviceId, messageTitle, messageBody, currentTime):
         firebaseDB = firebaseApp.database()
         fb_notification = firebaseDB.child("Notification").order_by_child(
-            "customerId").equal_to(customerId).get(fb_login["idToken"])
+            "deviceId").equal_to(deviceId).get(fb_login["idToken"])
         
         newKey = firebaseDB.generate_key()
         

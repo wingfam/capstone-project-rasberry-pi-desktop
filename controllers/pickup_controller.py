@@ -42,8 +42,8 @@ class PickupController():
         firebaseDB = firebaseApp.database()
         fb_login = firebase_login()
         
-        customerId = firebaseDB.child(
-            "BookingOrder/", bookingId, "/customerId").get(fb_login["idToken"]).val()
+        deviceId = firebaseDB.child(
+            "BookingOrder/", bookingId, "/deviceId").get(fb_login["idToken"]).val()
         
         boxId = firebaseDB.child(
             "BookingOrder/", bookingId, "/boxId").get(fb_login["idToken"]).val()
@@ -53,7 +53,7 @@ class PickupController():
         
         self.view.root.app_data.update({
             "bookingId": bookingId,
-            "customerId": customerId,
+            "deviceId": deviceId,
             "boxId": boxId,
             "nameBox": nameBox,
         })

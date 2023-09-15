@@ -49,8 +49,8 @@ class DeliveryController():
         firebaseDB = firebaseApp.database()
         fb_login = firebase_login()
         
-        customerId = firebaseDB.child(
-            "BookingOrder/", order['bookingId'], "/customerId").get(fb_login["idToken"]).val()
+        deviceId = firebaseDB.child(
+            "BookingOrder/", order['bookingId'], "/deviceId").get(fb_login["idToken"]).val()
         
         boxId = firebaseDB.child(
             "BookingOrder/", order['bookingId'], "/boxId").get(fb_login["idToken"]).val()
@@ -61,7 +61,7 @@ class DeliveryController():
         self.view.root.app_data.update({
             "bookingCodeId": order['bookingCodeId'],
             "bookingId": order['bookingId'],
-            "customerId": customerId,
+            "deviceId": deviceId,
             "boxId": boxId,
             "nameBox": nameBox,
             "status": order['status'],
