@@ -201,6 +201,7 @@ class AddCabinetController():
                     model.id = boxValue['id']
                     model.nameBox = boxValue['nameBox']
                     model.status = 1
+                    model.process = 0
                     model.solenoidGpio = tableValue['solenoidGpio']
                     model.switchGpio = tableValue['switchGpio']
                     model.loadcellDout = tableValue['loadcellDout']
@@ -220,6 +221,7 @@ class AddCabinetController():
             model.id = firebaseDB.generate_key()
             model.nameBox = value['nameBox']
             model.status = 1
+            model.process = 0
             model.solenoidGpio = value['solenoidGpio']
             model.switchGpio = value['switchGpio']
             model.loadcellDout = value['loadcellDout']
@@ -260,6 +262,7 @@ class AddCabinetController():
                         'id': value['id'],
                         'nameBox': value['nameBox'],
                         'status': value['status'],
+                        'process': value['process'],
                         'cabinetId': value['cabinetId']
                     }
                 }
@@ -1083,6 +1086,7 @@ class DatabaseController():
                 model.id, 
                 model.nameBox, 
                 model.status,
+                model.process,
                 model.solenoidGpio, 
                 model.switchGpio, 
                 model.loadcellDout, 
@@ -1092,17 +1096,16 @@ class DatabaseController():
             )
 
             sql = '''
-                INSERT INTO Box (id, nameBox, status, 
+                INSERT INTO Box (id, nameBox, status, process, 
                     solenoidGpio, switchGpio, loadcellDout, 
                     loadcellSck, loadcellRf, cabinetId)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             '''
 
             cur.execute(sql, box)
             conn.commit()
         except Exception as e:
-            print("save box error")
-            print("An error has occurred: ", e)
+            print("Save box error: ", e)
             return False
         finally:
             conn.close()

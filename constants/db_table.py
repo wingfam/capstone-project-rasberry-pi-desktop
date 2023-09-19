@@ -34,6 +34,7 @@ class DbTable():
             [id] TEXT PRIMARY KEY NOT NULL,
             [nameBox] TEXT,
             [status] INTEGER,
+            [process] INTEGER,
             [solenoidGpio] INTEGER,
             [switchGpio] INTEGER,
             [loadcellDout] INTEGER,

@@ -48,8 +48,6 @@ class InstructionController():
             # Add when held event to the switch. If the switch is held for
             # a hold_time seconds, activate lock_door function (check pin 
             # declare for hold_time)
-            print("Add event to magnetic switch")
-            
             model['magSwitch'].wait_for_press()
             
             if model['magSwitch'].is_pressed:
@@ -78,7 +76,7 @@ class InstructionController():
             if task == "delivery":
                 newBookingStatus = 3 # status "Storing"
                 newBookingCodeStatus = 0 # status "Unavailable"
-                newBoxStatus = 0 # status "Unavailable"
+                newBoxProcess = 1 # box process "Storing"
                 
                 bookingCodeId = self.view.root.app_data["bookingCodeId"]
                 bookingId = self.view.root.app_data["bookingId"]
@@ -91,7 +89,7 @@ class InstructionController():
                     {"status": newBookingCodeStatus}, fb_login["idToken"])
                 
                 firebaseDB.child("Box", boxId).update(
-                    {"status": newBoxStatus}, fb_login["idToken"])
+                    {"process": newBoxProcess}, fb_login["idToken"])
                 
                 deviceId = self.view.root.app_data["deviceId"]
                 nameBox = self.view.root.app_data["nameBox"]
@@ -113,7 +111,7 @@ class InstructionController():
             
             elif task == "pickup":
                 newBookingStatus = 4 # status "Done"
-                newBoxStatus = 1 # status "Available"
+                newBoxProcess = 0 # box process "Box is empty"
                 
                 bookingId = self.view.root.app_data["bookingId"]
                 deviceId = self.view.root.app_data["deviceId"]
@@ -123,7 +121,7 @@ class InstructionController():
                     {"status": newBookingStatus}, fb_login["idToken"])
                 
                 firebaseDB.child("Box", boxId).update(
-                    {"status": newBoxStatus}, fb_login["idToken"])
+                    {"process": newBoxProcess}, fb_login["idToken"])
                 
                 deviceId = self.view.root.app_data["deviceId"]
                 nameBox = self.view.root.app_data["nameBox"]

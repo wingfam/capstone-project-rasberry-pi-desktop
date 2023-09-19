@@ -100,6 +100,7 @@ class Box():
         id,
         nameBox,
         status,
+        process,
         solenoidGpio,
         switchGpio,
         loadcellDout,
@@ -110,6 +111,7 @@ class Box():
         self.id = id
         self.nameBox = nameBox
         self.status = status,
+        self.process = process,
         self.solenoidGpio = solenoidGpio
         self.switchGpio = switchGpio
         self.loadcellDout = loadcellDout
@@ -128,6 +130,10 @@ class Box():
     @property
     def status(self):
         return self.status
+
+    @property
+    def process(self):
+        return self.process
 
     @property
     def solenoidGpio(self):
