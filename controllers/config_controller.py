@@ -277,7 +277,7 @@ class AddCabinetController():
         isUpdate = None
         try:
             firebaseDB = firebaseApp.database()
-            cabinetRef = firebaseDB.child("Cabinet/", cabinetId)
+            cabinetRef = firebaseDB.child("Cabinet").child(cabinetId)
             
             newData = {
                 'status': 1,
@@ -285,6 +285,30 @@ class AddCabinetController():
             }
             
             cabinetRef.update(newData)
+            isUpdate = True
+        except Exception as e:
+            isUpdate = False
+            print("An error has occurred: ", e)
+        
+        return isUpdate
+
+    def update_box_status(self, cabinetId):
+        isUpdate = None
+        try:
+            firebaseDB = firebaseApp.database()
+            
+            boxes = self.view.databaseController.get_box_by_cabinetId(cabinetId)
+            
+            for value in boxes.values():
+                boxId = value['id']
+                boxRef = firebaseDB.child("Box").child(boxId)
+            
+                newData = {
+                    'status': 1,
+                }
+            
+                boxRef.update(newData)
+                
             isUpdate = True
         except Exception as e:
             isUpdate = False

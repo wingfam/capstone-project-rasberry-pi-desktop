@@ -176,7 +176,9 @@ class AddCabinetScreen(ctk.CTkFrame):
             
             if isCabinetSaved and isBoxSaved and isLogSaved:
                 self.isRestart = True
+                
                 self.addCabinetController.update_cabinet_status_totalBox(cabinetId, totalBox)
+                self.addCabinetController.update_box_status(cabinetId)
                 
                 self.restart_button.configure(state="normal")
                 self.save_button.configure(state='disabled')
