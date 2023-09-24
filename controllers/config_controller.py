@@ -109,22 +109,31 @@ class AddCabinetController():
             self.set_box_data(self.view.boxData)
             self.view.boxTable.data.update(self.view.boxData)
         else:
-            emptyData = {
-                0: {
-                'nameBox': "",
-                'solenoidGpio': 0,
-                'switchGpio': 0,
-                'loadcellDout': 0,
-                'loadcellSck': 0,
-                'loadcellRf': 0,
+            boxData = {}
+            totalBox = int(self.view.totalBox.get())
+            
+            i = 0
+            while i < totalBox:
+                emptyData = {
+                    i: {
+                    'nameBox': "",
+                    'solenoidGpio': 0,
+                    'switchGpio': 0,
+                    'loadcellDout': 0,
+                    'loadcellSck': 0,
+                    'loadcellRf': 0,
+                    }
                 }
-            }
+                
+                boxData.update(emptyData)
+                
+                i += 1
             
             self.view.root.createBox.set(True)
             model = self.view.boxTable.table.model
-            model.importDict(emptyData)
+            model.importDict(boxData)
             self.view.boxTable.table.redraw()
-            self.view.boxTable.data.update(emptyData)
+            self.view.boxTable.data.update(boxData)
         
     def get_cabinet_by_id(self, cabinetId):
         newData = {}
