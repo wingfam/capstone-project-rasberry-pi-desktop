@@ -1,7 +1,7 @@
 import sqlite3 as sqlite3
 import time
-# from gpiozero import LED, Button
-# from services.hx711 import HX711
+from gpiozero import LED, Button
+from services.hx711 import HX711
 from datetime import datetime
 from tkinter import messagebox
 from urllib.request import pathname2url
@@ -10,8 +10,6 @@ from constants.db_table import DbTable, db_file_name
 from models.models import Box, Cabinet, CabinetLog
 from services.firebase_config import firebaseApp, firebaseDB
 from services.sqlite3 import dict_factory
-
-# import RPi.GPIO as GPIO
 
 
 check_weight_time = 3
@@ -76,12 +74,12 @@ class SetupController():
             boxData = {
                 box['id']: {
                     'id': box['id'],
-                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    # 'loadcell': self.set_loadcell(
-                    #     box['loadcellDout'], 
-                    #     box['loadcellSck'],
-                    #     box['loadcellRf']),
+                    'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    'loadcell': self.set_loadcell(
+                        box['loadcellDout'], 
+                        box['loadcellSck'],
+                        box['loadcellRf']),
                 }
             }
             
