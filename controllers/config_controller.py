@@ -361,7 +361,6 @@ class EditCabinetController():
             boxData.update({
                 key: {
                     'nameBox': value['nameBox'],
-                    'status': value['status'],
                     'solenoidGpio': value['solenoidGpio'],
                     'switchGpio': value['switchGpio'],
                     'loadcellDout': value['loadcellDout'],
