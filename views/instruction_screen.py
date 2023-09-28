@@ -5,6 +5,7 @@ from constants.string_constants import instruction_label
 from constants.image_imports import cabinet_image
 from controllers.config_controller import DatabaseController
 from controllers.instruction_controller import InstructionController
+from widgets.loading_window import LoadingWindow
 
 class InstructionScreen(ctk.CTkFrame):
     def __init__(self, parent, root):
@@ -61,7 +62,7 @@ class InstructionScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=34),
-            command=self.check_package,
+            command=self.do_check_package,
         )
         
         
@@ -70,8 +71,11 @@ class InstructionScreen(ctk.CTkFrame):
         self.notice_label2.place(relx=.55, rely=.25)
         self.nameBox_label.place(relx=.74, rely=.1755)
         self.button_confirm.place(relwidth=.4, relheight=.15, relx=.55, rely=.55)
-        
-        
+    
+    def do_check_package(self):
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.loadingWindow.after(500, self.check_package)
+    
     def check_package(self):
         try:
             self.button_confirm.configure(state="disabled")
@@ -81,7 +85,7 @@ class InstructionScreen(ctk.CTkFrame):
             
             globalBoxData = self.root.globalBoxData
             
-            isConfirm = True
+            isConfirm = False
             
             for value in globalBoxData.values():
                 if boxId == value['id']:

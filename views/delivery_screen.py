@@ -6,9 +6,7 @@ from widgets.keypad import Keypad
 from constants.image_imports import back_image
 from constants.string_constants import delivery_notice_label
 from controllers.delivery_controller import DeliveryController
-from PIL import Image, ImageTk
-
-images = []  # to hold the newly created image
+from widgets.loading_window import LoadingWindow
 
 class DeliveryScreen(ctk.CTkFrame):
     def __init__(self, parent, root):
@@ -66,7 +64,7 @@ class DeliveryScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=34),
-            command=self.validate,
+            command=self.do_validate,
         )
         
         self.button_back = ctk.CTkButton(
@@ -92,6 +90,10 @@ class DeliveryScreen(ctk.CTkFrame):
         self.button_back.place(relx=.10, rely=.10, anchor=ctk.CENTER)
         self.entry_code.place(relwidth=.4, relheight=.15, relx=.28, rely=.32, anchor=ctk.CENTER)
     
+    def do_validate(self):
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.loadingWindow.after(500, self.validate)
+    
     def validate(self):
         try:
             self.button_confirm.configure(state="disabled")
@@ -109,7 +111,8 @@ class DeliveryScreen(ctk.CTkFrame):
                 self.go_to_instruction_screen()
         except Exception as e:
             print("validate error: ", e)
-        finally:  
+        finally:
+            self.loadingWindow.destroy()  
             self.button_confirm.after(1500, self.enable_confirm_button)
     
     def limitSizeCode(self, *args):

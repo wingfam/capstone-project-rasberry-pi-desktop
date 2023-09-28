@@ -8,6 +8,7 @@ from tkintertable import TableCanvas
 from constants.image_imports import back_image
 from controllers.config_controller import (AddCabinetController,
                                            DatabaseController)
+from widgets.loading_window import LoadingWindow
 
 
 class AddCabinetScreen(ctk.CTkFrame):
@@ -126,7 +127,7 @@ class AddCabinetScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=ctk.CTkFont(size=28, weight="bold"),
             text="1. Lưu thông tin",
-            command=self.save_data_to_db
+            command=self.do_save_data
         )
         
         self.restart_button = ctk.CTkButton(
@@ -152,6 +153,10 @@ class AddCabinetScreen(ctk.CTkFrame):
         self.save_button.place(relwidth=.30, relheight=.10, relx=.22, rely=.65, anchor=ctk.CENTER)
         self.restart_button.place(relwidth=.30, relheight=.10, relx=.22, rely=.78, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
+    
+    def do_save_data(self):
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.loadingWindow.after(500, self.save_data_to_db)
     
     def save_data_to_db(self):
         try:

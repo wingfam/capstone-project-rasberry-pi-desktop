@@ -4,6 +4,7 @@ from constants.image_imports import back_image
 from tkintertable import TableCanvas
 from controllers.config_controller import DatabaseController, AddBoxController
 from controllers.stream_controller import StreamController
+from widgets.loading_window import LoadingWindow
 
 
 class AddBoxScreen(ctk.CTkFrame):
@@ -42,7 +43,7 @@ class AddBoxScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=ctk.CTkFont(size=30, weight="bold"),
             text="Save Box",
-            command=self.save_box
+            command=self.do_save_box
         )
 
         self.boxTable = BoxList(self, root=self.root)
@@ -50,6 +51,11 @@ class AddBoxScreen(ctk.CTkFrame):
         self.display_label.place(relwidth=.53, relx=.45, rely=.05, anchor=ctk.CENTER)
         self.add_button.place(relwidth=.55, relheight=.10, relx=.50, rely=.85, anchor=ctk.CENTER)
 
+    
+    def do_save_box(self):
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.loadingWindow.after(500, self.save_box)
+    
     def save_box(self):
         try:
             self.add_button.configure(state="disabled")

@@ -8,6 +8,7 @@ from constants.image_imports import back_image
 from tkintertable import TableCanvas
 from controllers.config_controller import DatabaseController, EditCabinetController
 from controllers.stream_controller import StreamController
+from widgets.loading_window import LoadingWindow
 
 
 class EditCabinetScreen(ctk.CTkFrame):
@@ -145,7 +146,7 @@ class EditCabinetScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=ctk.CTkFont(size=30, weight="bold"),
             text="Cập nhật",
-            command=self.update
+            command=self.do_update
         )
         
         self.delete_btn = ctk.CTkButton(
@@ -175,6 +176,9 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.delete_btn.place(relwidth=.30, relheight=.10, relx=.25, rely=.85, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
         
+    def do_update(self):
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.loadingWindow.after(500, self.update)
       
     def update(self):
         try:

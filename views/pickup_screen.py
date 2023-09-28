@@ -6,6 +6,7 @@ from widgets.keypad import Keypad
 from constants.image_imports import back_image
 from constants.string_constants import pickup_notice_label
 from controllers.pickup_controller import PickupController
+from widgets.loading_window import LoadingWindow
 
 class PickupScreen(ctk.CTkFrame):
     def __init__(self, parent, root):
@@ -63,7 +64,7 @@ class PickupScreen(ctk.CTkFrame):
             text="Xác Nhận",
             text_color="white",
             font=ctk.CTkFont(size=34),
-            command=self.validate,
+            command=self.do_validate,
         )
         
         self.button_back = ctk.CTkButton(
@@ -88,6 +89,10 @@ class PickupScreen(ctk.CTkFrame):
         self.button_back.place(relx=.10, rely=.10, anchor=ctk.CENTER)
         self.entry_code.place(relwidth=.4, relheight=.10, relx=.28, rely=.32, anchor=ctk.CENTER)
     
+    def do_validate(self):
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.loadingWindow.after(500, self.validate)
+        
     def validate(self):
         try:
             unlockCode = self.inputUnlockCode.get()
@@ -108,7 +113,7 @@ class PickupScreen(ctk.CTkFrame):
         except Exception as e:
             print(e)
         finally:
-            print("Enable button after 1.5 seconds")   
+            self.loadingWindow.destroy()  
             self.button_confirm.after(1500, self.enable_confirm_button)
     
     def limitSizeCode(self, *args):

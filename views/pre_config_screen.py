@@ -4,6 +4,7 @@ from tkinter import ttk, CENTER
 from constants.image_imports import back_image, show_pass_image, hide_pass_image
 from controllers.config_controller import DatabaseController
 from widgets.keypad import Keypad
+from widgets.loading_window import LoadingWindow
 
 class PreConfigScreen(ctk.CTkFrame):
     def __init__(self, parent, root):
@@ -62,7 +63,7 @@ class PreConfigScreen(ctk.CTkFrame):
             corner_radius=15.0,
             font=text_font,
             text="Xác Nhận",
-            command=self.check_master_code
+            command=self.do_check_master_code
         )
         
         self.show_hide_code_btn = ctk.CTkButton(
@@ -85,6 +86,10 @@ class PreConfigScreen(ctk.CTkFrame):
         self.master_code_entry.place(relwidth=.4, relheight=.15, relx=.28, rely=.30, anchor=CENTER)
         self.check_code_button.place(relwidth=.4, relx=.28, rely=.71, anchor=ctk.CENTER)
         self.show_hide_code_btn.place(relx=.45, rely=.30, anchor=ctk.CENTER)
+    
+    def do_check_master_code(self):
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.loadingWindow.after(500, self.check_master_code)
         
     def check_master_code(self):
         inputCode = self.inputMasterCode.get()
