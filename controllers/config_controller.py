@@ -278,7 +278,7 @@ class AddCabinetController():
             isUpload = True
         except Exception as e:
             isUpload = False
-            print("An error has occurred: ", e)
+            print("upload_boxes error: ", e)
         
         return isUpload
     
@@ -297,7 +297,7 @@ class AddCabinetController():
             isUpdate = True
         except Exception as e:
             isUpdate = False
-            print("An error has occurred: ", e)
+            print("update_cabinet_status_totalBox error: ", e)
         
         return isUpdate
 
@@ -321,7 +321,7 @@ class AddCabinetController():
             isUpdate = True
         except Exception as e:
             isUpdate = False
-            print("An error has occurred: ", e)
+            print("update_box_status error: ", e)
         
         return isUpdate
 
@@ -462,7 +462,7 @@ class EditCabinetController():
             isUpload = True
         except Exception as e:
             isUpload = False
-            print("An error has occurred: ", e)
+            print("upload_cabinet error: ", e)
 
         return isUpload
 
@@ -476,7 +476,7 @@ class EditCabinetController():
                 for boxDataKey, boxDataValue in boxData.items():
                     if tableDataKey == boxDataKey:
                         boxDataValue['nameBox'] = tableDataValue['nameBox']
-                        boxDataValue['status'] = tableDataValue['status']
+                        # boxDataValue['status'] = tableDataValue['status']
                         
             for box in boxData.values():
                 boxId = box['id']
@@ -492,7 +492,7 @@ class EditCabinetController():
                 isUpload = True
         except Exception as e:
             isUpload = False
-            print("An error has occurred: ", e)
+            print("upload_box error: ", e)
 
         return isUpload
     
@@ -519,7 +519,7 @@ class EditCabinetController():
                 isUpload = True
         except Exception as e:
             isUpload = False
-            print("An error has occurred: ", e)
+            print("upload_cabinetLog error: ", e)
 
         return isUpload
 
@@ -537,7 +537,7 @@ class EditCabinetController():
             isUpdated = True
         except Exception as e:
             isUpdated = False
-            print("An error has occurred: ", e)
+            print("updateFb_cabinet_status error: ", e)
 
         return isUpdated
 
@@ -557,7 +557,7 @@ class EditCabinetController():
                 isUpdated = True
         except Exception as e:
             isUpdated = False
-            print("An error has occurred: ", e)
+            print("updateFb_box_status error: ", e)
 
         return isUpdated
 
@@ -625,7 +625,7 @@ class AddBoxController():
             isUpload = True
         except Exception as e:
             isUpload = False
-            print("An error has occurred: ", e)
+            print("upload_more_boxes error: ", e)
 
         return isUpload
     
@@ -645,7 +645,7 @@ class AddBoxController():
             isUpdate = True
         except Exception as e:
             isUpdate = False
-            print("An error has occurred: ", e)
+            print("update_total_box error: ", e)
         
         return isUpdate
 
@@ -813,7 +813,7 @@ class DatabaseController():
                 count += 1
                 cabinetDict.update(rowData)
         except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
+            print("get_cabinetId_cabinetName error: ", e)
         finally:
             conn.close()
 
@@ -870,7 +870,7 @@ class DatabaseController():
                 count += 1
                 dicts.update(rowData)
         except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
+            print("get_masterCode error: ", e)
         finally:
             conn.close()
 
@@ -900,7 +900,7 @@ class DatabaseController():
                 count += 1
                 dicts.update(rowData)
         except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
+            print("get_box_by_cabinetId error: ", e)
         finally:
             conn.close()
 
@@ -930,7 +930,7 @@ class DatabaseController():
                 count += 1
                 dicts.update(rowData)
         except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
+            print("get_cabinetLog_by_cabinetId error: ", e)
         finally:
             conn.close()
 
@@ -953,7 +953,7 @@ class DatabaseController():
             results = cur.fetchall()
             conn.commit()
         except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
+            print("get_box_gpio error: ", e)
         finally:
             conn.close()
 
@@ -978,7 +978,7 @@ class DatabaseController():
             results = cur.fetchall()
             conn.commit()
         except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
+            print("get_last_box_insert_by_cabinetId error: ", e)
         finally:
             conn.close()
 
@@ -1002,7 +1002,7 @@ class DatabaseController():
             results = cur.fetchone()
             conn.commit()
         except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
+            print("get_cabinet_by_name error: ", e)
         finally:
             conn.close()
         
@@ -1039,7 +1039,7 @@ class DatabaseController():
             conn.commit()
             isSave = True
         except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
+            print("save_cabinet_to_db error: ", e)
             isSave = False
         finally:
             conn.close()
@@ -1074,7 +1074,7 @@ class DatabaseController():
             conn.commit()
             isSave = True
         except conn.DatabaseError as e:
-            print("An error has occurred: ", e)
+            print("save_cabinetLog_to_db error: ", e)
             isSave = False
         finally:
             conn.close()
@@ -1151,7 +1151,7 @@ class DatabaseController():
             print("Update cabinet successful")
         except Exception as e:
             isUpdate = False
-            print("An error has occurred: ", e)
+            print("update_cabinet_to_db error: ", e)
         finally:
             conn.close()
 
@@ -1180,7 +1180,7 @@ class DatabaseController():
             conn.commit()
             print("Update box successful")
         except Exception as e:
-            print("An error has occurred: ", e)
+            print("update_box_patch_event error: ", e)
         finally:
             conn.close()
 
@@ -1195,7 +1195,7 @@ class DatabaseController():
             for key, value in data.items():
                 model = (
                     value['nameBox'],
-                    value['status'],
+                    # value['status'],
                     value['solenoidGpio'],
                     value['switchGpio'],
                     value['loadcellDout'],
@@ -1207,7 +1207,6 @@ class DatabaseController():
             sql = ''' 
                 UPDATE Box
                 SET nameBox = ?,
-                    status = ?,
                     solenoidGpio = ?,
                     switchGpio = ?,
                     loadcellDout = ?,
@@ -1222,7 +1221,7 @@ class DatabaseController():
             print("Update box successful")
         except Exception as e:
             isUpdate = False
-            print("An error has occurred: ", e)
+            print("update_box_internal error: ", e)
         finally:
             conn.close()
 
@@ -1248,7 +1247,7 @@ class DatabaseController():
             print("Update box successful")
         except Exception as e:
             isUpdate = False
-            print("An error has occurred: ", e)
+            print("update_box_status error: ", e)
         finally:
             conn.close()
 
@@ -1273,7 +1272,7 @@ class DatabaseController():
             print("Cabinet delete successful")
         except Exception as e:
             isDelete = False
-            print("An error has occurred: ", e)
+            print("delete_cabinet error: ", e)
         finally:
             conn.close()
 
@@ -1298,7 +1297,7 @@ class DatabaseController():
             print("Cabinet delete successful")
         except Exception as e:
             isDelete = False
-            print("An error has occurred: ", e)
+            print("delete_boxes error: ", e)
         finally:
             conn.close()
 
@@ -1323,7 +1322,7 @@ class DatabaseController():
             print("Cabinet delete successful")
         except Exception as e:
             isDelete = False
-            print("An error has occurred: ", e)
+            print("delete_cabinetLog error: ", e)
         finally:
             conn.close()
 

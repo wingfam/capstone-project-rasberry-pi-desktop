@@ -246,9 +246,9 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.statusComboboxVar.set(choice)
         choice = self.statusComboboxVar.get()
         
-        tableData = self.boxTable.table.getModel().data
+        # tableData = self.boxTable.table.getModel().data
         
-        for value in tableData.values():
+        for value in self.boxData.values():
             if self.status.get():
                 value['status'] = 1
             else:
