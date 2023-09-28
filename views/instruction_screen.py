@@ -100,7 +100,8 @@ class InstructionScreen(ctk.CTkFrame):
             self.root.app_data.clear()
         except Exception as e:
             print("Check package error: ", e)
-        finally:  
+        finally:
+            self.loadingWindow.destroy()
             self.button_confirm.after(1500, self.enable_confirm_button)
     
     def enable_confirm_button(self):

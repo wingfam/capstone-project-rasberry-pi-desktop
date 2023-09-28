@@ -198,8 +198,9 @@ class EditCabinetScreen(ctk.CTkFrame):
             else:
                 self.display_label.configure(text_color='red', text='Thông tin không cập nhật thành công')
         except Exception as e:
-            print("Update error: ", e)
+            print("Update cabinet error: ", e)
         finally:
+            self.loadingWindow.destroy()
             self.save_button.after(1500, self.enable_save_button)
     
     def delete(self):

@@ -192,6 +192,7 @@ class AddCabinetScreen(ctk.CTkFrame):
         except Exception as e:
             print("Add cabinet error: ", e)
         finally:
+            self.loadingWindow.destroy()
             self.save_button.after(1500, self.enable_save_button)
             
             if answer:

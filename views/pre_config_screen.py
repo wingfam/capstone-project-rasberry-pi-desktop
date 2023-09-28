@@ -93,20 +93,24 @@ class PreConfigScreen(ctk.CTkFrame):
         
     def check_master_code(self):
         inputCode = self.inputMasterCode.get()
-        
         foundMasterCode = self.databaseController.get_masterCode(inputCode)
         
-        if not foundMasterCode:
-            error_text = "Mã master không đúng"
-            return self.error_label.configure(text=error_text, foreground="red")
-            
-        for value in foundMasterCode.values():
-            masterCodeStatus =  int(value['masterCodeStatus'])
-            if masterCodeStatus == 1:
-                self.go_to_config_screen()
-            else:
-                error_text = "Mã master không thể dùng vào lúc này"
+        try:
+            if not foundMasterCode:
+                error_text = "Mã master không đúng"
                 return self.error_label.configure(text=error_text, foreground="red")
+                
+            for value in foundMasterCode.values():
+                masterCodeStatus =  int(value['masterCodeStatus'])
+                if masterCodeStatus == 1:
+                    self.go_to_config_screen()
+                else:
+                    error_text = "Mã master không thể dùng vào lúc này"
+                    return self.error_label.configure(text=error_text, foreground="red")
+        except Exception as e:
+            print("Check master code error: " + e)
+        finally:
+            self.loadingWindow.destroy()
     
     def show_hide_master_code(self):
         if not self.isShowCode.get():

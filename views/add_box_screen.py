@@ -73,6 +73,7 @@ class AddBoxScreen(ctk.CTkFrame):
         except Exception as e:
             print("Add box error: ", e)
         finally:
+            self.loadingWindow.destroy()
             self.add_button.after(1500, self.enable_save_button)
     
     def enable_save_button(self):
