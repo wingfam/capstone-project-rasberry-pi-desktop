@@ -148,8 +148,7 @@ class ChooseCabinetScreen(ctk.CTkFrame):
         self.locationData.update(results)
         
         for value in self.locationData.values():
-            if value['status'] == 1:
-                self.locationComboboxValues.append(value['locationName'])
+            self.locationComboboxValues.append(value['locationName'])
         
         return self.location_combobox.configure(require_redraw=True, values=self.locationComboboxValues,)
     

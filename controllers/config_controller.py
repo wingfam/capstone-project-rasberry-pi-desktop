@@ -773,15 +773,17 @@ class DatabaseController():
             for location in fb_locations.each():
                 businessId = location.val()['businessId']
                 locationName = location.val()['nameLocation']
+                locationStatus = location.val()['status']
                 locationId = location.val()['id']
                 
-                newData.update({
-                    newKey: {
-                        'businessId': businessId, 
-                        'locationId': locationId, 
-                        'locationName': locationName
-                    }
-                })
+                if locationStatus == 1:
+                    newData.update({
+                        newKey: {
+                            'businessId': businessId, 
+                            'locationId': locationId, 
+                            'locationName': locationName
+                        }
+                    })
                 
                 newKey += 1
                 
