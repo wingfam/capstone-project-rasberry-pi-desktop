@@ -22,7 +22,7 @@ class StreamController():
                     self.view.databaseController.update_cabinet_to_db(value)
                     
         except Exception as e:
-            print("An error has occurred: ", e)
+            print("cabinet_stream_handler error: ", e)
             pass
        
     def box_stream_handler(self, stream):
@@ -39,7 +39,7 @@ class StreamController():
                     self.view.databaseController.update_box_patch_event(value)
                     
         except Exception as e:
-            print("An error has occurred: ", e)
+            print("box_stream_handler error: ", e)
             pass
     
     def set_cabinet_stream(self, cabinetId):

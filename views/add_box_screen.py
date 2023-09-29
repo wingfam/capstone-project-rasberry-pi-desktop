@@ -47,7 +47,7 @@ class AddBoxScreen(ctk.CTkFrame):
         )
 
         self.boxTable = BoxList(self, root=self.root)
-        self.boxTable.place(relwidth=.90, relheight=.65,relx=.48, rely=.45, anchor=ctk.CENTER)
+        self.boxTable.place(relwidth=.90, relheight=.55, relx=.48, rely=.45, anchor=ctk.CENTER)
         self.display_label.place(relwidth=.53, relx=.45, rely=.05, anchor=ctk.CENTER)
         self.add_button.place(relwidth=.55, relheight=.10, relx=.50, rely=.85, anchor=ctk.CENTER)
 

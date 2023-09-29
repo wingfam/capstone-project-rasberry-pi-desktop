@@ -142,7 +142,7 @@ class InstructionController():
                 print("Pickup completed!")
             
         except Exception as e:
-            print("An error has occurred: ", e)
+            print("instruction update_firebase error: ", e)
         
         return isCompleted
 

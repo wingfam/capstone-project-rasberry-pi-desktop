@@ -30,10 +30,10 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.x = root.winfo_x()
         self.y = root.winfo_y()
         
-        self.status = IntVar()
         
         self.cabinetId = ctk.StringVar()
         self.cabinetName = ctk.StringVar()
+        self.cabinetStatus = IntVar()
         self.locationId = ctk.StringVar()
         self.locationName = ctk.StringVar()
         self.statusComboboxVar = ctk.StringVar()
@@ -96,7 +96,7 @@ class EditCabinetScreen(ctk.CTkFrame):
         
         self.display_label = ctk.CTkLabel(
             master=self,
-            width=200,
+            width=300,
             fg_color="white",
             text="",
         )
@@ -149,12 +149,12 @@ class EditCabinetScreen(ctk.CTkFrame):
             command=self.do_update
         )
         
-        self.delete_btn = ctk.CTkButton(
+        self.delete_button = ctk.CTkButton(
             master=self,
             corner_radius=15.0,
             font=ctk.CTkFont(size=30, weight="bold"),
             text="Xóa Cabinet",
-            command=self.delete
+            command=self.do_delete
         )
         
         self.boxTable = BoxList(self)
@@ -167,27 +167,44 @@ class EditCabinetScreen(ctk.CTkFrame):
         self.status_label.place(relx=.08, rely=.35, anchor=ctk.CENTER)
         self.business_label.place(relx=.08, rely=.45, anchor=ctk.CENTER)
         self.location_label.place(relx=.08, rely=.55, anchor=ctk.CENTER)
-        self.display_label.place(relwidth=.23, relx=.31, rely=.15, anchor=ctk.CENTER)
+        self.display_label.place(relwidth=.28, relx=.31, rely=.15, anchor=ctk.CENTER)
         self.name_entry.place(relwidth=.23, relx=.31, rely=.25, anchor=ctk.CENTER)
         self.status_combobox.place(relwidth=.23, relx=.31, rely=.35, anchor=ctk.CENTER)
         self.business_name_label.place(relx=.31, rely=.45, anchor=ctk.CENTER)
         self.location_name_label.place(relx=.31, rely=.55, anchor=ctk.CENTER)
         self.save_button.place(relwidth=.30, relheight=.10, relx=.25, rely=.73, anchor=ctk.CENTER)
-        self.delete_btn.place(relwidth=.30, relheight=.10, relx=.25, rely=.85, anchor=ctk.CENTER)
+        self.delete_button.place(relwidth=.30, relheight=.10, relx=.25, rely=.85, anchor=ctk.CENTER)
         self.boxTable.place(relwidth=.52, relheight=.65, relx=.72, rely=.45, anchor=ctk.CENTER)
         
     def do_update(self):
+        self.save_button.configure(state="disabled")
         self.loadingWindow = LoadingWindow(self, self.root)
         self.loadingWindow.after(500, self.update)
+    
+    def do_delete(self):
+        self.delete_button.configure(state="disabled")
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.loadingWindow.after(500, self.delete)
       
     def update(self):
         try:
-            self.save_button.configure(state="disabled")
+            canbeUpdate = False
+            isCabinetUpdate = False
+            isBoxUpdate = False
+            isLogUpdate = False
             
-            isCabinetUpdate = self.editController.update_cabinet_data(self.cabinetData)
-            isBoxUpdate = self.editController.update_box_data()
-            isLogUpdate = self.editController.save_cabinet_log()
+            for boxDataValue in self.boxData.values():
+                if boxDataValue['process'] != 0:
+                    canbeUpdate = False
+                    return self.display_label.configure(text_color='red', text='Không thể cập nhật khi hộp tủ đang có booking')
+                else:
+                    canbeUpdate = True
             
+            if canbeUpdate:
+                isCabinetUpdate = self.editController.update_cabinet_data(self.cabinetData)
+                isBoxUpdate = self.editController.update_box_data()
+                isLogUpdate = self.editController.save_cabinet_log()
+                
             if isCabinetUpdate and isBoxUpdate and isLogUpdate:
                 self.root.isRestart.set(True)
                 self.root.cabinetName.set(self.cabinetName.get())
@@ -204,30 +221,69 @@ class EditCabinetScreen(ctk.CTkFrame):
             self.save_button.after(1500, self.enable_save_button)
     
     def delete(self):
-        title = "Xóa cabinet"
-        message = "Bạn có muốn xóa cabinet này?"
-        answer = messagebox.askyesno(title, message)
-        
-        if answer:
-            cabinetName = self.cabinetName.get()
-            cabinetId = self.cabinetId.get()
-            boxData = self.boxData
+        try:
+            canbeDelete = False
             
-            isCabinetDeleted = self.databaseController.delete_cabinet(cabinetName)
-            isCabinetLogDeleted = self.databaseController.delete_cabinetLog(cabinetId)
-            isBoxDeleted = self.databaseController.delete_boxes(cabinetId)
+            for boxDataValue in self.boxData.values():
+                if boxDataValue['process'] != 0:
+                    canbeDelete = False
+                    return self.display_label.configure(text_color='red', text='Không thể cập nhật khi hộp tủ đang có booking')
+                else:
+                    canbeDelete = True
+                        
+            if canbeDelete:
+                title = "Xóa cabinet"
+                message = "Bạn có muốn xóa cabinet này?"
+                answer = messagebox.askyesno(title, message)
             
-            if isCabinetDeleted and isCabinetLogDeleted and isBoxDeleted:
-                self.editController.updateFb_cabinet_status(cabinetId)
-                self.editController.updateFb_box_status(boxData)
-                self.root.isRestart.set(True)
-            else:
-                return self.display_label.configure(text="Không thể xóa cabinet")
-        
-        if self.root.isRestart.get():
-            answer = messagebox.askyesno("Question","Bạn cần restart lại hệ thống trước")
             if answer:
-                self.restart()
+                cabinetName = self.cabinetName.get()
+                cabinetId = self.cabinetId.get()
+                boxData = self.boxData
+                
+                isCabinetDeleted = self.databaseController.delete_cabinet(cabinetName)
+                isCabinetLogDeleted = self.databaseController.delete_cabinetLog(cabinetId)
+                isBoxDeleted = self.databaseController.delete_boxes(cabinetId)
+                
+                if isCabinetDeleted and isCabinetLogDeleted and isBoxDeleted:
+                    self.editController.updateFb_cabinet_status(cabinetId)
+                    self.editController.updateFb_box_status(boxData)
+                    self.root.isRestart.set(True)
+                else:
+                    return self.display_label.configure(text="Không thể xóa cabinet")
+            
+            if self.root.isRestart.get():
+                answer = messagebox.askyesno("Question","Bạn cần restart lại hệ thống trước")
+                if answer:
+                    self.restart()
+        except Exception as e:
+            print("delete cabinet error: " + e)
+        finally:
+            self.loadingWindow.destroy()
+            self.delete_button.after(1500, self.enable_delete_button)
+    
+    def status_combobox_callback(self, choice):
+        if choice == 'Đã kích hoạt':
+            self.cabinetStatus.set(1)
+        elif choice == 'Chưa kích hoạt':
+            self.cabinetStatus.set(0)
+        
+        self.statusComboboxVar.set(choice)
+        choice = self.statusComboboxVar.get()
+        
+        # tableData = self.boxTable.table.getModel().data
+        
+        for value in self.boxData.values():
+            if self.cabinetStatus.get():
+                value['status'] = 1
+            else:
+                value['status'] = 0
+          
+    def enable_save_button(self):
+        self.save_button.configure(state="normal")
+             
+    def enable_delete_button(self):
+        self.delete_button.configure(state="normal")
     
     def restart(self):
         '''Restarts the current program.
@@ -237,26 +293,6 @@ class EditCabinetScreen(ctk.CTkFrame):
         python = sys.executable
         os.execl(python, python, * sys.argv)
        
-    def status_combobox_callback(self, choice):
-        if choice == 'Đã kích hoạt':
-            self.status.set(1)
-        elif choice == 'Chưa kích hoạt':
-            self.status.set(0)
-        
-        self.statusComboboxVar.set(choice)
-        choice = self.statusComboboxVar.get()
-        
-        # tableData = self.boxTable.table.getModel().data
-        
-        for value in self.boxData.values():
-            if self.status.get():
-                value['status'] = 1
-            else:
-                value['status'] = 0
-
-    def enable_save_button(self):
-        self.save_button.configure(state="normal")
-    
     def refresh(self):
         self.cabinetName.set("")
         self.statusComboboxVar.set("")

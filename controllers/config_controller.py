@@ -1,7 +1,7 @@
 import sqlite3 as sqlite3
 import time
-from gpiozero import LED, Button
-from services.hx711 import HX711
+# from gpiozero import LED, Button
+# from services.hx711 import HX711
 from datetime import datetime
 from urllib.request import pathname2url
 
@@ -73,18 +73,18 @@ class SetupController():
             boxData = {
                 box['id']: {
                     'id': box['id'],
-                    'solenoid': self.set_solenoid(box['solenoidGpio']),
-                    'magSwitch': self.set_mag_switch(box['switchGpio']),
-                    'loadcell': self.set_loadcell(
-                        box['loadcellDout'], 
-                        box['loadcellSck'],
-                        box['loadcellRf']),
+                    # 'solenoid': self.set_solenoid(box['solenoidGpio']),
+                    # 'magSwitch': self.set_mag_switch(box['switchGpio']),
+                    # 'loadcell': self.set_loadcell(
+                    #     box['loadcellDout'], 
+                    #     box['loadcellSck'],
+                    #     box['loadcellRf']),
                 }
             }
             
             self.view.globalBoxData.update(boxData)
+      
             
-
 class AddCabinetController():
     def __init__(self, view):
         self.view = view
@@ -378,7 +378,7 @@ class EditCabinetController():
 
         self.view.cabinetId.set(self.view.root.cabinetId.get())
         self.view.cabinetName.set(self.view.root.cabinetName.get())
-        self.view.status.set(self.view.cabinetData['status'])
+        self.view.cabinetStatus.set(self.view.cabinetData['status'])
 
         businessName = self.get_business_by_id(self.view.cabinetData['businessId'])
         locationName = self.get_location_by_id(self.view.cabinetData['locationId'])
@@ -400,7 +400,7 @@ class EditCabinetController():
     def update_cabinet_data(self, data):
         model = {
             'nameCabinet': self.view.cabinetName.get(),
-            'status': self.view.status.get(),
+            'status': self.view.cabinetStatus.get(),
             'masterCode': data['masterCode'],
             'masterCodeStatus': data['masterCodeStatus'],
             'businessId': data['businessId'],
@@ -412,7 +412,7 @@ class EditCabinetController():
         return isUpdate
 
     def update_box_data(self):
-        isUpdate = None
+        isUpdate = False
         boxData = self.view.boxData
         tableData = self.view.boxTable.table.getModel().data
 
@@ -421,8 +421,9 @@ class EditCabinetController():
                 if tableDataKey == boxDataKey:
                     updateValue = {boxDataValue['id']: tableDataValue}
                     isUpdate = self.view.databaseController.update_box_internal(updateValue)
-
+                    
         return isUpdate
+        
     
     def save_cabinet_log(self):
         isUpdate = None
@@ -455,7 +456,7 @@ class EditCabinetController():
             newData = {
                 'id': self.view.cabinetId.get(),
                 'nameCabinet': self.view.cabinetName.get(),
-                'status': self.view.status.get(),
+                'status': self.view.cabinetStatus.get(),
             }
 
             cabinetRef.update(newData)
@@ -480,12 +481,12 @@ class EditCabinetController():
                         
             for box in boxData.values():
                 boxId = box['id']
-                # firebaseDB = firebaseApp.database()
+                firebaseDB = firebaseApp.database()
                 boxRef = firebaseDB.child("Box").child(boxId)
 
                 newData = {
                     'nameBox': box['nameBox'],
-                    'status': box['status']
+                    # 'status': box['status']
                 }
 
                 boxRef.update(newData)
@@ -561,6 +562,7 @@ class EditCabinetController():
 
         return isUpdated
 
+
 class AddBoxController():
     def __init__(self, view):
         self.view = view
@@ -586,6 +588,7 @@ class AddBoxController():
             model.id = firebaseDB.generate_key()
             model.nameBox = value['nameBox']
             model.status = 1
+            model.process = 0
             model.solenoidGpio = value['solenoidGpio']
             model.switchGpio = value['switchGpio']
             model.loadcellDout = value['loadcellDout']
@@ -616,6 +619,7 @@ class AddBoxController():
                         'id': data['id'],
                         'nameBox': data['nameBox'],
                         'status': data['status'],
+                        'process': data['process'],
                         'cabinetId': data['cabinetId']
                     }
                 }
@@ -1168,13 +1172,15 @@ class DatabaseController():
             model = (
                 data['nameBox'],
                 data['status'],
+                data['process'],
                 data['id']
             )
 
             sql = ''' 
                 UPDATE Box
                 SET nameBox = ?,
-                    status = ?
+                    status = ?,
+                    process = ?
                 WHERE id = ?
             '''
 
