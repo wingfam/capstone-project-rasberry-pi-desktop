@@ -174,7 +174,7 @@ class AddCabinetScreen(ctk.CTkFrame):
                 isBoxSaved = self.addCabinetController.create_boxes(tableData, cabinetId)
                 self.addCabinetController.upload_boxes(cabinetId)
             else:
-                self.addCabinetController.update_cabinet_status_totalBox(cabinetId, totalBox)
+                self.addCabinetController.update_cabinet_status(cabinetId)
                 isBoxSaved = self.addCabinetController.save_boxes(tableData, boxData, cabinetId)    
             
             isCabinetSaved = self.addCabinetController.save_cabinet(cabinetData)

@@ -188,7 +188,8 @@ class EditCabinetScreen(ctk.CTkFrame):
         answer = messagebox.askyesno(title, message)
         if answer:
             # self.loadingWindow = LoadingWindow(self, self.root)
-            self.loadingWindow.after(500, self.delete)
+            # self.loadingWindow.after(500, self.delete)
+            self.delete()
       
     def update(self):
         try:

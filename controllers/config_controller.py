@@ -282,6 +282,25 @@ class AddCabinetController():
         
         return isUpload
     
+    
+    def update_cabinet_status(self, cabinetId):
+        isUpdate = None
+        try:
+            firebaseDB = firebaseApp.database()
+            cabinetRef = firebaseDB.child("Cabinet").child(cabinetId)
+            
+            newData = {
+                'status': 1
+            }
+            
+            cabinetRef.update(newData)
+            isUpdate = True
+        except Exception as e:
+            isUpdate = False
+            print("update_cabinet_status_totalBox error: ", e)
+        
+        return isUpdate
+    
     def update_cabinet_status_totalBox(self, cabinetId, totalBox):
         isUpdate = None
         try:
