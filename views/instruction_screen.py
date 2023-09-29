@@ -84,12 +84,12 @@ class InstructionScreen(ctk.CTkFrame):
             boxId = self.boxId.get()
             
             globalBoxData = self.root.globalBoxData
+            isConfirm = True
+            # isConfirm = False
             
-            isConfirm = False
-            
-            for value in globalBoxData.values():
-                if boxId == value['id']:
-                    isConfirm = self.instructionController.confirm_task(value, task)
+            # for value in globalBoxData.values():
+            #     if boxId == value['id']:
+            #         isConfirm = self.instructionController.confirm_task(value, task)
                     
             if isConfirm:
                 self.instructionController.update_firebase(task)

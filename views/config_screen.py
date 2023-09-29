@@ -5,6 +5,7 @@ import customtkinter as ctk
 from tkinter import messagebox
 from constants.image_imports import back_image
 from controllers.config_controller import DatabaseController
+from widgets.loading_window import LoadingWindow
 
 
 class ConfigScreen(ctk.CTkFrame):
@@ -34,7 +35,7 @@ class ConfigScreen(ctk.CTkFrame):
             anchor=ctk.CENTER,
             font=button_font,
             text="Chỉnh sửa Cabinet",
-            command=self.go_to_edit_screen
+            command=self.do_go_to_edit_screen
         )
 
         self.add_box_btn = ctk.CTkButton(
@@ -75,8 +76,13 @@ class ConfigScreen(ctk.CTkFrame):
         python = sys.executable
         os.execl(python, python, * sys.argv)
 
+    def do_go_to_edit_screen(self):
+        self.loadingWindow = LoadingWindow(self, self.root)
+        self.loadingWindow.after(500, self.go_to_edit_screen)
+    
     def go_to_edit_screen(self):
         self.root.show_frame("EditCabinetScreen")
+        self.loadingWindow.destroy()
 
     def go_to_add_box_screen(self):
         self.root.show_frame("AddBoxScreen")

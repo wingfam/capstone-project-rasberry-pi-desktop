@@ -183,8 +183,12 @@ class EditCabinetScreen(ctk.CTkFrame):
     
     def do_delete(self):
         self.delete_button.configure(state="disabled")
-        self.loadingWindow = LoadingWindow(self, self.root)
-        self.loadingWindow.after(500, self.delete)
+        title = "Xóa cabinet"
+        message = "Bạn có muốn xóa cabinet này?"
+        answer = messagebox.askyesno(title, message)
+        if answer:
+            # self.loadingWindow = LoadingWindow(self, self.root)
+            self.loadingWindow.after(500, self.delete)
       
     def update(self):
         try:
@@ -222,35 +226,52 @@ class EditCabinetScreen(ctk.CTkFrame):
     
     def delete(self):
         try:
-            canbeDelete = False
-            
-            for boxDataValue in self.boxData.values():
-                if boxDataValue['process'] != 0:
-                    canbeDelete = False
-                    return self.display_label.configure(text_color='red', text='Không thể cập nhật khi hộp tủ đang có booking')
-                else:
-                    canbeDelete = True
+            # for boxDataValue in self.boxData.values():
+            #     if boxDataValue['process'] != 0:
+            #         canbeDelete = False
+            #         return self.display_label.configure(text_color='red', text='Không thể cập nhật khi hộp tủ đang có booking')
+            #     else:
+            #         canbeDelete = True
                         
-            if canbeDelete:
-                title = "Xóa cabinet"
-                message = "Bạn có muốn xóa cabinet này?"
-                answer = messagebox.askyesno(title, message)
+            # if canbeDelete:
+            #     title = "Xóa cabinet"
+            #     message = "Bạn có muốn xóa cabinet này?"
+            #     answer = messagebox.askyesno(title, message)
             
-            if answer:
-                cabinetName = self.cabinetName.get()
-                cabinetId = self.cabinetId.get()
-                boxData = self.boxData
+            # title = "Xóa cabinet"
+            # message = "Bạn có muốn xóa cabinet này?"
+            # answer = messagebox.askyesno(title, message)
+            
+            # if answer:
+            #     cabinetName = self.cabinetName.get()
+            #     cabinetId = self.cabinetId.get()
+            #     boxData = self.boxData
                 
-                isCabinetDeleted = self.databaseController.delete_cabinet(cabinetName)
-                isCabinetLogDeleted = self.databaseController.delete_cabinetLog(cabinetId)
-                isBoxDeleted = self.databaseController.delete_boxes(cabinetId)
+            #     isCabinetDeleted = self.databaseController.delete_cabinet(cabinetName)
+            #     isCabinetLogDeleted = self.databaseController.delete_cabinetLog(cabinetId)
+            #     isBoxDeleted = self.databaseController.delete_boxes(cabinetId)
                 
-                if isCabinetDeleted and isCabinetLogDeleted and isBoxDeleted:
-                    self.editController.updateFb_cabinet_status(cabinetId)
-                    self.editController.updateFb_box_status(boxData)
-                    self.root.isRestart.set(True)
-                else:
-                    return self.display_label.configure(text="Không thể xóa cabinet")
+            #     if isCabinetDeleted and isCabinetLogDeleted and isBoxDeleted:
+            #         self.editController.updateFb_cabinet_status(cabinetId)
+            #         self.editController.updateFb_box_status(boxData)
+            #         self.root.isRestart.set(True)
+            #     else:
+            #         return self.display_label.configure(text="Không thể xóa cabinet")
+            
+            cabinetName = self.cabinetName.get()
+            cabinetId = self.cabinetId.get()
+            boxData = self.boxData
+            
+            isCabinetDeleted = self.databaseController.delete_cabinet(cabinetName)
+            isCabinetLogDeleted = self.databaseController.delete_cabinetLog(cabinetId)
+            isBoxDeleted = self.databaseController.delete_boxes(cabinetId)
+            
+            if isCabinetDeleted and isCabinetLogDeleted and isBoxDeleted:
+                self.editController.updateFb_cabinet_status(cabinetId)
+                self.editController.updateFb_box_status(boxData)
+                self.root.isRestart.set(True)
+            else:
+                return self.display_label.configure(text="Không thể xóa cabinet")
             
             if self.root.isRestart.get():
                 answer = messagebox.askyesno("Question","Bạn cần restart lại hệ thống trước")
@@ -259,7 +280,7 @@ class EditCabinetScreen(ctk.CTkFrame):
         except Exception as e:
             print("delete cabinet error: " + e)
         finally:
-            self.loadingWindow.destroy()
+            # self.loadingWindow.destroy()
             self.delete_button.after(1500, self.enable_delete_button)
     
     def status_combobox_callback(self, choice):
@@ -276,8 +297,10 @@ class EditCabinetScreen(ctk.CTkFrame):
         for value in self.boxData.values():
             if self.cabinetStatus.get():
                 value['status'] = 1
+                print("Box status: " + str(value['status']))
             else:
                 value['status'] = 0
+                print("Box status: " + str(value['status']))
           
     def enable_save_button(self):
         self.save_button.configure(state="normal")

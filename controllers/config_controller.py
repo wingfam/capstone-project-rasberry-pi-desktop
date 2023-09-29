@@ -486,7 +486,7 @@ class EditCabinetController():
 
                 newData = {
                     'nameBox': box['nameBox'],
-                    # 'status': box['status']
+                    'status': box['status']
                 }
 
                 boxRef.update(newData)

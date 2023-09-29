@@ -188,17 +188,18 @@ class AddCabinetScreen(ctk.CTkFrame):
                 self.restart_button.configure(state="normal")
                 self.save_button.configure(state='disabled')
                 self.display_label.configure(text_color="green", text="Thông tin được lưu thành công")
-                answer = messagebox.askyesno("Question","Khởi động lại hệ thống?")
+                
         except Exception as e:
             print("Add cabinet error: ", e)
         finally:
             self.loadingWindow.destroy()
             self.save_button.after(1500, self.enable_save_button)
-            
-            if answer:
-                self.refresh()
-                self.restart()
-    
+        
+        answer = messagebox.askyesno("Question","Khởi động lại hệ thống?")
+        if answer:
+            self.refresh()
+            self.restart()
+
     def enable_save_button(self):
         self.save_button.configure(state="normal")
 
