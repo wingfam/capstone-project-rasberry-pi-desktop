@@ -73,6 +73,7 @@ class InstructionController():
                     isConfirm = False
                     self.update_firebase_not_completed(task)
         
+        print(isConfirm)
         return isConfirm
     
     def update_firebase_not_completed(self, task):

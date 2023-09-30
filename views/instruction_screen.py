@@ -92,7 +92,7 @@ class InstructionScreen(ctk.CTkFrame):
                     isConfirm = self.instructionController.confirm_task(value, task)
                     
             if isConfirm:
-                self.instructionController.update_firebase(task)
+                # self.instructionController.update_firebase(task)
                 self.root.show_frame("CompletionScreen")
             else:
                 self.root.show_frame("MainScreen")
