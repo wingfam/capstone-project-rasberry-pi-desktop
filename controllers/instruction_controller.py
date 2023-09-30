@@ -109,7 +109,7 @@ class InstructionController():
                 nameBox = self.view.root.app_data["nameBox"]
                 
                 notiTitle = "Chưa có hàng!"
-                notiBody = "Đơn hàng của bạn chưa được gửi. Hãy liên hệ lại với shipper"
+                notiBody = "Shipper đã mở tủ của bạn nhưng chưa gửi hàng. Hãy liên hệ lại với shipper để kiểm tra"
                 
                 bookingLogTitle = "Chưa có hàng"
                 bookingLogBody = "Đơn hàng chưa được gửi vào ngày " + currentTime
@@ -140,11 +140,11 @@ class InstructionController():
                 deviceId = self.view.root.app_data["deviceId"]
                 nameBox = self.view.root.app_data["nameBox"]
                 
-                notiTitle = "Lấy hàng thành công!"
-                notiBody = "Đơn hàng của bạn được lấy ra vào ngày: " + currentTime
+                notiTitle = "Chưa lấy hàng"
+                notiBody = "Bạn mở tủ nhưng chưa lấy đơn hàng ra. Xin chỉ sử dụng hệ thống khi muốn lấy hàng ra"
                 
                 bookingLogTitle = "Lấy hàng"
-                bookingLogBody = "Đơn hàng được lấy ra ở tủ số "+ nameBox + " vào ngày " + currentTime
+                bookingLogBody = "Có một đơn hàng được mở tủ nhưng chưa được lấy ra vào ngày: " + currentTime
                 
                 self.add_booking_log(fb_login, bookingLogTitle, bookingLogBody, bookingId, currentTime)
                 
