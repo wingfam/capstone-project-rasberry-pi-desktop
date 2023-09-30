@@ -287,6 +287,7 @@ class AddCabinetController():
         isUpdate = None
         try:
             firebaseDB = firebaseApp.database()
+            
             cabinetRef = firebaseDB.child("Cabinet").child(cabinetId)
             
             newData = {
