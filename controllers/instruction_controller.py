@@ -57,14 +57,107 @@ class InstructionController():
                 weightValue = self.get_weight(model)
             
             # Check if loadcell detect any weight
-            if (task == "delivery" and weightValue > 1):
-                isConfirm = True
-            elif (task == "pickup"and weightValue < 2):
-                isConfirm = True
+            if (task == "delivery" and weightValue > 2):
+                if (weightValue > 2):
+                    isConfirm = True
+                    self.update_firebase_completed(task)
+                elif (weightValue == 0):
+                    isConfirm = False
+                    self.update_firebase_not_completed(task)
+                    
+            if (task == "pickup"and weightValue < 2):
+                if (weightValue < 2):
+                    isConfirm = True
+                    self.update_firebase_completed(task)
+                elif (weightValue > 2):
+                    isConfirm = False
+                    self.update_firebase_not_completed(task)
         
         return isConfirm
     
-    def update_firebase(self, task):
+    def update_firebase_not_completed(self, task):
+        currentDateTime = datetime.now()
+        currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M")
+        
+        try:
+            firebaseDB = firebaseApp.database()
+            fb_login = firebase_login()
+            isCompleted = False
+            
+            if task == "delivery":
+                newBookingStatus = 2 # status "Khong co hang"
+                newBookingCodeStatus = 1 # status "Dang co"
+                newBoxProcess = 2 # box process "Dang xu ly"
+                
+                bookingCodeId = self.view.root.app_data["bookingCodeId"]
+                bookingId = self.view.root.app_data["bookingId"]
+                boxId = self.view.root.app_data["boxId"]
+                
+                firebaseDB.child("BookingOrder", bookingId).update(
+                    {"status": newBookingStatus}, fb_login["idToken"])
+
+                firebaseDB.child("BookingCode", bookingCodeId).update(
+                    {"status": newBookingCodeStatus}, fb_login["idToken"])
+                
+                firebaseDB.child("Box", boxId).update(
+                    {"process": newBoxProcess}, fb_login["idToken"])
+                
+                deviceId = self.view.root.app_data["deviceId"]
+                nameBox = self.view.root.app_data["nameBox"]
+                
+                notiTitle = "Chua co hang!"
+                notiBody = "Don hang cua ban chua duoc gui. Hay lien he voi admin"
+                
+                bookingLogTitle = "Gửi hàng"
+                bookingLogBody = "Đơn hàng được gửi thành công ở tủ số "+ nameBox + " vào ngày " + currentTime
+                
+                self.add_booking_log(fb_login, bookingLogTitle, bookingLogBody, bookingId, currentTime)
+                
+                self.send_notification(fb_login, deviceId, notiTitle, notiBody)
+                
+                self.save_notification(fb_login, deviceId, notiTitle, notiBody, currentTime)
+                
+                isCompleted = True
+                print("Delivery completed!")
+            
+            elif task == "pickup":
+                newBookingStatus = 4 # status "Done"
+                newBoxProcess = 0 # box process "Box is empty"
+                
+                bookingId = self.view.root.app_data["bookingId"]
+                deviceId = self.view.root.app_data["deviceId"]
+                boxId = self.view.root.app_data["boxId"]
+                
+                firebaseDB.child("BookingOrder", bookingId).update(
+                    {"status": newBookingStatus}, fb_login["idToken"])
+                
+                firebaseDB.child("Box", boxId).update(
+                    {"process": newBoxProcess}, fb_login["idToken"])
+                
+                deviceId = self.view.root.app_data["deviceId"]
+                nameBox = self.view.root.app_data["nameBox"]
+                
+                notiTitle = "Lấy hàng thành công!"
+                notiBody = "Đơn hàng của bạn được lấy ra vào ngày: " + currentTime
+                
+                bookingLogTitle = "Lấy hàng"
+                bookingLogBody = "Đơn hàng được lấy ra ở tủ số "+ nameBox + " vào ngày " + currentTime
+                
+                self.add_booking_log(fb_login, bookingLogTitle, bookingLogBody, bookingId, currentTime)
+                
+                self.send_notification(fb_login, deviceId, notiTitle, notiBody)
+                
+                self.save_notification(fb_login, deviceId, notiTitle, notiBody, currentTime)
+                
+                isCompleted = True
+                print("Pickup completed!")
+            
+        except Exception as e:
+            print("instruction update_firebase error: ", e)
+        
+        return isCompleted
+    
+    def update_firebase_completed(self, task):
         currentDateTime = datetime.now()
         currentTime = currentDateTime.strftime("%Y-%m-%d %H:%M")
         
